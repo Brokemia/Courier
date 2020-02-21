@@ -7,7 +7,7 @@ using Mod.Postman.Helpers;
 using Mod.Postman.Module;
 
 namespace Mod.Postman {
-    public class Postman {
+    public partial class Postman {
 
         public static string PostmanAssemblyLocation = typeof(Postman).Assembly.Location;
 
@@ -57,7 +57,13 @@ namespace Mod.Postman {
         }
 
         public IEnumerable<Type> FindDerivedTypes(Assembly assembly, Type baseType) {
-            return assembly.GetTypes().Where(baseType.IsAssignableFrom);
+            List<Type> derived = new List<Type>();
+            foreach(Type t in assembly.GetTypes()) {
+                if(baseType.IsAssignableFrom(t)) {
+                    derived.Add(t);
+                }
+            }
+            return derived;
         }
     }
 }

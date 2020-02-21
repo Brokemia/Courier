@@ -3,6 +3,8 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assembly-CSharp.Postman.mm", "Assembly-CSharp.Postman.mm\Assembly-CSharp.Postman.mm.csproj", "{D63CFDC9-0555-495B-9001-3EC66EBE9CE1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestMod", "TestMod\TestMod.csproj", "{90287889-E0AC-4D12-A48C-937518C63EFB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -13,6 +15,10 @@ Global
 		{D63CFDC9-0555-495B-9001-3EC66EBE9CE1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D63CFDC9-0555-495B-9001-3EC66EBE9CE1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D63CFDC9-0555-495B-9001-3EC66EBE9CE1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{90287889-E0AC-4D12-A48C-937518C63EFB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{90287889-E0AC-4D12-A48C-937518C63EFB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{90287889-E0AC-4D12-A48C-937518C63EFB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{90287889-E0AC-4D12-A48C-937518C63EFB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		Policies = $0

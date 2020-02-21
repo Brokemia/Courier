@@ -2,7 +2,7 @@
 namespace Mod.Postman.Module {
     public class PostmanModule {
 
-        public void Load() {
+        public virtual void Load() {
 
         }
 
