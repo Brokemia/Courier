@@ -84,6 +84,7 @@
     <Compile Include="Postman\Helpers\ReflectionHelper.cs" />
     <Compile Include="Postman\Postman.Events.cs" />
     <Compile Include="Patches\PlayerController.cs" />
+    <Compile Include="Postman\Helpers\LogWriter.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -5,6 +5,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assembly-CSharp.Postman.mm"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestMod", "TestMod\TestMod.csproj", "{90287889-E0AC-4D12-A48C-937518C63EFB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiniInstaller", "MiniInstaller\MiniInstaller.csproj", "{0B0606FC-E2ED-43EC-82AB-CA660BACFFBF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -19,6 +21,10 @@ Global
 		{90287889-E0AC-4D12-A48C-937518C63EFB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{90287889-E0AC-4D12-A48C-937518C63EFB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{90287889-E0AC-4D12-A48C-937518C63EFB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0B0606FC-E2ED-43EC-82AB-CA660BACFFBF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0B0606FC-E2ED-43EC-82AB-CA660BACFFBF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0B0606FC-E2ED-43EC-82AB-CA660BACFFBF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0B0606FC-E2ED-43EC-82AB-CA660BACFFBF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		Policies = $0
