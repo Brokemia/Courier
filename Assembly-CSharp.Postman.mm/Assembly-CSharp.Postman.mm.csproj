@@ -74,6 +74,10 @@
       <HintPath>..\..\TheMessenger_Data\Vanilla\mscorlib.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="MMHOOK_Assembly-CSharp">
+      <HintPath>..\..\TheMessenger_Data\Managed\MMHOOK_Assembly-CSharp.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
