@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assembly-CSharp.Postman.mm", "Assembly-CSharp.Postman.mm\Assembly-CSharp.Postman.mm.csproj", "{D63CFDC9-0555-495B-9001-3EC66EBE9CE1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestMod", "TestMod\TestMod.csproj", "{90287889-E0AC-4D12-A48C-937518C63EFB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NinjaInvis", "TestMod\NinjaInvis.csproj", "{90287889-E0AC-4D12-A48C-937518C63EFB}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiniInstaller", "MiniInstaller\MiniInstaller.csproj", "{0B0606FC-E2ED-43EC-82AB-CA660BACFFBF}"
 EndProject
