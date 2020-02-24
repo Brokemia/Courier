@@ -7,29 +7,20 @@ using Mod.Postman.Helpers;
 using Mod.Postman.Module;
 
 namespace Mod.Postman {
-    public partial class Postman {
+    public static partial class Postman {
 
         public static string PostmanAssemblyLocation = typeof(Postman).Assembly.Location;
 
         public static string ModsFolder = Path.Combine(PostmanAssemblyLocation.Substring(0, PostmanAssemblyLocation.Length - typeof(patch_BootGame).Assembly.GetName().Name.Length - 4), "../../Mods").Replace('\\', '/');
 
-        public bool Loaded { get; private set; }
-
-        public static Postman Instance { get; private set; }
-
-        public List<PostmanModule> Modules = new List<PostmanModule>();
-
-        public Postman() {
-            Instance = this;
-        }
+        public static bool Loaded { get; private set; }
+        
+        public static List<PostmanModule> Modules = new List<PostmanModule>();
 
         public static void Boot() {
-#pragma warning disable RECS0026 // Possible unassigned object created by 'new'
-            new Postman();
-#pragma warning restore RECS0026 // Possible unassigned object created by 'new'
         }
 
-        public void LoadAssemblyMods() {
+        public static void LoadAssemblyMods() {
             if (Loaded) return;
 
             // Create the Mods folder if it doesn't exist
@@ -56,7 +47,7 @@ namespace Mod.Postman {
             Loaded = true;
         }
 
-        public IEnumerable<Type> FindDerivedTypes(Assembly assembly, Type baseType) {
+        public static IEnumerable<Type> FindDerivedTypes(Assembly assembly, Type baseType) {
             List<Type> derived = new List<Type>();
             foreach(Type t in assembly.GetTypes()) {
                 if(baseType.IsAssignableFrom(t)) {

@@ -8,7 +8,7 @@ public class patch_BootGame : BootGame {
     private void Start() {
 
         Postman.Boot();
-        Postman.Instance.LoadAssemblyMods();
+        Postman.LoadAssemblyMods();
 
         orig_Start();
     }

@@ -74,8 +74,16 @@
       <HintPath>..\..\TheMessenger_Data\Vanilla\mscorlib.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="MMHOOK_Assembly-CSharp">
-      <HintPath>..\..\TheMessenger_Data\Managed\MMHOOK_Assembly-CSharp.dll</HintPath>
+    <Reference Include="UnityEngine.UI">
+      <HintPath>..\..\TheMessenger_Data\Managed\UnityEngine.UI.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Assembly-CSharp-firstpass">
+      <HintPath>..\..\TheMessenger_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.AnimationModule">
+      <HintPath>..\..\TheMessenger_Data\Managed\UnityEngine.AnimationModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
   </ItemGroup>
@@ -89,6 +97,11 @@
     <Compile Include="Postman\Postman.Events.cs" />
     <Compile Include="Patches\PlayerController.cs" />
     <Compile Include="Postman\Helpers\LogWriter.cs" />
+    <Compile Include="Postman\Postman.UI.cs" />
+    <Compile Include="Patches\OptionScreen.cs" />
+    <Compile Include="Postman\UI\OptionsButtonInfo.cs" />
+    <Compile Include="Postman\UI\ToggleButtonInfo.cs" />
+    <Compile Include="Postman\UI\ModOptionScreen.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -98,6 +111,7 @@
     <Folder Include="Postman\" />
     <Folder Include="Postman\Module\" />
     <Folder Include="Postman\Helpers\" />
+    <Folder Include="Postman\UI\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>
