@@ -162,7 +162,7 @@ namespace Mod.Postman.UI {
             } else {
                 defaultSelection = backButton.gameObject;
             }
-            backgroundFrame.Find("Title").GetComponent<TextMeshProUGUI>().SetText("Mod Options");
+            backgroundFrame.Find("Title").GetComponent<TextMeshProUGUI>().SetText("Courier Mod Menu - Third Party Content");
             foreach (OptionsButtonInfo buttonInfo in Postman.UI.ModOptionButtons) {
                 buttonInfo.UpdateStateText();
             }
