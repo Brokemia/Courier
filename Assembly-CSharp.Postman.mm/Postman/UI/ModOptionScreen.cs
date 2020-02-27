@@ -146,7 +146,7 @@ namespace Mod.Postman.UI {
                 BackToOptionMenu();
             }
             // Line up all of the buttons
-            backButton.position = topButtonPos;
+            backButton.position = topButtonPos + new Vector3(0, .45f * (Postman.UI.ModOptionButtons.Count-1));
             foreach (OptionsButtonInfo buttonInfo in Postman.UI.ModOptionButtons) {
                 buttonInfo.nameTextMesh.text = buttonInfo.text; // TODO Patch LoadGeneralLoc to load custom language files
                 // Buttons are added in the same spot as the back button
