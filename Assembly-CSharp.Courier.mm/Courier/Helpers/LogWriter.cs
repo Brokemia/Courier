@@ -5,7 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 
-namespace Mod.Postman.Helpers {
+namespace Mod.Courier.Helpers {
     public class LogWriter : TextWriter {
 
         public TextWriter STDOUT;

@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-namespace Mod.Postman.UI {
+namespace Mod.Courier.UI {
     public class ModOptionScreen : View {
         public RectTransform backgroundFrame;
 
@@ -57,7 +57,7 @@ namespace Mod.Postman.UI {
             modOptionScreen.InitStuffUnityWouldDo();
 
             modOptionScreen.gameObject.SetActive(value: false);
-            Postman.UI.ModOptionScreenLoaded = true;
+            Courier.UI.ModOptionScreenLoaded = true;
             return modOptionScreen;
         }
 
@@ -67,7 +67,7 @@ namespace Mod.Postman.UI {
 
         // You heard me
         private void InitStuffUnityWouldDo() {
-            transform.position -= new Vector3(0, 80 + heightPerButton * Postman.UI.ModOptionButtons.Count);
+            transform.position -= new Vector3(0, 80 + heightPerButton * Courier.UI.ModOptionButtons.Count);
             backgroundFrame = (RectTransform)transform.Find("Container").Find("BackgroundFrame");
             initialHeight = backgroundFrame.sizeDelta.y;
             gameObject.AddComponent<Canvas>();
@@ -79,7 +79,7 @@ namespace Mod.Postman.UI {
 
         public override void Init(IViewParams screenParams) {
             base.Init(screenParams);
-            foreach (OptionsButtonInfo buttonInfo in Postman.UI.ModOptionButtons) {
+            foreach (OptionsButtonInfo buttonInfo in Courier.UI.ModOptionButtons) {
                 OptionScreen optionScreen = Manager<UIManager>.Instance.GetView<OptionScreen>();
                 if (buttonInfo is ToggleButtonInfo) {
                     buttonInfo.gameObject = Instantiate(optionScreen.fullscreenOption, transform.Find("Container").Find("BackgroundFrame"));
@@ -121,11 +121,11 @@ namespace Mod.Postman.UI {
         }
 
         private void HideUnavailableOptions() {
-            foreach (OptionsButtonInfo buttonInfo in Postman.UI.ModOptionButtons) {
+            foreach (OptionsButtonInfo buttonInfo in Courier.UI.ModOptionButtons) {
                 buttonInfo.gameObject.SetActive(true); // TODO Way to deactivate buttons
             }
             Vector2 sizeDelta = backgroundFrame.sizeDelta;
-            backgroundFrame.sizeDelta = new Vector2(sizeDelta.x, 110 + heightPerButton * Postman.UI.ModOptionButtons.Count);
+            backgroundFrame.sizeDelta = new Vector2(sizeDelta.x, 110 + heightPerButton * Courier.UI.ModOptionButtons.Count);
         }
 
         private void SetInitialSelection() {
@@ -138,7 +138,7 @@ namespace Mod.Postman.UI {
 
         public void GoOffscreenInstant() {
             gameObject.SetActive(false);
-            Postman.UI.ModOptionScreenShowing = false;
+            Courier.UI.ModOptionScreenShowing = false;
         }
 
         private void LateUpdate() {
@@ -146,8 +146,8 @@ namespace Mod.Postman.UI {
                 BackToOptionMenu();
             }
             // Line up all of the buttons
-            backButton.position = topButtonPos + new Vector3(0, .45f * (Postman.UI.ModOptionButtons.Count-1));
-            foreach (OptionsButtonInfo buttonInfo in Postman.UI.ModOptionButtons) {
+            backButton.position = topButtonPos + new Vector3(0, .45f * (Courier.UI.ModOptionButtons.Count-1));
+            foreach (OptionsButtonInfo buttonInfo in Courier.UI.ModOptionButtons) {
                 buttonInfo.nameTextMesh.text = buttonInfo.text; // TODO Patch LoadGeneralLoc to load custom language files
                 // Buttons are added in the same spot as the back button
                 // Then the back button is shifted down to hold the place of the next button
@@ -157,13 +157,13 @@ namespace Mod.Postman.UI {
         }
 
         private void InitOptions() {
-            if (Postman.UI.ModOptionButtons.Count > 0) {
-                defaultSelection = Postman.UI.ModOptionButtons[0].gameObject;
+            if (Courier.UI.ModOptionButtons.Count > 0) {
+                defaultSelection = Courier.UI.ModOptionButtons[0].gameObject;
             } else {
                 defaultSelection = backButton.gameObject;
             }
             backgroundFrame.Find("Title").GetComponent<TextMeshProUGUI>().SetText("Mod Options");
-            foreach (OptionsButtonInfo buttonInfo in Postman.UI.ModOptionButtons) {
+            foreach (OptionsButtonInfo buttonInfo in Courier.UI.ModOptionButtons) {
                 buttonInfo.UpdateStateText();
             }
         }
@@ -172,15 +172,15 @@ namespace Mod.Postman.UI {
             //Manager<SaveManager>.Instance.SaveOptions(); TODO Mod options in save file
             Close(false);
             Manager<UIManager>.Instance.GetView<OptionScreen>().gameObject.SetActive(true);
-            Postman.UI.ModOptionButton.gameObject.transform.Find("Button").GetComponent<UIObjectAudioHandler>().playAudio = false;
-            EventSystem.current.SetSelectedGameObject(Postman.UI.ModOptionButton.gameObject.transform.Find("Button").gameObject);
-            Postman.UI.ModOptionButton.gameObject.transform.Find("Button").GetComponent<UIObjectAudioHandler>().playAudio = true;
+            Courier.UI.ModOptionButton.gameObject.transform.Find("Button").GetComponent<UIObjectAudioHandler>().playAudio = false;
+            EventSystem.current.SetSelectedGameObject(Courier.UI.ModOptionButton.gameObject.transform.Find("Button").gameObject);
+            Courier.UI.ModOptionButton.gameObject.transform.Find("Button").GetComponent<UIObjectAudioHandler>().playAudio = true;
         }
 
         public override void Close(bool transitionOut) {
             base.Close(transitionOut);
-            Postman.UI.ModOptionScreenShowing = false;
-            Postman.UI.ModOptionScreenLoaded = false;
+            Courier.UI.ModOptionScreenShowing = false;
+            Courier.UI.ModOptionScreenLoaded = false;
         }
     }
 }

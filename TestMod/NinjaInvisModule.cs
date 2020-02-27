@@ -1,15 +1,12 @@
 ﻿using System;
 using System.Reflection;
-using Mod.Postman;
-using Mod.Postman.Helpers;
-using Mod.Postman.Module;
-using Mod.Postman.UI;
-using TMPro;
-using UnityEngine;
-using UnityEngine.UI;
+using Mod.Courier;
+using Mod.Courier.Helpers;
+using Mod.Courier.Module;
+using Mod.Courier.UI;
 
 namespace NinjaInvis {
-    public class NinjaInvisModule : PostmanModule {
+    public class NinjaInvisModule : CourierModule {
         
         bool shouldSetInvis;
         ToggleButtonInfo invisButtonInfo;
@@ -17,9 +14,9 @@ namespace NinjaInvis {
         FieldInfo optionsChangedInfo = typeof(OptionScreen).GetField("optionsChanged", ReflectionHelper.NonPublicInstanceFieldSet);
 
         public override void Load() {
-            Postman.Events.PlayerController.OnUpdate += PlayerController_OnUpdate;
+            Courier.Events.PlayerController.OnUpdate += PlayerController_OnUpdate;
             On.SaveGameSlot.Load += SaveGameSlot_Load;
-            invisButtonInfo = Postman.UI.RegisterToggleModOptionButton("Player Visibility", OnInvis);
+            invisButtonInfo = Courier.UI.RegisterToggleModOptionButton("Player Visibility", OnInvis);
             invisButtonInfo.state = true;
         }
 

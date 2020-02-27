@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine.Events;
 
-namespace Mod.Postman.UI {
+namespace Mod.Courier.UI {
     public class ToggleButtonInfo : OptionsButtonInfo {
         public bool state;
         // Takes the default onLocID

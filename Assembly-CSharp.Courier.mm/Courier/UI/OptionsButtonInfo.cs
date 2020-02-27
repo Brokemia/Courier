@@ -3,7 +3,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 
-namespace Mod.Postman.UI {
+namespace Mod.Courier.UI {
     public abstract class OptionsButtonInfo {
         public UnityAction onClick;
         public TextMeshProUGUI nameTextMesh;

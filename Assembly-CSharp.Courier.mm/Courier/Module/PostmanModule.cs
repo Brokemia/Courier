@@ -1,6 +1,6 @@
 ﻿using System;
-namespace Mod.Postman.Module {
-    public class PostmanModule {
+namespace Mod.Courier.Module {
+    public class CourierModule {
 
         public virtual void Load() {
 

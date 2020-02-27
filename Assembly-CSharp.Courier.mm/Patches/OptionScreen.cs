@@ -4,8 +4,8 @@
 using System;
 using System.Collections;
 using System.IO;
-using Mod.Postman;
-using Mod.Postman.UI;
+using Mod.Courier;
+using Mod.Courier.UI;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -20,7 +20,7 @@ public class patch_OptionScreen : OptionScreen {
         stream.Seek(0, SeekOrigin.Begin);
         file.Write(stream.GetBuffer(), 0, stream.GetBuffer().Length);
         file.Close();*/
-        foreach (OptionsButtonInfo buttonInfo in Postman.UI.OptionButtons) {
+        foreach (OptionsButtonInfo buttonInfo in Courier.UI.OptionButtons) {
             if (buttonInfo is ToggleButtonInfo) {
                 buttonInfo.gameObject = Instantiate(fullscreenOption, transform.Find("Container").Find("BackgroundFrame"));
             } else if (buttonInfo is SubMenuButtonInfo) {
@@ -49,14 +49,14 @@ public class patch_OptionScreen : OptionScreen {
     private extern void orig_InitOptions();
     private void InitOptions() {
         orig_InitOptions();
-        foreach (OptionsButtonInfo buttonInfo in Postman.UI.OptionButtons)
+        foreach (OptionsButtonInfo buttonInfo in Courier.UI.OptionButtons)
             buttonInfo.UpdateStateText();
     }
 
     private extern void orig_LateUpdate();
     private void LateUpdate() {
-        for (int i = 0; i < Postman.UI.OptionButtons.Count; i++) {
-            OptionsButtonInfo buttonInfo = Postman.UI.OptionButtons[i];
+        for (int i = 0; i < Courier.UI.OptionButtons.Count; i++) {
+            OptionsButtonInfo buttonInfo = Courier.UI.OptionButtons[i];
             buttonInfo.nameTextMesh.text = buttonInfo.text; // TODO Patch LoadGeneralLoc to load custom language files
             // TODO Find an earlier place to set this. Currently, it flickers briefly before putting itself in the right spot
             buttonInfo.gameObject.transform.position = controlsButton.transform.position - new Vector3(9.7f, .9f * (i+1));
@@ -71,8 +71,8 @@ public class patch_OptionScreen : OptionScreen {
 
     //private extern void orig_InitOptions();
     //private void InitOptions() {
-    //    for (int i = 0; i < Postman.UI.OptionButtons.Count; i++) {
-    //        OptionsButtonInfo buttonInfo = Postman.UI.OptionButtons[i];
+    //    for (int i = 0; i < Courier.UI.OptionButtons.Count; i++) {
+    //        OptionsButtonInfo buttonInfo = Courier.UI.OptionButtons[i];
     //        buttonInfo.gameObject.transform.position = controlsButton.transform.position - new Vector3(20.2f, .9f * (i + 1));
     //        foreach (GameObject obj in FindObjectsOfType<GameObject>()) {
     //            if (obj.activeInHierarchy && obj.name.Equals("Back")) {
@@ -81,8 +81,8 @@ public class patch_OptionScreen : OptionScreen {
     //        }
     //    }
     //    orig_InitOptions();Console.WriteLine("\n\n\n\n\n\n\n\n\n\n\n\nAwake");
-    //    for (int i = 0; i < Postman.UI.OptionButtons.Count; i++) {
-    //        OptionsButtonInfo buttonInfo = Postman.UI.OptionButtons[i];
+    //    for (int i = 0; i < Courier.UI.OptionButtons.Count; i++) {
+    //        OptionsButtonInfo buttonInfo = Courier.UI.OptionButtons[i];
     //        buttonInfo.gameObject.transform.position = controlsButton.transform.position - new Vector3(20.2f, .9f * (i + 1));
     //        foreach (GameObject obj in FindObjectsOfType<GameObject>()) {
     //            if (obj.activeInHierarchy && obj.name.Equals("Back")) {
@@ -95,15 +95,15 @@ public class patch_OptionScreen : OptionScreen {
     private extern void orig_HideUnavailableOptions();
     private void HideUnavailableOptions() {
         orig_HideUnavailableOptions();
-        foreach (OptionsButtonInfo buttonInfo in Postman.UI.OptionButtons) {
+        foreach (OptionsButtonInfo buttonInfo in Courier.UI.OptionButtons) {
             buttonInfo.gameObject?.SetActive(true);
         }
-        backgroundFrame.sizeDelta += new Vector2(0, heightPerButton * Postman.UI.OptionButtons.Count);
+        backgroundFrame.sizeDelta += new Vector2(0, heightPerButton * Courier.UI.OptionButtons.Count);
     }
 
     private extern void orig_OnDisable();
     private void OnDisable() {
-        foreach(OptionsButtonInfo buttonInfo in Postman.UI.OptionButtons) {
+        foreach(OptionsButtonInfo buttonInfo in Courier.UI.OptionButtons) {
             //buttonInfo.gameObject?.SetActive(false);
         }
         orig_OnDisable();

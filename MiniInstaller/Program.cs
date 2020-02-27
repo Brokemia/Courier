@@ -6,7 +6,7 @@ using System.Text;
 using System.Reflection;
 using System.Diagnostics;
 using System.Threading;
-using Mod.Postman.Helpers;
+using Mod.Courier.Helpers;
 
 namespace MiniInstaller {
     // Adapted from the Everest MiniInstaller
@@ -30,7 +30,7 @@ namespace MiniInstaller {
         }
 
         public static int Main(string[] args) {
-            Console.WriteLine("Postman MiniInstaller");
+            Console.WriteLine("Courier MiniInstaller");
 
             SetupPaths();
 
@@ -68,8 +68,8 @@ namespace MiniInstaller {
                     LogLine("");
                     LogLine(e.ToString());
                     LogLine("");
-                    LogLine("Installing Postman failed.");
-                    LogLine("Please create a new issue on GitHub @ https://github.com/Brokemia/Postman");
+                    LogLine("Installing Courier failed.");
+                    LogLine("Please create a new issue on GitHub @ https://github.com/Brokemia/Courier");
                     //LogLine("or join the #game_modding channel on Discord (invite in the repo).");
                     LogLine("Make sure to upload your miniinstaller-log.txt");
                     return 1;
@@ -85,9 +85,9 @@ namespace MiniInstaller {
         public static void SetupPaths() {
             PathManaged = Path.Combine(Directory.GetCurrentDirectory(), "TheMessenger_Data", "Managed");
 
-            if (Path.GetFileName(PathManaged) == "postman-update" &&
+            if (Path.GetFileName(PathManaged) == "Courier-update" &&
                 File.Exists(Path.Combine(Path.GetDirectoryName(PathManaged), "Assembly-CSharp.dll"))) {
-                // We're updating Postman via a hypothetical future in-game installler.
+                // We're updating Courier via a hypothetical future in-game installler.
                 PathUpdate = PathManaged;
                 PathManaged = Path.GetDirectoryName(PathUpdate);
             }

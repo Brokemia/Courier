@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using Mod.Postman.UI;
+using Mod.Courier.UI;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
 
-namespace Mod.Postman {
-    public partial class Postman {
+namespace Mod.Courier {
+    public partial class Courier {
         public static class UI {
             public static List<OptionsButtonInfo> OptionButtons = new List<OptionsButtonInfo>();
             public static List<OptionsButtonInfo> ModOptionButtons = new List<OptionsButtonInfo>();

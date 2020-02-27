@@ -2,8 +2,8 @@
 
 using _PlayerController = PlayerController;
 
-namespace Mod.Postman {
-    public partial class Postman {
+namespace Mod.Courier {
+    public partial class Courier {
         public static class Events {
         
             public static class PlayerController {

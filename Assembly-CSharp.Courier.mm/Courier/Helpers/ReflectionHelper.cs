@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Reflection;
 
-namespace Mod.Postman.Helpers {
+namespace Mod.Courier.Helpers {
     public static class ReflectionHelper {
         public static readonly BindingFlags PublicInstance = BindingFlags.Public | BindingFlags.Instance;
         public static readonly BindingFlags NonPublicInstance = BindingFlags.NonPublic | BindingFlags.Instance;

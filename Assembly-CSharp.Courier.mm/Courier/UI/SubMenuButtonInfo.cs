@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine.Events;
 
-namespace Mod.Postman.UI {
+namespace Mod.Courier.UI {
     public class SubMenuButtonInfo : OptionsButtonInfo {
         public SubMenuButtonInfo(string text, UnityAction onClick) : base(text, onClick) {
 

@@ -3,20 +3,20 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using Mod.Postman.Helpers;
-using Mod.Postman.Module;
+using Mod.Courier.Helpers;
+using Mod.Courier.Module;
 using UnityEngine;
 
-namespace Mod.Postman {
-    public static partial class Postman {
+namespace Mod.Courier {
+    public static partial class Courier {
 
-        public static string PostmanAssemblyLocation = typeof(Postman).Assembly.Location;
+        public static string CourierAssemblyLocation = typeof(Courier).Assembly.Location;
 
-        public static string ModsFolder = Path.Combine(PostmanAssemblyLocation.Substring(0, PostmanAssemblyLocation.Length - typeof(patch_BootGame).Assembly.GetName().Name.Length - 4), "../../Mods").Replace('\\', '/');
+        public static string ModsFolder = Path.Combine(CourierAssemblyLocation.Substring(0, CourierAssemblyLocation.Length - typeof(patch_BootGame).Assembly.GetName().Name.Length - 4), "../../Mods").Replace('\\', '/');
 
         public static bool Loaded { get; private set; }
         
-        public static List<PostmanModule> Modules = new List<PostmanModule>();
+        public static List<CourierModule> Modules = new List<CourierModule>();
 
         public static void DumpHierarchy(Transform transform) {
             Console.WriteLine("Dumping hierarchy for: " + transform.name);
@@ -52,12 +52,12 @@ namespace Mod.Postman {
                 if (path.EndsWith(".dll", StringComparison.InvariantCulture)) {
                     Assembly asm = Assembly.LoadFrom(path);
 
-                    IEnumerable<Type> modules = FindDerivedTypes(asm, typeof(PostmanModule));
+                    IEnumerable<Type> modules = FindDerivedTypes(asm, typeof(CourierModule));
 
                     foreach(Type moduleType in modules) {
                         object o = asm.CreateInstance(moduleType.FullName, false, BindingFlags.ExactBinding, null, new System.Object[] { }, null, null);
-                        (o as PostmanModule).Load();
-                        Modules.Add(o as PostmanModule);
+                        (o as CourierModule).Load();
+                        Modules.Add(o as CourierModule);
                     }
                 }
             }
