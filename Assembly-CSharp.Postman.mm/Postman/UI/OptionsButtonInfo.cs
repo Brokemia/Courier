@@ -10,7 +10,6 @@ namespace Mod.Postman.UI {
         public TextMeshProUGUI stateTextMesh;
         public string text;
         public GameObject gameObject;
-        public OptionScreen optionScreen;
 
         protected OptionsButtonInfo(string text, UnityAction onClick) {
             this.text = text;

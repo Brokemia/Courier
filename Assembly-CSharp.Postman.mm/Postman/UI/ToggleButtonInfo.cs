@@ -4,10 +4,12 @@ using UnityEngine.Events;
 namespace Mod.Postman.UI {
     public class ToggleButtonInfo : OptionsButtonInfo {
         public bool state;
-        public Func<OptionScreen, string> GetOnText;
-        public Func<OptionScreen, string> GetOffText;
+        // Takes the default onLocID
+        public Func<string, string> GetOnText;
+        // Takes the default offLocID
+        public Func<string, string> GetOffText;
 
-        public ToggleButtonInfo(string text, UnityAction onClick, Func<OptionScreen, string> GetOnText, Func<OptionScreen, string> GetOffText) : base(text, onClick) {
+        public ToggleButtonInfo(string text, UnityAction onClick, Func<string, string> GetOnText, Func<string, string> GetOffText) : base(text, onClick) {
             this.GetOnText = GetOnText;
             this.GetOffText = GetOffText;
         }
@@ -17,7 +19,7 @@ namespace Mod.Postman.UI {
         }
 
         public override string GetStateText() {
-            return state ? GetOnText(optionScreen) : GetOffText(optionScreen); // TODO Use Localization IDs instead
+            return state ? GetOnText(ModOptionScreen.onLocID) : GetOffText(ModOptionScreen.offLocID); // TODO Use Localization IDs instead
         }
     }
 }

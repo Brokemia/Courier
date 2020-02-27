@@ -86,6 +86,10 @@
       <HintPath>..\..\TheMessenger_Data\Managed\UnityEngine.AnimationModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="UnityEngine.UIModule">
+      <HintPath>..\..\TheMessenger_Data\Managed\UnityEngine.UIModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -102,6 +106,10 @@
     <Compile Include="Postman\UI\OptionsButtonInfo.cs" />
     <Compile Include="Postman\UI\ToggleButtonInfo.cs" />
     <Compile Include="Postman\UI\ModOptionScreen.cs" />
+    <Compile Include="Patches\DemoManager.cs" />
+    <Compile Include="Patches\Level.cs" />
+    <Compile Include="Postman\UI\SubMenuButtonInfo.cs" />
+    <Compile Include="Patches\UIManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

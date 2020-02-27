@@ -3,18 +3,35 @@
 
 using System;
 using System.Collections;
+using System.IO;
 using Mod.Postman;
 using Mod.Postman.UI;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class patch_OptionScreen : OptionScreen{
+public class patch_OptionScreen : OptionScreen {
     public extern void orig_Init(IViewParams screenParams);
     public void Init(IViewParams screenParams) {
+        /*FileStream file = File.Create(Application.persistentDataPath + "/SerializedFullscreen.dat"));
+        DataContractSerializer serializer = new DataContractSerializer(fullscreenOption.GetType());
+        MemoryStream stream = new MemoryStream();
+        serializer.WriteObject(stream, fullscreenOption);
+        stream.Seek(0, SeekOrigin.Begin);
+        file.Write(stream.GetBuffer(), 0, stream.GetBuffer().Length);
+        file.Close();*/
         foreach (OptionsButtonInfo buttonInfo in Postman.UI.OptionButtons) {
-            buttonInfo.optionScreen = this;
-            buttonInfo.gameObject = Instantiate(fullscreenOption, backgroundFrame);
+            if (buttonInfo is ToggleButtonInfo) {
+                buttonInfo.gameObject = Instantiate(fullscreenOption, transform.Find("Container").Find("BackgroundFrame"));
+            } else if (buttonInfo is SubMenuButtonInfo) {
+                buttonInfo.gameObject = Instantiate(controlsButton.transform.parent.gameObject, transform.Find("Container").Find("BackgroundFrame"));
+            } else {
+                // TODO Mods add their own ButtonInfo
+                Console.WriteLine(buttonInfo.GetType() + " not a known type of OptionsButtonInfo!");
+            }
+            buttonInfo.gameObject.transform.SetParent(transform.Find("Container").Find("BackgroundFrame").Find("OptionsFrame").Find("OptionMenuButtons"));
+            buttonInfo.gameObject.name = buttonInfo.text;
+            buttonInfo.gameObject.transform.name = buttonInfo.text;
             foreach (TextMeshProUGUI text in buttonInfo.gameObject.GetComponentsInChildren<TextMeshProUGUI>()) {
                 if (text.name.Equals("OptionState"))
                     buttonInfo.stateTextMesh = text;
@@ -25,6 +42,7 @@ public class patch_OptionScreen : OptionScreen{
             button.onClick = new Button.ButtonClickedEvent();
             button.onClick.AddListener(buttonInfo.onClick);
         }
+
         orig_Init(screenParams);
     }
 
@@ -38,13 +56,13 @@ public class patch_OptionScreen : OptionScreen{
     private extern void orig_LateUpdate();
     private void LateUpdate() {
         for (int i = 0; i < Postman.UI.OptionButtons.Count; i++) {
-            OptionsButtonInfo buttonInfo = Postman.UI.OptionButtons[i]; 
+            OptionsButtonInfo buttonInfo = Postman.UI.OptionButtons[i];
             buttonInfo.nameTextMesh.text = buttonInfo.text; // TODO Patch LoadGeneralLoc to load custom language files
             // TODO Find an earlier place to set this. Currently, it flickers briefly before putting itself in the right spot
-            buttonInfo.gameObject.transform.position = controlsButton.transform.position - new Vector3(20.2f, .9f * (i+1));
-            foreach (GameObject obj in FindObjectsOfType<GameObject>()) {
+            buttonInfo.gameObject.transform.position = controlsButton.transform.position - new Vector3(9.7f, .9f * (i+1));
+            foreach (GameObject obj in FindObjectsOfType<GameObject>()) { // TODO This is a bad way of doing this. Fix later
                 if (obj.activeInHierarchy && obj.name.Equals("Back")) {
-                    obj.transform.position = buttonInfo.gameObject.transform.position + new Vector3(10.4f, -.9f);
+                    obj.transform.position = buttonInfo.gameObject.transform.position + new Vector3(0, -.9f);
                 }
             }
         }
@@ -77,7 +95,18 @@ public class patch_OptionScreen : OptionScreen{
     private extern void orig_HideUnavailableOptions();
     private void HideUnavailableOptions() {
         orig_HideUnavailableOptions();
+        foreach (OptionsButtonInfo buttonInfo in Postman.UI.OptionButtons) {
+            buttonInfo.gameObject?.SetActive(true);
+        }
         backgroundFrame.sizeDelta += new Vector2(0, heightPerButton * Postman.UI.OptionButtons.Count);
+    }
+
+    private extern void orig_OnDisable();
+    private void OnDisable() {
+        foreach(OptionsButtonInfo buttonInfo in Postman.UI.OptionButtons) {
+            //buttonInfo.gameObject?.SetActive(false);
+        }
+        orig_OnDisable();
     }
 
 }

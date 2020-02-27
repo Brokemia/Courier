@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using Mod.Postman.Helpers;
 using Mod.Postman.Module;
+using UnityEngine;
 
 namespace Mod.Postman {
     public static partial class Postman {
@@ -17,7 +18,24 @@ namespace Mod.Postman {
         
         public static List<PostmanModule> Modules = new List<PostmanModule>();
 
+        public static void DumpHierarchy(Transform transform) {
+            Console.WriteLine("Dumping hierarchy for: " + transform.name);
+            DumpHierarchy(transform, 0);
+        }
+
+        private static void DumpHierarchy(Transform transform, int level) {
+            string spaces = "";
+            for(int i = 0; i < level; i++) {
+                spaces += "   ";
+            }
+            Console.WriteLine(spaces + transform.name);
+            foreach(Transform t in transform.GetChildren()) {
+                DumpHierarchy(t, level + 1);
+            }
+        }
+
         public static void Boot() {
+            UI.SetupModdedUI();
         }
 
         public static void LoadAssemblyMods() {
@@ -37,7 +55,7 @@ namespace Mod.Postman {
                     IEnumerable<Type> modules = FindDerivedTypes(asm, typeof(PostmanModule));
 
                     foreach(Type moduleType in modules) {
-                        object o = asm.CreateInstance(moduleType.FullName, false, BindingFlags.ExactBinding, null, new Object[] { }, null, null);
+                        object o = asm.CreateInstance(moduleType.FullName, false, BindingFlags.ExactBinding, null, new System.Object[] { }, null, null);
                         (o as PostmanModule).Load();
                         Modules.Add(o as PostmanModule);
                     }

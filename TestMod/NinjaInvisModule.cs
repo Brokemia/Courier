@@ -19,14 +19,13 @@ namespace NinjaInvis {
         public override void Load() {
             Postman.Events.PlayerController.OnUpdate += PlayerController_OnUpdate;
             On.SaveGameSlot.Load += SaveGameSlot_Load;
-            invisButtonInfo = Postman.UI.RegisterToggleOptionButton("Player Visibility", OnInvis);
+            invisButtonInfo = Postman.UI.RegisterToggleModOptionButton("Player Visibility", OnInvis);
             invisButtonInfo.state = true;
         }
 
         void OnInvis() {
             invisButtonInfo.state = !invisButtonInfo.state;
             shouldSetInvis = true;
-            optionsChangedInfo.SetValue(invisButtonInfo.optionScreen, true);
             invisButtonInfo.UpdateStateText();
             Console.WriteLine("Player Invisible: " + !invisButtonInfo.state);
         }
