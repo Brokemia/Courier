@@ -2,8 +2,12 @@
 
 using System;
 using Mod.Courier;
+using MonoMod;
 
-public class patch_PlayerController : PlayerController{
+public class patch_PlayerController : PlayerController {
+    [MonoModIgnore]
+    private float runSpeedMultiplier;
+
     private extern void orig_Update();
     private void Update() {
         orig_Update();
@@ -14,6 +18,10 @@ public class patch_PlayerController : PlayerController{
     public new void UpdatePhysics() {
         orig_UpdatePhysics();
         Courier.Events.PlayerController.UpdatePhysics(this);
+    }
+
+    public void SetRunSpeedMultiplier(float speed) {
+        runSpeedMultiplier = speed;
     }
 }
 

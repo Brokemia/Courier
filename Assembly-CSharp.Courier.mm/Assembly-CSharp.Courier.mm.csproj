@@ -110,6 +110,13 @@
     <Compile Include="Patches\Level.cs" />
     <Compile Include="Courier\UI\SubMenuButtonInfo.cs" />
     <Compile Include="Patches\UIManager.cs" />
+    <Compile Include="Patches\LeafGolemBoss.cs" />
+    <Compile Include="Patches\NecromancerBoss.cs" />
+    <Compile Include="Patches\ColossusesBoss.cs" />
+    <Compile Include="Patches\BaseColossus.cs" />
+    <Compile Include="Patches\EmeraldGolemBoss.cs" />
+    <Compile Include="Patches\InGameHud.cs" />
+    <Compile Include="Patches\ProgressionManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

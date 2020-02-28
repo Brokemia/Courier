@@ -55,7 +55,7 @@ namespace Mod.Courier {
                     IEnumerable<Type> modules = FindDerivedTypes(asm, typeof(CourierModule));
 
                     foreach(Type moduleType in modules) {
-                        object o = asm.CreateInstance(moduleType.FullName, false, BindingFlags.ExactBinding, null, new System.Object[] { }, null, null);
+                        object o = asm.CreateInstance(moduleType.FullName, false, BindingFlags.ExactBinding, null, new object[] { }, null, null);
                         (o as CourierModule).Load();
                         Modules.Add(o as CourierModule);
                     }
