@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using Mod.Courier;
 using Mod.Courier.Module;
+using Mod.Courier.UI;
 using MonoMod.RuntimeDetour;
 using TMPro;
 using UnityEngine;
@@ -22,7 +24,7 @@ namespace TrainerReborn {
         public bool infHealth;
 
         public bool infShuriken;
-
+        
         private string[] cmdArray;
 
         private string command = "Trainer";
@@ -36,6 +38,17 @@ namespace TrainerReborn {
         private static MethodInfo get_PlayerShurikensInfo = typeof(PlayerManager).GetProperty("PlayerShurikens", BindingFlags.Public | BindingFlags.Instance | BindingFlags.GetProperty).GetGetMethod();
         private static MethodInfo get_PlayerShurikensHookInfo = typeof(TrainerRebornModule).GetMethod(nameof(PlayerManager_get_PlayerShurikens), BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.InvokeMethod);
 
+        ToggleButtonInfo infHealthButton;
+        ToggleButtonInfo infShurikenButton;
+        ToggleButtonInfo infJumpButton;
+        ToggleButtonInfo noBoundsButton;
+        ToggleButtonInfo debugPosButton;
+        ToggleButtonInfo debugBossButton;
+        ToggleButtonInfo toggleCollisionsButton;
+        ToggleButtonInfo secondQuestButton;
+        SubMenuButtonInfo reloadButton;
+        SubMenuButtonInfo saveButton;
+        TextEntryButtonInfo speedMultButton;
 
         [DllImport("USER32.dll")]
         public static extern short GetKeyState(int nVirtKey);
@@ -52,6 +65,89 @@ namespace TrainerReborn {
                 On.PlayerController.Damage += PlayerController_Damage;
                 //On.RetroCamera.SnapPositionToCameraBounds += RetroCamera_SnapPositionToCameraBounds;
             }
+
+            infHealthButton = Courier.UI.RegisterToggleModOptionButton("Infinite Health", OnInfHealth, (b) => infHealth);
+            infShurikenButton = Courier.UI.RegisterToggleModOptionButton("Infinite Shurikens", OnInfShuriken, (b) => infShuriken);
+            infJumpButton = Courier.UI.RegisterToggleModOptionButton("Infinite Jumps", OnInfJump, (b) => infJump);
+            noBoundsButton = Courier.UI.RegisterToggleModOptionButton("No Camera Bounds", OnNoBounds, (b) => noBounds);
+            debugPosButton = Courier.UI.RegisterToggleModOptionButton("Position Debug Display", OnDebugPos, (b) => debugPos);
+            debugBossButton = Courier.UI.RegisterToggleModOptionButton("Boss Debug Display", OnDebugBoss, (b) => debugBoss);
+            toggleCollisionsButton = Courier.UI.RegisterToggleModOptionButton("Collisions", OnToggleCollisions, (b) => (Manager<PlayerManager>.Instance?.Player?.Controller?.collisionMaskList?.Count ?? 3) >= 2);
+            secondQuestButton = Courier.UI.RegisterToggleModOptionButton("Second Quest", OnSecondQuest, (b) => Manager<ProgressionManager>.Instance.secondQuest);
+            reloadButton = Courier.UI.RegisterSubMenuModOptionButton("Reload To Last Checkpoint", OnReloadButton);
+            saveButton = Courier.UI.RegisterSubMenuModOptionButton("Instant Save", OnSaveButton);
+            //speedMultButton = Courier.UI.RegisterTextEntryModOptionButton("Speed Multiplier", OnEnterSpeed, 5, GetInitialText: () => Manager<PlayerManager>.Instance?.Player?.RunSpeedMultiplier.ToString() ?? "1");
+        }
+
+        void OnInfHealth() {
+            infHealth = !infHealth;
+            infHealthButton.UpdateStateText();
+            Console.WriteLine("Infinite Health: " + infHealth);
+        }
+
+        void OnInfShuriken() {
+            infShuriken = !infShuriken;
+            infShurikenButton.UpdateStateText();
+            Console.WriteLine("Infinite Shurikens: " + infShuriken);
+        }
+
+        void OnInfJump() {
+            infJump = !infJump;
+            infJumpButton.UpdateStateText();
+            Console.WriteLine("Infinite Jumps: " + infJump);
+        }
+
+        void OnNoBounds() {
+            noBounds = !noBounds;
+            noBoundsButton.UpdateStateText();
+            Console.WriteLine("No Camera Bounds: " + noBounds);
+        }
+
+        void OnDebugPos() {
+            debugPos = !debugPos;
+            debugPosButton.UpdateStateText();
+            Console.WriteLine("Position Debug Display: " + debugPos);
+        }
+
+        void OnDebugBoss() {
+            debugBoss = !debugBoss;
+            debugBossButton.UpdateStateText();
+            Console.WriteLine("Boss Debug Display: " + debugBoss);
+        }
+
+        void OnReloadButton() {
+            Console.WriteLine("Reloading to last checkpoint");
+            Manager<LevelManager>.Instance.LoadToLastCheckpoint(false, false);
+        }
+
+        void OnToggleCollisions() {
+            List<LayerMask> collisionMaskList = Manager<PlayerManager>.Instance.Player.Controller.collisionMaskList;
+            // Only add collisions if they are turned off
+            if (collisionMaskList.Count < 2) {
+                collisionMaskList.Add(4608);
+                collisionMaskList.Add(25165824);
+            } else {
+                collisionMaskList.Clear();
+            }
+            toggleCollisionsButton.UpdateStateText();
+            Console.WriteLine("Collisions: " + (collisionMaskList.Count >= 2));
+        }
+
+        void OnSaveButton() {
+            Console.WriteLine("Instant Saving");
+            Vector3 loadedLevelPlayerPosition = new Vector2(Manager<PlayerManager>.Instance.Player.transform.position.x, Manager<PlayerManager>.Instance.Player.transform.position.y);
+            Manager<ProgressionManager>.Instance.checkpointSaveInfo.loadedLevelPlayerPosition = loadedLevelPlayerPosition;
+            Manager<SaveManager>.Instance.Save();
+        }
+
+        void OnSecondQuest() {
+            Manager<ProgressionManager>.Instance.secondQuest = !Manager<ProgressionManager>.Instance.secondQuest;
+            secondQuestButton.UpdateStateText();
+            Console.WriteLine("Second Quest: " + Manager<ProgressionManager>.Instance.secondQuest);
+        }
+
+        void OnEnterSpeed(string entry) {
+            Manager<PlayerManager>.Instance?.Player?.SetRunSpeedMultiplier(float.Parse(entry));
         }
 
         Vector3 RetroCamera_SnapPositionToCameraBounds(On.RetroCamera.orig_SnapPositionToCameraBounds orig, RetroCamera self, Vector3 pos) {
@@ -90,20 +186,10 @@ namespace TrainerReborn {
         public void InGameHud_OnGUI(On.InGameHud.orig_OnGUI orig, InGameHud self) {
             orig(self);
             if (cmdArray == null) {
-                cmdArray = new string[14]
+                cmdArray = new string[4]
                 {
-                "CamBounds",
-                "Collisions",
-                "DebugBoss",
-                "DebugPos",
                 "DebugTextColor",
-                "InfHealth",
-                "InfJumps",
-                "InfShurikens",
                 "Item",
-                "Reload",
-                "Save",
-                "SecondQuest",
                 "Speed",
                 "Tp"
                 };
@@ -331,26 +417,6 @@ namespace TrainerReborn {
                 }
                 if (keyCode == KeyCode.Return || keyCode == KeyCode.KeypadEnter) {
                     string[] array2 = command.Split('.');
-                    if (array2[0].Equals("/Save", StringComparison.InvariantCultureIgnoreCase)) {
-                        Vector3 loadedLevelPlayerPosition = new Vector2(Manager<PlayerManager>.Instance.Player.transform.position.x, Manager<PlayerManager>.Instance.Player.transform.position.y);
-                        Manager<ProgressionManager>.Instance.checkpointSaveInfo.loadedLevelPlayerPosition = loadedLevelPlayerPosition;
-                        Manager<SaveManager>.Instance.Save();
-                    }
-                    if (array2[0].Equals("/Reload", StringComparison.InvariantCultureIgnoreCase)) {
-                        Manager<LevelManager>.Instance.LoadToLastCheckpoint(false, false);
-                    }
-                    if (array2[0].Equals("/Speed", StringComparison.InvariantCultureIgnoreCase)) {
-                        Manager<PlayerManager>.Instance.Player.SetRunSpeedMultiplier(float.Parse(array2[1]));
-                    }
-                    if (array2[0].Equals("/CamBounds", StringComparison.InvariantCultureIgnoreCase)) {
-                        noBounds = !noBounds;
-                    }
-                    if (array2[0].Equals("/DebugPos", StringComparison.InvariantCultureIgnoreCase)) {
-                        debugPos = !debugPos;
-                    }
-                    if (array2[0].Equals("/DebugBoss", StringComparison.InvariantCultureIgnoreCase)) {
-                        debugBoss = !debugBoss;
-                    }
                     if (array2[0].Equals("/DebugTextColor", StringComparison.InvariantCultureIgnoreCase)) {
                         Color color = debugText8.color;
                         if (array2[1].Equals("White", StringComparison.InvariantCultureIgnoreCase)) {
@@ -370,28 +436,6 @@ namespace TrainerReborn {
                         }
                         debugText8.color = color;
                         debugText16.color = color;
-                    }
-                    if (array2[0].Equals("/InfJumps", StringComparison.InvariantCultureIgnoreCase)) {
-                        infJump = !infJump;
-                    }
-                    if (array2[0].Equals("/InfHealth", StringComparison.InvariantCultureIgnoreCase)) {
-                        infHealth = !infHealth;
-                    }
-                    if (array2[0].Equals("/InfShurikens", StringComparison.InvariantCultureIgnoreCase)) {
-                        infShuriken = !infShuriken;
-                    }
-                    if (array2[0].Equals("/SecondQuest", StringComparison.InvariantCultureIgnoreCase)) {
-                        ProgressionManager instance7 = Manager<ProgressionManager>.Instance;
-                        instance7.secondQuest = !instance7.secondQuest;
-                    }
-                    if (array2[0].Equals("/Collisions", StringComparison.InvariantCultureIgnoreCase)) {
-                        List<LayerMask> collisionMaskList = Manager<PlayerManager>.Instance.Player.Controller.collisionMaskList;
-                        if (collisionMaskList.Count >= 2) {
-                            collisionMaskList.Clear();
-                        } else {
-                            collisionMaskList.Add(4608);
-                            collisionMaskList.Add(25165824);
-                        }
                     }
                     if (array2[0].Equals("/Item", StringComparison.InvariantCultureIgnoreCase)) {
                         if (array2[1].Equals("TimeShard", StringComparison.InvariantCultureIgnoreCase)) {

@@ -18,7 +18,7 @@ namespace Mod.Courier {
             public static bool ModOptionScreenShowing;
 
             public static void SetupModdedUI() {
-                ModOptionButton = RegisterSubMenuOptionButton("Mod Options", OnSelectModOptions);
+                ModOptionButton = RegisterSubMenuOptionButton("Third Party Mod Options", OnSelectModOptions);
             }
 
             public static void OnSelectModOptions() {
@@ -51,8 +51,8 @@ namespace Mod.Courier {
                 OptionButtons.Add(buttonInfo);
             }
 
-            public static ToggleButtonInfo RegisterToggleOptionButton(string text, UnityAction onClick) {
-                ToggleButtonInfo info = new ToggleButtonInfo(text, onClick,
+            public static ToggleButtonInfo RegisterToggleOptionButton(string text, UnityAction onClick, Func<ToggleButtonInfo, bool> GetState) {
+                ToggleButtonInfo info = new ToggleButtonInfo(text, onClick, GetState,
                     (defaultOnLocID) => Manager<LocalizationManager>.Instance.GetText(defaultOnLocID),
                     (defaultOffLocID) => Manager<LocalizationManager>.Instance.GetText(defaultOffLocID)
                 );
@@ -60,8 +60,8 @@ namespace Mod.Courier {
                 return info;
             }
 
-            public static ToggleButtonInfo RegisterToggleOptionButton(string text, UnityAction onClick, Func<string, string> GetOnText, Func<string, string> GetOffText) {
-                ToggleButtonInfo info = new ToggleButtonInfo(text, onClick, GetOnText, GetOffText);
+            public static ToggleButtonInfo RegisterToggleOptionButton(string text, UnityAction onClick, Func<ToggleButtonInfo, bool> GetState, Func<string, string> GetOnText, Func<string, string> GetOffText) {
+                ToggleButtonInfo info = new ToggleButtonInfo(text, onClick, GetState, GetOnText, GetOffText);
                 RegisterOptionButton(info);
                 return info;
             }
@@ -72,12 +72,18 @@ namespace Mod.Courier {
                 return info;
             }
 
+            public static TextEntryButtonInfo RegisterTextEntryOptionButton(string text, Action<string> onEntry, int maxCharacter = 15, Func<string> GetEntryText = null, Func<string> GetInitialText = null) {
+                TextEntryButtonInfo info = new TextEntryButtonInfo(text, onEntry, maxCharacter, GetEntryText, GetInitialText);
+                RegisterOptionButton(info);
+                return info;
+            }
+
             public static void RegisterModOptionButton(OptionsButtonInfo buttonInfo) {
                 ModOptionButtons.Add(buttonInfo);
             }
 
-            public static ToggleButtonInfo RegisterToggleModOptionButton(string text, UnityAction onClick) {
-                ToggleButtonInfo info = new ToggleButtonInfo(text, onClick,
+            public static ToggleButtonInfo RegisterToggleModOptionButton(string text, UnityAction onClick, Func<ToggleButtonInfo, bool> GetState) {
+                ToggleButtonInfo info = new ToggleButtonInfo(text, onClick, GetState,
                     (optionScreen) => Manager<LocalizationManager>.Instance.GetText(ModOptionScreen.onLocID),
                     (optionScreen) => Manager<LocalizationManager>.Instance.GetText(ModOptionScreen.offLocID)
                 );
@@ -85,14 +91,20 @@ namespace Mod.Courier {
                 return info;
             }
 
-            public static ToggleButtonInfo RegisterToggleModOptionButton(string text, UnityAction onClick, Func<string, string> GetOnText, Func<string, string> GetOffText) {
-                ToggleButtonInfo info = new ToggleButtonInfo(text, onClick, GetOnText, GetOffText);
+            public static ToggleButtonInfo RegisterToggleModOptionButton(string text, UnityAction onClick, Func<ToggleButtonInfo, bool> GetState, Func<string, string> GetOnText, Func<string, string> GetOffText) {
+                ToggleButtonInfo info = new ToggleButtonInfo(text, onClick, GetState, GetOnText, GetOffText);
                 RegisterModOptionButton(info);
                 return info;
             }
 
             public static SubMenuButtonInfo RegisterSubMenuModOptionButton(string text, UnityAction onClick) {
                 SubMenuButtonInfo info = new SubMenuButtonInfo(text, onClick);
+                RegisterModOptionButton(info);
+                return info;
+            }
+
+            public static TextEntryButtonInfo RegisterTextEntryModOptionButton(string text, Action<string> onEntry, int maxCharacter = 15, Func<string> GetEntryText = null, Func<string> GetInitialText = null) {
+                TextEntryButtonInfo info = new TextEntryButtonInfo(text, onEntry, maxCharacter, GetEntryText, GetInitialText);
                 RegisterModOptionButton(info);
                 return info;
             }

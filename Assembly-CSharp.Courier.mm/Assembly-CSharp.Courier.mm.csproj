@@ -116,7 +116,10 @@
     <Compile Include="Patches\BaseColossus.cs" />
     <Compile Include="Patches\EmeraldGolemBoss.cs" />
     <Compile Include="Patches\InGameHud.cs" />
-    <Compile Include="Patches\ProgressionManager.cs" />
+    <Compile Include="Courier\UI\TextEntryPopup.cs" />
+    <Compile Include="Courier\UI\TextEntryButtonInfo.cs" />
+    <Compile Include="Patches\SaveGameSelectionScreen.cs" />
+    <Compile Include="Courier\Helpers\GameObjectTemplates.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

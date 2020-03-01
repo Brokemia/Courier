@@ -92,6 +92,7 @@ namespace Mod.Courier.UI {
                 buttonInfo.gameObject.transform.SetParent(transform.Find("Container").Find("BackgroundFrame").Find("OptionsFrame").Find("OptionMenuButtons"));
                 buttonInfo.gameObject.name = buttonInfo.text;
                 buttonInfo.gameObject.transform.name = buttonInfo.text;
+                buttonInfo.addedTo = this;
                 foreach (TextMeshProUGUI text in buttonInfo.gameObject.GetComponentsInChildren<TextMeshProUGUI>()) {
                     if (text.name.Equals("OptionState"))
                         buttonInfo.stateTextMesh = text;
@@ -101,6 +102,8 @@ namespace Mod.Courier.UI {
                 Button button = buttonInfo.gameObject.GetComponentInChildren<Button>();
                 button.onClick = new Button.ButtonClickedEvent();
                 button.onClick.AddListener(buttonInfo.onClick);
+
+                buttonInfo.OnInit(this);
             }
             HideUnavailableOptions();
             InitOptions();

@@ -4,11 +4,15 @@ using Mod.Courier;
 using Mod.Courier.Helpers;
 using Mod.Courier.Module;
 using Mod.Courier.UI;
+using UnityEngine;
 
 namespace NinjaInvis {
     public class NinjaInvisModule : CourierModule {
-        
+
+        bool ninjaVisibility = true;
+
         bool shouldSetInvis;
+
         ToggleButtonInfo invisButtonInfo;
 
         FieldInfo optionsChangedInfo = typeof(OptionScreen).GetField("optionsChanged", ReflectionHelper.NonPublicInstanceFieldSet);
@@ -16,15 +20,14 @@ namespace NinjaInvis {
         public override void Load() {
             Courier.Events.PlayerController.OnUpdate += PlayerController_OnUpdate;
             On.SaveGameSlot.Load += SaveGameSlot_Load;
-            invisButtonInfo = Courier.UI.RegisterToggleModOptionButton("Player Visibility", OnInvis);
-            invisButtonInfo.state = true;
+            invisButtonInfo = Courier.UI.RegisterToggleModOptionButton("Player Visibility", OnInvis, (b) => ninjaVisibility);
         }
 
         void OnInvis() {
-            invisButtonInfo.state = !invisButtonInfo.state;
+            ninjaVisibility = !ninjaVisibility;
             shouldSetInvis = true;
             invisButtonInfo.UpdateStateText();
-            Console.WriteLine("Player Invisible: " + !invisButtonInfo.state);
+            Console.WriteLine("Player Invisible: " + !ninjaVisibility);
         }
 
         void SaveGameSlot_Load(On.SaveGameSlot.orig_Load orig, SaveGameSlot self) {
@@ -35,7 +38,7 @@ namespace NinjaInvis {
 
         void PlayerController_OnUpdate(PlayerController controller) {
             if (shouldSetInvis) {
-                if (invisButtonInfo.state) {
+                if (ninjaVisibility) {
                     controller.Show();
                 } else {
                     controller.Hide();

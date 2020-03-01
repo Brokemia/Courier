@@ -3,15 +3,17 @@ using UnityEngine.Events;
 
 namespace Mod.Courier.UI {
     public class ToggleButtonInfo : OptionsButtonInfo {
-        public bool state;
+        // Takes this button info
+        public Func<ToggleButtonInfo, bool> GetState;
         // Takes the default onLocID
         public Func<string, string> GetOnText;
         // Takes the default offLocID
         public Func<string, string> GetOffText;
 
-        public ToggleButtonInfo(string text, UnityAction onClick, Func<string, string> GetOnText, Func<string, string> GetOffText) : base(text, onClick) {
+        public ToggleButtonInfo(string text, UnityAction onClick, Func<ToggleButtonInfo, bool> GetState, Func<string, string> GetOnText, Func<string, string> GetOffText) : base(text, onClick) {
             this.GetOnText = GetOnText;
             this.GetOffText = GetOffText;
+            this.GetState = GetState;
         }
 
         public override void UpdateStateText() {
@@ -19,7 +21,7 @@ namespace Mod.Courier.UI {
         }
 
         public override string GetStateText() {
-            return state ? GetOnText(ModOptionScreen.onLocID) : GetOffText(ModOptionScreen.offLocID); // TODO Use Localization IDs instead
+            return GetState?.Invoke(this) ?? false ? GetOnText(ModOptionScreen.onLocID) : GetOffText(ModOptionScreen.offLocID); // TODO Use Localization IDs instead
         }
     }
 }
