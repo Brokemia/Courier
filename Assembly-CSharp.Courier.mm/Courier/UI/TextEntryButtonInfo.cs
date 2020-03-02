@@ -33,9 +33,6 @@ namespace Mod.Courier.UI {
 
         public override void OnInit(View view) {
             base.OnInit(view);
-            // TODO something null in get_transform
-            // TODO Just do serialization thing
-            GameObjectTemplates.textEntryPopup.transform.parent = new GameObject().transform;
             textEntryPopup = UnityEngine.Object.Instantiate(GameObjectTemplates.textEntryPopup);
 
             textEntryPopup.maxCharacter = maxCharacter;
@@ -84,6 +81,11 @@ namespace Mod.Courier.UI {
             addedTo.gameObject.SetActive(true);
             gameObject.transform.Find("Button").GetComponent<UIObjectAudioHandler>().playAudio = false;
             EventSystem.current.SetSelectedGameObject(gameObject.transform.Find("Button").gameObject);
+            // Specific check for ModOptionScreen to stop it from overwriting selection one frame later
+            // I don't like having the special case, but whatever
+            if(addedTo is ModOptionScreen modOption) {
+                modOption.initialSelection = gameObject;
+            }
             gameObject.transform.Find("Button").GetComponent<UIObjectAudioHandler>().playAudio = true;
         }
     }

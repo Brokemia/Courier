@@ -6,8 +6,8 @@
     <ProjectGuid>{D63CFDC9-0555-495B-9001-3EC66EBE9CE1}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AssemblyName>Assembly-CSharp.Courier.mm</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <RootNamespace>Mod</RootNamespace>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -90,6 +90,10 @@
       <HintPath>..\..\TheMessenger_Data\Managed\UnityEngine.UIModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="System.Xml">
+      <HintPath>..\..\TheMessenger_Data\Managed\System.Xml.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -120,6 +124,7 @@
     <Compile Include="Courier\UI\TextEntryButtonInfo.cs" />
     <Compile Include="Patches\SaveGameSelectionScreen.cs" />
     <Compile Include="Courier\Helpers\GameObjectTemplates.cs" />
+    <Compile Include="Courier\Helpers\GameObjectSerializer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -17,6 +17,8 @@ namespace Mod.Courier.UI {
 
         public GameObject defaultSelection;
 
+        public GameObject initialSelection;
+
         public static string onLocID = "OPTIONS_SCREEN_ON";
 
         public static string offLocID = "OPTIONS_SCREEN_OFF";
@@ -132,11 +134,12 @@ namespace Mod.Courier.UI {
         }
 
         private void SetInitialSelection() {
-            GameObject defaultSelectionButton = defaultSelection.transform.Find("Button").gameObject;
+            GameObject defaultSelectionButton = (initialSelection ?? defaultSelection).transform.Find("Button").gameObject;
             defaultSelectionButton.transform.GetComponent<UIObjectAudioHandler>().playAudio = false;
             EventSystem.current.SetSelectedGameObject(defaultSelectionButton);
             defaultSelectionButton.GetComponent<Button>().OnSelect(null);
             defaultSelectionButton.GetComponent<UIObjectAudioHandler>().playAudio = true;
+            initialSelection = null;
         }
 
         public void GoOffscreenInstant() {

@@ -2,6 +2,8 @@
 #pragma warning disable RECS0117 // Local variable has the same name as a member and hides it
 
 using System;
+using System.IO;
+using Mod.Courier;
 using Mod.Courier.Helpers;
 using Mod.Courier.UI;
 using UnityEngine;
@@ -10,8 +12,10 @@ public class patch_SaveGameSelectionScreen : SaveGameSelectionScreen {
     public extern void orig_Init(IViewParams screenParams);
     public new void Init(IViewParams screenParams) {
         NameSavePopup popupCopy = Instantiate(nameSavePopup);
+
         GameObject gameObject = new GameObject();
         GameObjectTemplates.textEntryPopup = gameObject.AddComponent<TextEntryPopup>();
+        DontDestroyOnLoad(GameObjectTemplates.textEntryPopup);
 
         GameObjectTemplates.textEntryPopup.eraseLetterSFX = popupCopy.eraseLetterSFX;
         GameObjectTemplates.textEntryPopup.name = "ModdedTextEntry";
@@ -22,6 +26,7 @@ public class patch_SaveGameSelectionScreen : SaveGameSelectionScreen {
         }
         GameObjectTemplates.textEntryPopup.gameObject.SetActive(false);
         GameObjectTemplates.textEntryPopup.transform.SetParent(null);
+
         orig_Init(screenParams);
     }
 }

@@ -24,6 +24,8 @@ namespace TrainerReborn {
         public bool infHealth;
 
         public bool infShuriken;
+
+        public float speedMult = 1;
         
         private string[] cmdArray;
 
@@ -56,6 +58,7 @@ namespace TrainerReborn {
         public override void Load() {
             On.InGameHud.OnGUI += InGameHud_OnGUI;
             On.PlayerController.CanJump += PlayerController_CanJump;
+            On.PlayerController.Awake += PlayerController_Awake;
 #pragma warning disable RECS0026 // Possible unassigned object created by 'new'
             new Hook(get_PlayerShurikensInfo, get_PlayerShurikensHookInfo, this);
             // Stuff that doesn't always call orig(self)
@@ -76,7 +79,12 @@ namespace TrainerReborn {
             secondQuestButton = Courier.UI.RegisterToggleModOptionButton("Second Quest", OnSecondQuest, (b) => Manager<ProgressionManager>.Instance.secondQuest);
             reloadButton = Courier.UI.RegisterSubMenuModOptionButton("Reload To Last Checkpoint", OnReloadButton);
             saveButton = Courier.UI.RegisterSubMenuModOptionButton("Instant Save", OnSaveButton);
-            //speedMultButton = Courier.UI.RegisterTextEntryModOptionButton("Speed Multiplier", OnEnterSpeed, 5, GetInitialText: () => Manager<PlayerManager>.Instance?.Player?.RunSpeedMultiplier.ToString() ?? "1");
+            speedMultButton = Courier.UI.RegisterTextEntryModOptionButton("Speed Multiplier", OnEnterSpeed, 4, GetInitialText: () => Manager<PlayerManager>.Instance?.Player?.RunSpeedMultiplier.ToString() ?? ""+speedMult);
+        }
+
+        void PlayerController_Awake(On.PlayerController.orig_Awake orig, PlayerController self) {
+            orig(self);
+            self.SetRunSpeedMultiplier(speedMult);
         }
 
         void OnInfHealth() {
@@ -147,7 +155,12 @@ namespace TrainerReborn {
         }
 
         void OnEnterSpeed(string entry) {
-            Manager<PlayerManager>.Instance?.Player?.SetRunSpeedMultiplier(float.Parse(entry));
+            if (float.TryParse(entry, out speedMult)) {
+                Manager<PlayerManager>.Instance?.Player?.SetRunSpeedMultiplier(speedMult);
+                Console.WriteLine("Speed Multiplier: " + speedMult);
+            } else {
+                Console.WriteLine("Speed Multiplier set to invalid value");
+            }
         }
 
         Vector3 RetroCamera_SnapPositionToCameraBounds(On.RetroCamera.orig_SnapPositionToCameraBounds orig, RetroCamera self, Vector3 pos) {
