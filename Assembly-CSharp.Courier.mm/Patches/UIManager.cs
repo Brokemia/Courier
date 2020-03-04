@@ -1,5 +1,9 @@
-﻿using System;
+﻿#pragma warning disable CS0626 // Method, operator, or accessor is marked external and has no attributes on it
+
+using System;
 using System.Collections.Generic;
+using Mod.Courier;
+using Mod.Courier.UI;
 using MonoMod;
 using UnityEngine;
 

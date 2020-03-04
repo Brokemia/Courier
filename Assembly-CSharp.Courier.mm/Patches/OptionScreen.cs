@@ -13,13 +13,6 @@ using UnityEngine.UI;
 public class patch_OptionScreen : OptionScreen {
     public extern void orig_Init(IViewParams screenParams);
     public void Init(IViewParams screenParams) {
-        /*FileStream file = File.Create(Application.persistentDataPath + "/SerializedFullscreen.dat"));
-        DataContractSerializer serializer = new DataContractSerializer(fullscreenOption.GetType());
-        MemoryStream stream = new MemoryStream();
-        serializer.WriteObject(stream, fullscreenOption);
-        stream.Seek(0, SeekOrigin.Begin);
-        file.Write(stream.GetBuffer(), 0, stream.GetBuffer().Length);
-        file.Close();*/
         foreach (OptionsButtonInfo buttonInfo in Courier.UI.OptionButtons) {
             if (buttonInfo is ToggleButtonInfo) {
                 buttonInfo.gameObject = Instantiate(fullscreenOption, transform.Find("Container").Find("BackgroundFrame"));
@@ -45,8 +38,13 @@ public class patch_OptionScreen : OptionScreen {
 
             buttonInfo.OnInit(this);
         }
-
         orig_Init(screenParams);
+    }
+
+    private extern void orig_OnEnable();
+    private void OnEnable() {
+        orig_OnEnable();
+
     }
 
     private extern void orig_InitOptions();
@@ -58,16 +56,15 @@ public class patch_OptionScreen : OptionScreen {
 
     private extern void orig_LateUpdate();
     private void LateUpdate() {
+        //Needs to be moved when the flickering bug is fixed
+        //transform.position -= new Vector3(0, .9f * Courier.UI.OptionButtons.Count);
         for (int i = 0; i < Courier.UI.OptionButtons.Count; i++) {
             OptionsButtonInfo buttonInfo = Courier.UI.OptionButtons[i];
             buttonInfo.nameTextMesh.text = buttonInfo.text; // TODO Patch LoadGeneralLoc to load custom language files
-            // TODO Find an earlier place to set this. Currently, it flickers briefly before putting itself in the right spot
-            buttonInfo.gameObject.transform.position = controlsButton.transform.position - new Vector3(9.7f, .9f * (i+1));
-            foreach (GameObject obj in FindObjectsOfType<GameObject>()) { // TODO This is a bad way of doing this. Fix later
-                if (obj.activeInHierarchy && obj.name.Equals("Back")) {
-                    obj.transform.position = buttonInfo.gameObject.transform.position + new Vector3(0, -.9f);
-                }
-            }
+                                                            // TODO Find an earlier place to set this. Currently, it flickers briefly before putting itself in the right spot
+            buttonInfo.gameObject.transform.position = controlsButton.transform.position - new Vector3(9.7f, .9f * (i + 1));
+
+            backgroundFrame.Find("OptionsFrame").Find("OptionMenuButtons").Find("Back").position = buttonInfo.gameObject.transform.position + new Vector3(0, -.9f);
         }
         orig_LateUpdate();
     }

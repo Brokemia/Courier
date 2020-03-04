@@ -2,12 +2,20 @@
 using Mod.Courier.Helpers;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace Mod.Courier.UI {
     public class TextEntryButtonInfo : SubMenuButtonInfo {
+
+        [Flags]
+        public enum CharsetFlags {
+            Letter = 1,
+            Number = 2,
+            Dash = 4,
+            Space = 8,
+            Dot = 16
+        }
 
         public TextEntryPopup textEntryPopup { get; private set; }
 
@@ -17,18 +25,23 @@ namespace Mod.Courier.UI {
 
         public Action<string> onEntry;
 
+        public CharsetFlags charsetFlags;
+
+        public const CharsetFlags DEFAULT_CHARSET = CharsetFlags.Letter | CharsetFlags.Number | CharsetFlags.Dash | CharsetFlags.Space;
+
         /// <summary>
         /// The maximum number of characters that can be entered in the text field.
         /// Only matters until OnInit, don't try to set it after that
         /// </summary>
         public int maxCharacter;
 
-        public TextEntryButtonInfo(string text, Action<string> onEntry, int maxCharacters = 15, Func<string> GetEntryText = null, Func<string> GetInitialText = null) : base(text, null) {
+        public TextEntryButtonInfo(string text, Action<string> onEntry, int maxCharacters = 15, Func<string> GetEntryText = null, Func<string> GetInitialText = null, CharsetFlags charset = DEFAULT_CHARSET) : base(text, null) {
             onClick = onButtonClicked;
             this.GetEntryText = GetEntryText;
             this.GetInitialText = GetInitialText;
             maxCharacter = maxCharacters;
             this.onEntry = onEntry;
+            charsetFlags = charset;
         }
 
         public override void OnInit(View view) {
@@ -39,19 +52,14 @@ namespace Mod.Courier.UI {
             textEntryPopup.transform.Find("BigFrame").Find("WhatIsYourName").GetComponent<TextMeshProUGUI>().SetText(GetEntryText?.Invoke() ?? text);
             textEntryPopup.entryTextfield = textEntryPopup.transform.Find("BigFrame").Find("WhatIsYourName").Find("ActualName").GetComponent<TextMeshProUGUI>();
             textEntryPopup.entryTextfield.name = "EntryTextfield";
-            textEntryPopup.initialSelection = textEntryPopup.transform.Find("BigFrame").Find("LetterGrid").Find("A").gameObject;
-            foreach(Transform letter in textEntryPopup.transform.Find("BigFrame").Find("LetterGrid").GetChildren()) {
-                if (letter.name.Length == 1) {
-                    letter.GetComponent<Button>().onClick = new Button.ButtonClickedEvent();
-                    letter.GetComponent<Button>().onClick.AddListener(() => textEntryPopup.OnLetterSelected(letter.name));
-                }
-            }
+
             foreach (Transform letter in textEntryPopup.transform.Find("BigFrame").Find("SymbolsGrid").GetChildren()) {
                 if (letter.name.Length == 1) {
                     letter.GetComponent<Button>().onClick = new Button.ButtonClickedEvent();
                     letter.GetComponent<Button>().onClick.AddListener(() => textEntryPopup.OnLetterSelected(letter.name));
                 }
             }
+
             Transform eraseIcon = textEntryPopup.transform.Find("BigFrame").Find("EraseIcon");
             eraseIcon.GetComponent<Button>().onClick = new Button.ButtonClickedEvent();
             eraseIcon.GetComponent<Button>().onClick.AddListener(textEntryPopup.OnLetterErased);
@@ -59,15 +67,91 @@ namespace Mod.Courier.UI {
             spaceIcon.GetComponent<Button>().onClick = new Button.ButtonClickedEvent();
             spaceIcon.GetComponent<Button>().onClick.AddListener(() => textEntryPopup.OnLetterSelected(" "));
 
+            Manager<UIManager>.Instance.SetParentAndAlign(textEntryPopup.gameObject, addedTo.gameObject);
+
+            if ((charsetFlags & CharsetFlags.Dot) == CharsetFlags.Dot) {
+                RectTransform dash = textEntryPopup.transform.Find("BigFrame").Find("SymbolsGrid").Find("1") as RectTransform;
+                GameObject dot = UnityEngine.Object.Instantiate(dash.gameObject);
+                dot.name = ".";
+                dot.transform.SetParent(textEntryPopup.transform.Find("BigFrame").Find("SymbolsGrid"));
+                dot.transform.position = spaceIcon.transform.position;
+                dot.GetComponent<TextMeshProUGUI>().SetText(".");
+                dot.GetComponent<Button>().onClick = new Button.ButtonClickedEvent();
+                dot.GetComponent<Button>().onClick.AddListener(() => textEntryPopup.OnLetterSelected("."));
+                dot.transform.localScale = Vector3.one;
+                spaceIcon.transform.position += new Vector3(.7f, 0);
+                eraseIcon.transform.position += new Vector3(.7f, 0);
+            }
+            
+            // Remove numbers if they're disabled
+            float numberRowY = textEntryPopup.transform.Find("BigFrame").Find("SymbolsGrid").Find("1").position.y;
+            if ((charsetFlags & CharsetFlags.Number) != CharsetFlags.Number) {
+                foreach (Transform symbol in textEntryPopup.transform.Find("BigFrame").Find("SymbolsGrid").GetChildren()) {
+                    // Leave the dot alone, remove the dash only if it isn't in the charset
+                    if (!symbol.name.Equals(".") && (!symbol.name.Equals("-") || (charsetFlags & CharsetFlags.Dash) != CharsetFlags.Dash)) {
+                        UnityEngine.Object.Destroy(symbol.gameObject);
+                    }
+                }
+            // If numbers are there, but the dash isn't
+            } else if ((charsetFlags & CharsetFlags.Dash) != CharsetFlags.Dash) {
+                UnityEngine.Object.Destroy(textEntryPopup.transform.Find("BigFrame").Find("SymbolsGrid").Find("-").gameObject);
+            }
+            
+            // Remove all the letters if they're disabled
+            if ((charsetFlags & CharsetFlags.Letter) != CharsetFlags.Letter) {
+                UnityEngine.Object.Destroy(textEntryPopup.transform.Find("BigFrame").Find("LetterGrid").gameObject);
+                textEntryPopup.transform.Find("BigFrame").GetComponent<RectTransform>().sizeDelta -= new Vector2(0, 60);
+                eraseIcon.position = new Vector3(eraseIcon.position.x, 6.669292f, eraseIcon.position.z);
+                spaceIcon.position = new Vector3(spaceIcon.position.x, 6.669292f, spaceIcon.position.z);
+            } else {
+                foreach (Transform letter in textEntryPopup.transform.Find("BigFrame").Find("LetterGrid").GetChildren()) {
+                    if (letter.name.Length == 1) {
+                        letter.GetComponent<Button>().onClick = new Button.ButtonClickedEvent();
+                        letter.GetComponent<Button>().onClick.AddListener(() => textEntryPopup.OnLetterSelected(letter.name));
+                    }
+                }
+            }
+            
+            if ((charsetFlags & CharsetFlags.Space) != CharsetFlags.Space) {
+                UnityEngine.Object.Destroy(spaceIcon.gameObject);
+                eraseIcon.Translate(new Vector2(-.7f, 0));
+            }
+
+            if((charsetFlags & CharsetFlags.Dash) != CharsetFlags.Dash) {
+                if ((charsetFlags & CharsetFlags.Space) == CharsetFlags.Space) {
+                    spaceIcon.Translate(new Vector2(-.7f, 0));
+                }
+                eraseIcon.Translate(new Vector2(-.7f, 0));
+            }
+
+            SetInitialSelection();
+
             textEntryPopup.onTextConfirmed += onEntry;
             textEntryPopup.onBack += OnCloseTextEntry;
             textEntryPopup.gameObject.SetActive(false);
         }
 
+        protected void SetInitialSelection() {
+            if (textEntryPopup == null)
+                return;
+            if ((charsetFlags & CharsetFlags.Letter) == CharsetFlags.Letter) {
+                textEntryPopup.initialSelection = textEntryPopup.transform.Find("BigFrame").Find("LetterGrid").Find("A").gameObject;
+            } else if ((charsetFlags & CharsetFlags.Number) == CharsetFlags.Number) {
+                textEntryPopup.initialSelection = textEntryPopup.transform.Find("BigFrame").Find("SymbolsGrid").Find("1").gameObject;
+            } else if ((charsetFlags & CharsetFlags.Dash) == CharsetFlags.Dash) {
+                textEntryPopup.initialSelection = textEntryPopup.transform.Find("BigFrame").Find("SymbolsGrid").Find("-").gameObject;
+            } else if ((charsetFlags & CharsetFlags.Dot) == CharsetFlags.Dot) {
+                textEntryPopup.initialSelection = textEntryPopup.transform.Find("BigFrame").Find("SymbolsGrid").Find(".").gameObject;
+            } else if ((charsetFlags & CharsetFlags.Space) == CharsetFlags.Space) {
+                textEntryPopup.initialSelection = textEntryPopup.transform.Find("BigFrame").Find("SpaceIcon").gameObject;
+            } else {
+                textEntryPopup.initialSelection = textEntryPopup.transform.Find("BigFrame").Find("EraseIcon").gameObject;
+            }
+        }
+
         protected void onButtonClicked() {
             textEntryPopup.Init(GetInitialText?.Invoke() ?? string.Empty);
             textEntryPopup.gameObject.SetActive(true);
-            Manager<UIManager>.Instance.SetParentAndAlign(textEntryPopup.gameObject, addedTo.gameObject);
             textEntryPopup.transform.SetParent(addedTo.transform.parent);
             addedTo.gameObject.SetActive(false);
             Canvas.ForceUpdateCanvases();

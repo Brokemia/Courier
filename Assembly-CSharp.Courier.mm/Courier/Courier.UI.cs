@@ -4,7 +4,7 @@ using Mod.Courier.UI;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.UI;
+using static Mod.Courier.UI.TextEntryButtonInfo;
 
 namespace Mod.Courier {
     public partial class Courier {
@@ -72,8 +72,8 @@ namespace Mod.Courier {
                 return info;
             }
 
-            public static TextEntryButtonInfo RegisterTextEntryOptionButton(string text, Action<string> onEntry, int maxCharacter = 15, Func<string> GetEntryText = null, Func<string> GetInitialText = null) {
-                TextEntryButtonInfo info = new TextEntryButtonInfo(text, onEntry, maxCharacter, GetEntryText, GetInitialText);
+            public static TextEntryButtonInfo RegisterTextEntryOptionButton(string text, Action<string> onEntry, int maxCharacter = 15, Func<string> GetEntryText = null, Func<string> GetInitialText = null, CharsetFlags charset = TextEntryButtonInfo.DEFAULT_CHARSET) {
+                TextEntryButtonInfo info = new TextEntryButtonInfo(text, onEntry, maxCharacter, GetEntryText, GetInitialText, charset);
                 RegisterOptionButton(info);
                 return info;
             }
@@ -103,8 +103,8 @@ namespace Mod.Courier {
                 return info;
             }
 
-            public static TextEntryButtonInfo RegisterTextEntryModOptionButton(string text, Action<string> onEntry, int maxCharacter = 15, Func<string> GetEntryText = null, Func<string> GetInitialText = null) {
-                TextEntryButtonInfo info = new TextEntryButtonInfo(text, onEntry, maxCharacter, GetEntryText, GetInitialText);
+            public static TextEntryButtonInfo RegisterTextEntryModOptionButton(string text, Action<string> onEntry, int maxCharacter = 15, Func<string> GetEntryText = null, Func<string> GetInitialText = null, CharsetFlags charset = TextEntryButtonInfo.DEFAULT_CHARSET) {
+                TextEntryButtonInfo info = new TextEntryButtonInfo(text, onEntry, maxCharacter, GetEntryText, GetInitialText, charset);
                 RegisterModOptionButton(info);
                 return info;
             }

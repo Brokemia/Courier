@@ -69,7 +69,7 @@ namespace Mod.Courier.UI {
 
         // You heard me
         private void InitStuffUnityWouldDo() {
-            transform.position -= new Vector3(0, 80 + heightPerButton * Courier.UI.ModOptionButtons.Count);
+            transform.position -= new Vector3(0, 90 + heightPerButton * Courier.UI.ModOptionButtons.Count);
             backgroundFrame = (RectTransform)transform.Find("Container").Find("BackgroundFrame");
             initialHeight = backgroundFrame.sizeDelta.y;
             gameObject.AddComponent<Canvas>();

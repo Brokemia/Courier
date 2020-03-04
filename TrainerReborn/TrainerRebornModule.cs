@@ -9,6 +9,7 @@ using MonoMod.RuntimeDetour;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using static Mod.Courier.UI.TextEntryButtonInfo;
 
 namespace TrainerReborn {
     public class TrainerRebornModule : CourierModule {
@@ -26,6 +27,8 @@ namespace TrainerReborn {
         public bool infShuriken;
 
         public float speedMult = 1;
+
+        public Color debugTextColor = Color.white;
         
         private string[] cmdArray;
 
@@ -51,6 +54,7 @@ namespace TrainerReborn {
         SubMenuButtonInfo reloadButton;
         SubMenuButtonInfo saveButton;
         TextEntryButtonInfo speedMultButton;
+        TextEntryButtonInfo debugTextColorButton;
 
         [DllImport("USER32.dll")]
         public static extern short GetKeyState(int nVirtKey);
@@ -77,9 +81,10 @@ namespace TrainerReborn {
             debugBossButton = Courier.UI.RegisterToggleModOptionButton("Boss Debug Display", OnDebugBoss, (b) => debugBoss);
             toggleCollisionsButton = Courier.UI.RegisterToggleModOptionButton("Collisions", OnToggleCollisions, (b) => (Manager<PlayerManager>.Instance?.Player?.Controller?.collisionMaskList?.Count ?? 3) >= 2);
             secondQuestButton = Courier.UI.RegisterToggleModOptionButton("Second Quest", OnSecondQuest, (b) => Manager<ProgressionManager>.Instance.secondQuest);
+            speedMultButton = Courier.UI.RegisterTextEntryModOptionButton("Speed Multiplier", OnEnterSpeed, 4, null, () => Manager<PlayerManager>.Instance?.Player?.RunSpeedMultiplier.ToString() ?? "" + speedMult, CharsetFlags.Number | CharsetFlags.Dot);
+            debugTextColorButton = Courier.UI.RegisterTextEntryModOptionButton("Debug Text Color", OnEnterDebugTextColor, 7, null, () => "", CharsetFlags.Letter);
             reloadButton = Courier.UI.RegisterSubMenuModOptionButton("Reload To Last Checkpoint", OnReloadButton);
             saveButton = Courier.UI.RegisterSubMenuModOptionButton("Instant Save", OnSaveButton);
-            speedMultButton = Courier.UI.RegisterTextEntryModOptionButton("Speed Multiplier", OnEnterSpeed, 4, GetInitialText: () => Manager<PlayerManager>.Instance?.Player?.RunSpeedMultiplier.ToString() ?? ""+speedMult);
         }
 
         void PlayerController_Awake(On.PlayerController.orig_Awake orig, PlayerController self) {
@@ -163,6 +168,41 @@ namespace TrainerReborn {
             }
         }
 
+        void OnEnterDebugTextColor(string entry) {
+            if (entry.Equals("White", StringComparison.InvariantCultureIgnoreCase)) {
+                debugTextColor = Color.white;
+                Console.WriteLine("Debug text color set to: " + debugTextColor);
+            } else if (entry.Equals("Black", StringComparison.InvariantCultureIgnoreCase)) {
+                debugTextColor = Color.black;
+                Console.WriteLine("Debug text color set to: " + debugTextColor);
+            } else if (entry.Equals("Red", StringComparison.InvariantCultureIgnoreCase)) {
+                debugTextColor = Color.red;
+                Console.WriteLine("Debug text color set to: " + debugTextColor);
+            } else if (entry.Equals("Green", StringComparison.InvariantCultureIgnoreCase)) {
+                debugTextColor = Color.green;
+                Console.WriteLine("Debug text color set to: " + debugTextColor);
+            } else if (entry.Equals("Blue", StringComparison.InvariantCultureIgnoreCase)) {
+                debugTextColor = Color.blue;
+                Console.WriteLine("Debug text color set to: " + debugTextColor);
+            } else if (entry.Equals("Cyan", StringComparison.InvariantCultureIgnoreCase)) {
+                debugTextColor = Color.cyan;
+                Console.WriteLine("Debug text color set to: " + debugTextColor);
+            } else if (entry.Equals("Gray", StringComparison.InvariantCultureIgnoreCase) || entry.Equals("Grey", StringComparison.InvariantCultureIgnoreCase)) {
+                debugTextColor = Color.gray;
+                Console.WriteLine("Debug text color set to: " + debugTextColor);
+            } else if (entry.Equals("Magenta", StringComparison.InvariantCultureIgnoreCase)) {
+                debugTextColor = Color.magenta;
+                Console.WriteLine("Debug text color set to: " + debugTextColor);
+            } else if (entry.Equals("Yellow", StringComparison.InvariantCultureIgnoreCase)) {
+                debugTextColor = Color.yellow;
+                Console.WriteLine("Debug text color set to: " + debugTextColor);
+            }
+            if (debugText8 != null)
+                debugText8.color = debugTextColor;
+            if (debugText16 != null)
+                debugText16.color = debugTextColor;
+        }
+
         Vector3 RetroCamera_SnapPositionToCameraBounds(On.RetroCamera.orig_SnapPositionToCameraBounds orig, RetroCamera self, Vector3 pos) {
             if (!noBounds) {
                 return orig(self, pos);
@@ -199,11 +239,9 @@ namespace TrainerReborn {
         public void InGameHud_OnGUI(On.InGameHud.orig_OnGUI orig, InGameHud self) {
             orig(self);
             if (cmdArray == null) {
-                cmdArray = new string[4]
+                cmdArray = new string[]
                 {
-                "DebugTextColor",
                 "Item",
-                "Speed",
                 "Tp"
                 };
             }
@@ -227,8 +265,8 @@ namespace TrainerReborn {
                 debugText16.alignment = TextAlignmentOptions.TopRight;
                 debugText8.enableWordWrapping = false;
                 debugText16.enableWordWrapping = false;
-                debugText8.color = Color.white;
-                debugText16.color = Color.white;
+                debugText8.color = debugTextColor;
+                debugText16.color = debugTextColor;
             }
             string text3 = debugText8.text = (debugText16.text = "");
             UpdateDebugText();
@@ -324,25 +362,6 @@ namespace TrainerReborn {
                                     }
                                 }
                             }
-                            if (array.Length > 1 && array[0].Equals("/Speed", StringComparison.InvariantCultureIgnoreCase)) {
-                                command = array[0] + "." + (array[1].Equals("1") ? "2" : (array[1].Equals("2") ? "3" : "1"));
-                            }
-                            if (array.Length > 1 && array[0].Equals("/DebugTextColor", StringComparison.InvariantCultureIgnoreCase)) {
-                                string str = "Black";
-                                if (array[1].Equals("Black", StringComparison.InvariantCultureIgnoreCase)) {
-                                    str = "Blue";
-                                }
-                                if (array[1].Equals("Blue", StringComparison.InvariantCultureIgnoreCase)) {
-                                    str = "Green";
-                                }
-                                if (array[1].Equals("Green", StringComparison.InvariantCultureIgnoreCase)) {
-                                    str = "Red";
-                                }
-                                if (array[1].Equals("Red", StringComparison.InvariantCultureIgnoreCase)) {
-                                    str = "White";
-                                }
-                                command = array[0] + "." + str;
-                            }
                             if (array.Length > 1 && array[0].Equals("/Item", StringComparison.InvariantCultureIgnoreCase)) {
                                 if (array.Length == 2) {
                                     List<string> list = new List<string>(Dicts.itemDict.Keys);
@@ -430,26 +449,6 @@ namespace TrainerReborn {
                 }
                 if (keyCode == KeyCode.Return || keyCode == KeyCode.KeypadEnter) {
                     string[] array2 = command.Split('.');
-                    if (array2[0].Equals("/DebugTextColor", StringComparison.InvariantCultureIgnoreCase)) {
-                        Color color = debugText8.color;
-                        if (array2[1].Equals("White", StringComparison.InvariantCultureIgnoreCase)) {
-                            color = Color.white;
-                        }
-                        if (array2[1].Equals("Black", StringComparison.InvariantCultureIgnoreCase)) {
-                            color = Color.black;
-                        }
-                        if (array2[1].Equals("Red", StringComparison.InvariantCultureIgnoreCase)) {
-                            color = Color.red;
-                        }
-                        if (array2[1].Equals("Green", StringComparison.InvariantCultureIgnoreCase)) {
-                            color = Color.green;
-                        }
-                        if (array2[1].Equals("Blue", StringComparison.InvariantCultureIgnoreCase)) {
-                            color = Color.blue;
-                        }
-                        debugText8.color = color;
-                        debugText16.color = color;
-                    }
                     if (array2[0].Equals("/Item", StringComparison.InvariantCultureIgnoreCase)) {
                         if (array2[1].Equals("TimeShard", StringComparison.InvariantCultureIgnoreCase)) {
                             if (int.Parse(array2[2]) >= 0) {
