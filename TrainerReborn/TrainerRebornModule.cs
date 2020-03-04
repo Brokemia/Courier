@@ -8,6 +8,7 @@ using Mod.Courier.UI;
 using MonoMod.RuntimeDetour;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using static Mod.Courier.UI.TextEntryButtonInfo;
 
@@ -26,20 +27,16 @@ namespace TrainerReborn {
 
         public bool infShuriken;
 
+        public bool collisionsDisabled;
+
         public float speedMult = 1;
 
         public Color debugTextColor = Color.white;
         
-        private string[] cmdArray;
-
-        private string command = "Trainer";
-
         private TextMeshProUGUI debugText8;
 
         private TextMeshProUGUI debugText16;
-
-        private bool IsCapsLockOn => (GetKeyState(20) & 1) > 0;
-
+        
         private static MethodInfo get_PlayerShurikensInfo = typeof(PlayerManager).GetProperty("PlayerShurikens", BindingFlags.Public | BindingFlags.Instance | BindingFlags.GetProperty).GetGetMethod();
         private static MethodInfo get_PlayerShurikensHookInfo = typeof(TrainerRebornModule).GetMethod(nameof(PlayerManager_get_PlayerShurikens), BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.InvokeMethod);
 
@@ -55,9 +52,8 @@ namespace TrainerReborn {
         SubMenuButtonInfo saveButton;
         TextEntryButtonInfo speedMultButton;
         TextEntryButtonInfo debugTextColorButton;
-
-        [DllImport("USER32.dll")]
-        public static extern short GetKeyState(int nVirtKey);
+        TextEntryButtonInfo tpButton;
+        TextEntryButtonInfo getItemButton;
 
         public override void Load() {
             On.InGameHud.OnGUI += InGameHud_OnGUI;
@@ -76,20 +72,56 @@ namespace TrainerReborn {
             infHealthButton = Courier.UI.RegisterToggleModOptionButton("Infinite Health", OnInfHealth, (b) => infHealth);
             infShurikenButton = Courier.UI.RegisterToggleModOptionButton("Infinite Shurikens", OnInfShuriken, (b) => infShuriken);
             infJumpButton = Courier.UI.RegisterToggleModOptionButton("Infinite Jumps", OnInfJump, (b) => infJump);
-            noBoundsButton = Courier.UI.RegisterToggleModOptionButton("No Camera Bounds", OnNoBounds, (b) => noBounds);
+            //noBoundsButton = Courier.UI.RegisterToggleModOptionButton("No Camera Bounds", OnNoBounds, (b) => noBounds);
             debugPosButton = Courier.UI.RegisterToggleModOptionButton("Position Debug Display", OnDebugPos, (b) => debugPos);
             debugBossButton = Courier.UI.RegisterToggleModOptionButton("Boss Debug Display", OnDebugBoss, (b) => debugBoss);
-            toggleCollisionsButton = Courier.UI.RegisterToggleModOptionButton("Collisions", OnToggleCollisions, (b) => (Manager<PlayerManager>.Instance?.Player?.Controller?.collisionMaskList?.Count ?? 3) >= 2);
+            toggleCollisionsButton = Courier.UI.RegisterToggleModOptionButton("Collisions", OnToggleCollisions, (b) => !collisionsDisabled);
             secondQuestButton = Courier.UI.RegisterToggleModOptionButton("Second Quest", OnSecondQuest, (b) => Manager<ProgressionManager>.Instance.secondQuest);
             speedMultButton = Courier.UI.RegisterTextEntryModOptionButton("Speed Multiplier", OnEnterSpeed, 4, null, () => Manager<PlayerManager>.Instance?.Player?.RunSpeedMultiplier.ToString() ?? "" + speedMult, CharsetFlags.Number | CharsetFlags.Dot);
             debugTextColorButton = Courier.UI.RegisterTextEntryModOptionButton("Debug Text Color", OnEnterDebugTextColor, 7, null, () => "", CharsetFlags.Letter);
+            tpButton = Courier.UI.RegisterTextEntryModOptionButton("Teleport", OnEnterTeleportLevel, 17, () => "Level To Teleport To", () => GetLevelNameFromEnum(Manager<LevelManager>.Instance?.GetCurrentLevelEnum() ?? ELevel.NONE), CharsetFlags.Letter);
+            getItemButton = Courier.UI.RegisterTextEntryModOptionButton("Give Item", OnEnterItemToGive, 16, () => "Item Name", () => "", CharsetFlags.Letter);
             reloadButton = Courier.UI.RegisterSubMenuModOptionButton("Reload To Last Checkpoint", OnReloadButton);
             saveButton = Courier.UI.RegisterSubMenuModOptionButton("Instant Save", OnSaveButton);
+
+            // Disable certain features until we enter the level
+            secondQuestButton.IsEnabled += () => Manager<LevelManager>.Instance.GetCurrentLevelEnum() != ELevel.NONE;
+            tpButton.IsEnabled = () => Manager<LevelManager>.Instance.GetCurrentLevelEnum() != ELevel.NONE;
+            getItemButton.IsEnabled = () => Manager<LevelManager>.Instance.GetCurrentLevelEnum() != ELevel.NONE;
+            reloadButton.IsEnabled = () => Manager<LevelManager>.Instance.GetCurrentLevelEnum() != ELevel.NONE;
+            saveButton.IsEnabled = () => Manager<LevelManager>.Instance.GetCurrentLevelEnum() != ELevel.NONE;
+
+            if (Dicts.tpDict == null) {
+                Dicts.InitTpDict();
+            }
+            if (Dicts.itemDict == null) {
+                Dicts.InitItemDict();
+            }
+            if (Dicts.levelDict == null) {
+                Dicts.InitLevelDict();
+            }
+        }
+
+        static string GetLevelNameFromEnum(ELevel levelEnum) {
+            if (Dicts.levelDict == null) {
+                Dicts.InitLevelDict();
+            }
+            foreach (KeyValuePair<string, string> kvp in Dicts.levelDict) {
+                if (levelEnum.ToString().Equals(kvp.Value))
+                    return kvp.Key;
+            }
+            return "";
         }
 
         void PlayerController_Awake(On.PlayerController.orig_Awake orig, PlayerController self) {
             orig(self);
             self.SetRunSpeedMultiplier(speedMult);
+            List<LayerMask> collisionMaskList = Manager<PlayerManager>.Instance.Player.Controller.collisionMaskList;
+            // Remove collisions if they were disabled earlier
+            if (collisionsDisabled) {
+                collisionMaskList[0] = 0;
+                collisionMaskList[1] = 0;
+            }
         }
 
         void OnInfHealth() {
@@ -134,16 +166,20 @@ namespace TrainerReborn {
         }
 
         void OnToggleCollisions() {
-            List<LayerMask> collisionMaskList = Manager<PlayerManager>.Instance.Player.Controller.collisionMaskList;
-            // Only add collisions if they are turned off
-            if (collisionMaskList.Count < 2) {
-                collisionMaskList.Add(4608);
-                collisionMaskList.Add(25165824);
-            } else {
-                collisionMaskList.Clear();
+            collisionsDisabled = !collisionsDisabled;
+            List<LayerMask> collisionMaskList = Manager<PlayerManager>.Instance?.Player?.Controller?.collisionMaskList;
+            if (collisionMaskList != null) {
+                // Only add collisions if they are turned off
+                if (!collisionsDisabled) {
+                    collisionMaskList[0] = 4608;
+                    collisionMaskList[1] = 25165824;
+                } else if (collisionsDisabled) {
+                    collisionMaskList[0] = 0;
+                    collisionMaskList[1] = 0;
+                }
             }
             toggleCollisionsButton.UpdateStateText();
-            Console.WriteLine("Collisions: " + (collisionMaskList.Count >= 2));
+            Console.WriteLine("Collisions: " + !collisionsDisabled);
         }
 
         void OnSaveButton() {
@@ -159,16 +195,17 @@ namespace TrainerReborn {
             Console.WriteLine("Second Quest: " + Manager<ProgressionManager>.Instance.secondQuest);
         }
 
-        void OnEnterSpeed(string entry) {
+        bool OnEnterSpeed(string entry) {
             if (float.TryParse(entry, out speedMult)) {
                 Manager<PlayerManager>.Instance?.Player?.SetRunSpeedMultiplier(speedMult);
                 Console.WriteLine("Speed Multiplier: " + speedMult);
             } else {
                 Console.WriteLine("Speed Multiplier set to invalid value");
             }
+            return true;
         }
 
-        void OnEnterDebugTextColor(string entry) {
+        bool OnEnterDebugTextColor(string entry) {
             if (entry.Equals("White", StringComparison.InvariantCultureIgnoreCase)) {
                 debugTextColor = Color.white;
                 Console.WriteLine("Debug text color set to: " + debugTextColor);
@@ -201,6 +238,127 @@ namespace TrainerReborn {
                 debugText8.color = debugTextColor;
             if (debugText16 != null)
                 debugText16.color = debugTextColor;
+            return true;
+        }
+
+        // When they enter the level to load into
+        bool OnEnterTeleportLevel(string level) {
+            if (Dicts.tpDict == null) {
+                Dicts.InitTpDict();
+            }
+            level = level.Replace(" ", "");
+            if (Dicts.tpDict.ContainsKey(level)) {
+                TextEntryPopup locationPopup = InitTextEntryPopup(tpButton.addedTo, "Location To Teleport To", (entry) => OnEnterTeleportLocation(level, entry), 2, null, CharsetFlags.Number | CharsetFlags.Dash);
+                locationPopup.onBack += () => {
+                    locationPopup.gameObject.SetActive(false);
+                    tpButton.textEntryPopup.gameObject.SetActive(true);
+                    tpButton.textEntryPopup.StartCoroutine(tpButton.textEntryPopup.BackWhenBackButtonReleased());
+                };
+                tpButton.textEntryPopup.gameObject.SetActive(false);
+                locationPopup.Init(string.Empty);
+                locationPopup.gameObject.SetActive(true);
+                locationPopup.transform.SetParent(tpButton.addedTo.transform.parent);
+                tpButton.addedTo.gameObject.SetActive(false);
+                Canvas.ForceUpdateCanvases();
+                locationPopup.initialSelection.GetComponent<UIObjectAudioHandler>().playAudio = false;
+                EventSystem.current.SetSelectedGameObject(locationPopup.initialSelection);
+                locationPopup.initialSelection.GetComponent<UIObjectAudioHandler>().playAudio = true;
+                return false;
+            }
+            Console.WriteLine("Teleport Level set to an invalid value");
+            return false;
+        }
+
+        bool OnEnterTeleportLocation(string level, string location) {
+            if(int.TryParse(location, out int tpLoc) && Dicts.tpDict[level].TryGetValue(tpLoc, out float[] loadPos)) {
+                EBits dimension = Manager<DimensionManager>.Instance.currentDimension;
+                // TODO tp to other dimension
+                //if (array2.Length == 4) {
+                //    if (array2[3].Equals("8")) {
+                //        dimension = EBits.BITS_8;
+                //    }
+                //    if (array2[3].Equals("16")) {
+                //        dimension = EBits.BITS_16;
+                //    }
+                //}
+                Manager<PauseManager>.Instance.Resume();
+                Manager<UIManager>.Instance.GetView<OptionScreen>().Close(false);
+                string levelName = level.Equals("Surf", StringComparison.InvariantCultureIgnoreCase) ? Dicts.levelDict[level] : (Dicts.levelDict[level] + "_Build");
+                Manager<ProgressionManager>.Instance.checkpointSaveInfo.loadedLevelPlayerPosition = new Vector2(loadPos[0], loadPos[1]);
+                LevelLoadingInfo levelLoadingInfo = new LevelLoadingInfo(levelName, false, true, LoadSceneMode.Single, ELevelEntranceID.NONE, dimension);
+                Console.WriteLine("Teleporting to location " + tpLoc + " in " + level);
+                // Close mod options menu before TPing out
+                Courier.UI.ModOptionScreen?.Close(false);
+
+                Manager<LevelManager>.Instance.LoadLevel(levelLoadingInfo);
+                return true;
+            }
+            Console.WriteLine("Teleport Location set to an invalid value");
+            return false;
+        }
+
+        // When they enter the name of the item to give
+        bool OnEnterItemToGive(string item) {
+            if (Dicts.itemDict == null) {
+                Dicts.InitItemDict();
+            }
+            item = item.Replace(" ", "");
+            if (Dicts.itemDict.ContainsKey(item)) {
+                TextEntryPopup quantityPopup = InitTextEntryPopup(getItemButton.addedTo, "Number Of Items", (entry) => OnEnterItemQuantity(item, entry), 4, null, CharsetFlags.Number | CharsetFlags.Dash);
+                quantityPopup.onBack += () => {
+                    quantityPopup.gameObject.SetActive(false);
+                    getItemButton.textEntryPopup.gameObject.SetActive(true);
+                    getItemButton.textEntryPopup.StartCoroutine(getItemButton.textEntryPopup.BackWhenBackButtonReleased());
+                };
+                getItemButton.textEntryPopup.gameObject.SetActive(false);
+                quantityPopup.Init(string.Empty);
+                quantityPopup.gameObject.SetActive(true);
+                quantityPopup.transform.SetParent(getItemButton.addedTo.transform.parent);
+                getItemButton.addedTo.gameObject.SetActive(false);
+                Canvas.ForceUpdateCanvases();
+                quantityPopup.initialSelection.GetComponent<UIObjectAudioHandler>().playAudio = false;
+                EventSystem.current.SetSelectedGameObject(quantityPopup.initialSelection);
+                quantityPopup.initialSelection.GetComponent<UIObjectAudioHandler>().playAudio = true;
+                return false;
+            }
+            Console.WriteLine("Item Name To Give set to an invalid value");
+            return false;
+        }
+
+        bool OnEnterItemQuantity(string item, string number) {
+            if (int.TryParse(number, out int quantity)) {
+                if (item.Equals("TimeShard", StringComparison.InvariantCultureIgnoreCase)) {
+                    if (quantity >= 0) {
+                        Manager<InventoryManager>.Instance.CollectTimeShard(quantity);
+                    } else {
+                        Manager<InventoryManager>.Instance.SpendTimeShard(-quantity);
+                    }
+                } else {
+                    string[] itemIDs = Dicts.itemDict[item].Split('-');
+                    if (quantity >= 1) {
+                        if (itemIDs.Length == 1) {
+                            Manager<InventoryManager>.Instance.AddItem((EItems)int.Parse(itemIDs[0]), 1);
+                        } else {
+                            for (int i = int.Parse(itemIDs[0]); i <= int.Parse(itemIDs[1]); i++) {
+                                Manager<InventoryManager>.Instance.AddItem((EItems)i, 1);
+                            }
+                        }
+                    }
+                    if (quantity <= 0) {
+                        if (itemIDs.Length == 1) {
+                            Manager<InventoryManager>.Instance.RemoveItem((EItems)int.Parse(itemIDs[0]), 1);
+                        } else {
+                            for (int i = int.Parse(itemIDs[0]); i <= int.Parse(itemIDs[1]); i++) {
+                                Manager<InventoryManager>.Instance.RemoveItem((EItems)i, 1);
+                            }
+                        }
+                    }
+                }
+                Console.WriteLine("Giving " + quantity + "x " + item);
+                return true;
+            }
+            Console.WriteLine("Item Quantity set to an invalid value");
+            return false;
         }
 
         Vector3 RetroCamera_SnapPositionToCameraBounds(On.RetroCamera.orig_SnapPositionToCameraBounds orig, RetroCamera self, Vector3 pos) {
@@ -238,22 +396,6 @@ namespace TrainerReborn {
 
         public void InGameHud_OnGUI(On.InGameHud.orig_OnGUI orig, InGameHud self) {
             orig(self);
-            if (cmdArray == null) {
-                cmdArray = new string[]
-                {
-                "Item",
-                "Tp"
-                };
-            }
-            if (Dicts.tpDict == null) {
-                Dicts.InitTpDict();
-            }
-            if (Dicts.itemDict == null) {
-                Dicts.InitItemDict();
-            }
-            if (Dicts.levelDict == null) {
-                Dicts.InitLevelDict();
-            }
             if (debugText8 == null) {
                 debugText8 = UnityEngine.Object.Instantiate(self.hud_8.coinCount, self.hud_8.gameObject.transform);
                 debugText16 = UnityEngine.Object.Instantiate(self.hud_16.coinCount, self.hud_16.gameObject.transform);
@@ -268,17 +410,8 @@ namespace TrainerReborn {
                 debugText8.color = debugTextColor;
                 debugText16.color = debugTextColor;
             }
-            string text3 = debugText8.text = (debugText16.text = "");
+            debugText8.text = debugText16.text = string.Empty;
             UpdateDebugText();
-            if (Event.current.isKey && Event.current.type == EventType.KeyDown && Event.current.keyCode != 0) {
-                HandleInput(Event.current.keyCode);
-                UpdateCommand(self, command);
-            }
-        }
-
-        private void UpdateCommand(InGameHud gameHud, string cmd) {
-            gameHud.hud_8.playerName.SetText(cmd);
-            gameHud.hud_16.playerName.SetText(cmd);
         }
 
         private void AddToDebug(string debug) {
@@ -288,13 +421,13 @@ namespace TrainerReborn {
 
         private void UpdateDebugText() {
             if (debugPos) {
-                Vector2 vector = Manager<PlayerManager>.Instance.Player.transform.position;
-                AddToDebug("\r\nPos (" + vector.x.ToString("F1") + ", " + vector.y.ToString("F1") + ")");
+                Vector2 playerPos = Manager<PlayerManager>.Instance.Player.transform.position;
+                AddToDebug("\r\nPos (" + playerPos.x.ToString("F1") + ", " + playerPos.y.ToString("F1") + ")");
             }
             if (noBounds) {
                 AddToDebug("\r\nCamera Unlocked");
             }
-            if (Manager<PlayerManager>.Instance.Player.Controller.collisionMaskList.Count == 0) {
+            if (collisionsDisabled) {
                 AddToDebug("\r\nNo Collisions");
             }
             if (infShuriken) {
@@ -314,344 +447,146 @@ namespace TrainerReborn {
             }
         }
 
-
-        private void HandleInput(KeyCode keyCode) {
-            Event.current.keyCode = KeyCode.None;
-            if (keyCode == KeyCode.Slash) {
-                command = "/";
-            } else {
-                if (!command.StartsWith("/")) {
-                    return;
-                }
-                switch (keyCode) {
-                    case KeyCode.Period:
-                        command += ".";
-                        return;
-                    case KeyCode.Minus:
-                        command += "-";
-                        return;
-                }
-                if (keyCode.ToString().StartsWith("Alpha")) {
-                    command += keyCode.ToString().Substring(5);
-                    return;
-                }
-                if (keyCode.ToString().StartsWith("Keypad") && keyCode != KeyCode.KeypadEnter) {
-                    if (keyCode.ToString().Equals("KeypadMinus")) {
-                        command += "-";
-                    } else if (keyCode.ToString().Equals("KeypadPeriod")) {
-                        command += ".";
-                    } else if (keyCode.ToString().Length <= 7) {
-                        command += keyCode.ToString().Substring(6);
-                    }
-                    return;
-                }
-                switch (keyCode) {
-                    case KeyCode.Backspace:
-                        command = command.Remove(command.Length - 1);
-                        return;
-                    case KeyCode.Tab: {
-                            string[] array = command.Split('.');
-                            if (array.Length == 1) {
-                                for (int i = 0; i < cmdArray.Length; i++) {
-                                    if (array[0].Substring(1).CompareTo(cmdArray[i]) == -1) {
-                                        command = "/" + cmdArray[i];
-                                        break;
-                                    }
-                                    if (i == cmdArray.Length - 1) {
-                                        command = "/" + cmdArray[0];
-                                    }
-                                }
-                            }
-                            if (array.Length > 1 && array[0].Equals("/Item", StringComparison.InvariantCultureIgnoreCase)) {
-                                if (array.Length == 2) {
-                                    List<string> list = new List<string>(Dicts.itemDict.Keys);
-                                    for (int j = 0; j < list.Count; j++) {
-                                        if (array[1].CompareTo(list[j]) == -1) {
-                                            command = array[0] + "." + list[j];
-                                            break;
-                                        }
-                                        if (j == list.Count - 1) {
-                                            command = array[0] + "." + list[0];
-                                        }
-                                    }
-                                } else if (array.Length >= 3) {
-                                    string text;
-                                    if (array[1].Equals("TimeShard", StringComparison.InvariantCultureIgnoreCase)) {
-                                        if (array[2].Equals("")) {
-                                            text = "1";
-                                        } else {
-                                            int num = int.Parse(array[2]);
-                                            int num2 = 1;
-                                            if (num >= 100 || num <= -100) {
-                                                num2 = 10;
-                                            }
-                                            if (num >= 1000 || num <= -1000) {
-                                                num2 = 100;
-                                            }
-                                            if (num >= 10000 || num <= -10000) {
-                                                num2 = 1000;
-                                            }
-                                            text = (num + num2).ToString();
-                                        }
-                                    } else {
-                                        text = (array[2].Equals("1") ? "0" : (array[2].Equals("0") ? "1" : "0"));
-                                    }
-                                    command = string.Concat(new object[5]
-                                    {
-                            array[0],
-                            ".",
-                            array[1],
-                            ".",
-                            text
-                                    });
-                                }
-                            }
-                            if (array.Length <= 1 || !array[0].Equals("/Tp", StringComparison.InvariantCultureIgnoreCase)) {
-                                break;
-                            }
-                            if (array.Length == 2) {
-                                List<string> list2 = new List<string>(Dicts.tpDict.Keys);
-                                for (int k = 0; k < list2.Count; k++) {
-                                    if (array[1].CompareTo(list2[k]) == -1) {
-                                        command = array[0] + "." + list2[k];
-                                        break;
-                                    }
-                                    if (k == list2.Count - 1) {
-                                        command = array[0] + "." + list2[0];
-                                    }
-                                }
-                            } else if (array.Length == 3) {
-                                List<int> list3 = new List<int>(Dicts.tpDict[array[1]].Keys);
-                                for (int l = 0; l < list3.Count; l++) {
-                                    if (array[2].Equals("") || int.Parse(array[2]) < list3[l]) {
-                                        command = array[0] + "." + array[1] + "." + list3[l];
-                                        break;
-                                    }
-                                    if (l == list3.Count - 1) {
-                                        command = array[0] + "." + array[1] + "." + list3[0];
-                                    }
-                                }
-                            } else if (array.Length >= 4) {
-                                string text2 = array[3].Equals("16") ? "8" : (array[3].Equals("8") ? "16" : "8");
-                                command = string.Concat(new object[7]
-                                {
-                        array[0],
-                        ".",
-                        array[1],
-                        ".",
-                        array[2],
-                        ".",
-                        text2
-                                });
-                            }
-                            break;
-                        }
-                }
-                if (keyCode == KeyCode.Return || keyCode == KeyCode.KeypadEnter) {
-                    string[] array2 = command.Split('.');
-                    if (array2[0].Equals("/Item", StringComparison.InvariantCultureIgnoreCase)) {
-                        if (array2[1].Equals("TimeShard", StringComparison.InvariantCultureIgnoreCase)) {
-                            if (int.Parse(array2[2]) >= 0) {
-                                Manager<InventoryManager>.Instance.CollectTimeShard(int.Parse(array2[2]));
-                            } else {
-                                Manager<InventoryManager>.Instance.SpendTimeShard(-int.Parse(array2[2]));
-                            }
-                        } else {
-                            string[] array3 = Dicts.itemDict[array2[1]].Split('-');
-                            if (array2[2] == "1") {
-                                if (array3.Length == 1) {
-                                    Manager<InventoryManager>.Instance.AddItem((EItems)int.Parse(Dicts.itemDict[array2[1]]), 1);
-                                } else {
-                                    for (int m = int.Parse(array3[0]); m <= int.Parse(array3[1]); m++) {
-                                        Manager<InventoryManager>.Instance.AddItem((EItems)m, 1);
-                                    }
-                                }
-                            }
-                            if (array2[2] == "0") {
-                                if (array3.Length == 1) {
-                                    Manager<InventoryManager>.Instance.RemoveItem((EItems)int.Parse(Dicts.itemDict[array2[1]]), 1);
-                                } else {
-                                    for (int n = int.Parse(array3[0]); n <= int.Parse(array3[1]); n++) {
-                                        Manager<InventoryManager>.Instance.RemoveItem((EItems)n, 1);
-                                    }
-                                }
-                            }
-                            command = array2[0] + ".";
-                        }
-                    }
-                    if (array2[0].Equals("/Tp", StringComparison.InvariantCultureIgnoreCase)) {
-                        float[] array4 = Dicts.tpDict[array2[1]][int.Parse(array2[2])];
-                        EBits dimension = Manager<DimensionManager>.Instance.currentDimension;
-                        if (array2.Length == 4) {
-                            if (array2[3].Equals("8")) {
-                                dimension = EBits.BITS_8;
-                            }
-                            if (array2[3].Equals("16")) {
-                                dimension = EBits.BITS_16;
-                            }
-                        }
-                        string levelName = array2[1].Equals("Surf", StringComparison.InvariantCultureIgnoreCase) ? Dicts.levelDict[array2[1]] : (Dicts.levelDict[array2[1]] + "_Build");
-                        Manager<ProgressionManager>.Instance.checkpointSaveInfo.loadedLevelPlayerPosition = new Vector2(array4[0], array4[1]);
-                        LevelLoadingInfo levelLoadingInfo = new LevelLoadingInfo(levelName, false, true, LoadSceneMode.Single, ELevelEntranceID.NONE, dimension);
-                        Manager<LevelManager>.Instance.LoadLevel(levelLoadingInfo);
-                    }
-                }
-                string text3 = keyCode.ToString();
-                if (text3.Length <= 1) {
-                    if (!IsCapsLockOn && !Event.current.shift) {
-                        text3 = text3.ToLower();
-                    }
-                    command += text3;
-                }
-            }
-        }
-
         private string GetDebugBossString() {
-            string text = "";
-            string text2 = "";
-            string text3 = "";
+            string bossName = "";
+            string bossState = "";
+            string bossHealth = "";
             string currentSceneName = Manager<LevelManager>.Instance.CurrentSceneName;
             if (currentSceneName == "Level_02_AutumnHills_Build") {
-                text = "Leaf Golem";
+                bossName = "Leaf Golem";
                 if (Manager<LeafGolemFightManager>.Instance != null) {
-                    text2 = Manager<LeafGolemFightManager>.Instance.bossInstance.stateMachine.CurrentState.ToString().Split(' ', '(')[0];
-                    text3 = Manager<LeafGolemFightManager>.Instance.bossInstance.CurrentHP.ToString() + "/" + Manager<LeafGolemFightManager>.Instance.bossInstance.maxHP;
+                    bossState = Manager<LeafGolemFightManager>.Instance.bossInstance.stateMachine.CurrentState.ToString().Split(' ', '(')[0];
+                    bossHealth = Manager<LeafGolemFightManager>.Instance.bossInstance.CurrentHP.ToString() + "/" + Manager<LeafGolemFightManager>.Instance.bossInstance.maxHP;
                 }
             }
             if (currentSceneName == "Level_03_ForlornTemple_Build") {
-                text = "Demon King";
+                bossName = "Demon King";
                 if (Manager<DemonKingFightManager>.Instance != null) {
-                    text2 = Manager<DemonKingFightManager>.Instance.bossInstance.stateMachine.CurrentState.ToString().Split(' ', '(')[0];
-                    text3 = Manager<DemonKingFightManager>.Instance.bossInstance.CurrentHP.ToString() + "/" + Manager<DemonKingFightManager>.Instance.bossInstance.maxHP;
+                    bossState = Manager<DemonKingFightManager>.Instance.bossInstance.stateMachine.CurrentState.ToString().Split(' ', '(')[0];
+                    bossHealth = Manager<DemonKingFightManager>.Instance.bossInstance.CurrentHP.ToString() + "/" + Manager<DemonKingFightManager>.Instance.bossInstance.maxHP;
                 }
             }
             if (currentSceneName == "Level_04_Catacombs_Build") {
-                text = "Ruxxtin";
+                bossName = "Ruxxtin";
                 if (Manager<NecromancerFightManager>.Instance != null) {
-                    text2 = Manager<NecromancerFightManager>.Instance.bossInstance.stateMachine.CurrentState.ToString().Split(' ', '(')[0];
-                    text3 = Manager<NecromancerFightManager>.Instance.bossInstance.CurrentHP.ToString() + "/" + Manager<NecromancerFightManager>.Instance.bossInstance.maxHP;
+                    bossState = Manager<NecromancerFightManager>.Instance.bossInstance.stateMachine.CurrentState.ToString().Split(' ', '(')[0];
+                    bossHealth = Manager<NecromancerFightManager>.Instance.bossInstance.CurrentHP.ToString() + "/" + Manager<NecromancerFightManager>.Instance.bossInstance.maxHP;
                 }
             }
             if (currentSceneName == "Level_05_A_HowlingGrotto_Build") {
-                text = "Emerald Golem";
+                bossName = "Emerald Golem";
                 if (Manager<EmeraldGolemFightManager>.Instance != null) {
                     if (Manager<EmeraldGolemFightManager>.Instance.EssenceComponent == null) {
-                        text2 = Manager<EmeraldGolemFightManager>.Instance.bossComponent.stateMachine.CurrentState.ToString().Split(' ', '(')[0];
-                        text3 = "B: " + Manager<EmeraldGolemFightManager>.Instance.bossComponent.CurrentHP + "/" + Manager<EmeraldGolemFightManager>.Instance.bossComponent.maxHP + " G: " + Manager<EmeraldGolemFightManager>.Instance.bossComponent.gemHP + "/" + Manager<EmeraldGolemFightManager>.Instance.bossComponent.gemMaxHP;
+                        bossState = Manager<EmeraldGolemFightManager>.Instance.bossComponent.stateMachine.CurrentState.ToString().Split(' ', '(')[0];
+                        bossHealth = "B: " + Manager<EmeraldGolemFightManager>.Instance.bossComponent.CurrentHP + "/" + Manager<EmeraldGolemFightManager>.Instance.bossComponent.maxHP + " G: " + Manager<EmeraldGolemFightManager>.Instance.bossComponent.gemHP + "/" + Manager<EmeraldGolemFightManager>.Instance.bossComponent.gemMaxHP;
                     } else {
-                        text2 = "MovementCoroutine";
-                        text3 = "E: " + Manager<EmeraldGolemFightManager>.Instance.EssenceComponent.CurrentHP.ToString() + "/" + Manager<EmeraldGolemFightManager>.Instance.EssenceComponent.maxHP;
+                        bossState = "MovementCoroutine";
+                        bossHealth = "E: " + Manager<EmeraldGolemFightManager>.Instance.EssenceComponent.CurrentHP.ToString() + "/" + Manager<EmeraldGolemFightManager>.Instance.EssenceComponent.maxHP;
                     }
                 }
             }
             if (currentSceneName == "Level_07_QuillshroomMarsh_Build") {
-                text = "Queen Of Quills";
+                bossName = "Queen Of Quills";
                 if (Manager<QueenOfQuillsFightManager>.Instance != null) {
-                    text2 = Manager<QueenOfQuillsFightManager>.Instance.bossInstance.stateMachine.CurrentState.ToString().Split(' ', '(')[0];
-                    text3 = Manager<QueenOfQuillsFightManager>.Instance.bossInstance.CurrentHP.ToString() + "/" + Manager<QueenOfQuillsFightManager>.Instance.bossInstance.maxHP;
+                    bossState = Manager<QueenOfQuillsFightManager>.Instance.bossInstance.stateMachine.CurrentState.ToString().Split(' ', '(')[0];
+                    bossHealth = Manager<QueenOfQuillsFightManager>.Instance.bossInstance.CurrentHP.ToString() + "/" + Manager<QueenOfQuillsFightManager>.Instance.bossInstance.maxHP;
                 }
             }
             if (currentSceneName == "Level_08_SearingCrags_Build") {
-                text = "Colos & Suses";
+                bossName = "Colos & Suses";
                 if (Manager<SearingCragsBossFightManager>.Instance != null && Manager<SearingCragsBossFightManager>.Instance.colossusesInstance.stateMachine != null) {
-                    string text4 = Manager<SearingCragsBossFightManager>.Instance.colossusesInstance.stateMachine.CurrentState.ToString().Split(' ', '(')[0];
-                    string text5 = Manager<SearingCragsBossFightManager>.Instance.colosInstance.stateMachine.CurrentState.ToString().Split(' ', '(')[0];
-                    string text6 = Manager<SearingCragsBossFightManager>.Instance.susesInstance.stateMachine.CurrentState.ToString().Split(' ', '(')[0];
-                    text2 = string.Concat(new object[6]
+                    bossState = string.Concat(new object[]
                     {
-                    text2,
-                    text4,
+                    bossState,
+                    Manager<SearingCragsBossFightManager>.Instance.colossusesInstance.stateMachine.CurrentState.ToString().Split(' ', '(')[0],
                     " C: ",
-                    text5,
+                    Manager<SearingCragsBossFightManager>.Instance.colosInstance.stateMachine.CurrentState.ToString().Split(' ', '(')[0],
                     " S: ",
-                    text6
+                    Manager<SearingCragsBossFightManager>.Instance.susesInstance.stateMachine.CurrentState.ToString().Split(' ', '(')[0]
                     });
                     if (Manager<SearingCragsBossFightManager>.Instance.colosInstance != null && Manager<SearingCragsBossFightManager>.Instance.susesInstance != null) {
-                        text3 = text3 + "C: " + Manager<SearingCragsBossFightManager>.Instance.colosInstance.CurrentHP + "/" + Manager<SearingCragsBossFightManager>.Instance.colosInstance.maxHP + " S: " + Manager<SearingCragsBossFightManager>.Instance.susesInstance.CurrentHP + "/" + Manager<SearingCragsBossFightManager>.Instance.susesInstance.maxHP;
+                        bossHealth = bossHealth + "C: " + Manager<SearingCragsBossFightManager>.Instance.colosInstance.CurrentHP + "/" + Manager<SearingCragsBossFightManager>.Instance.colosInstance.maxHP + " S: " + Manager<SearingCragsBossFightManager>.Instance.susesInstance.CurrentHP + "/" + Manager<SearingCragsBossFightManager>.Instance.susesInstance.maxHP;
                     }
                 }
             }
             if (currentSceneName == "Level_10_A_TowerOfTime_Build") {
-                text = "Arcane Golem";
+                bossName = "Arcane Golem";
                 if (Manager<ArcaneGolemBossFightManager>.Instance != null) {
-                    text2 = Manager<ArcaneGolemBossFightManager>.Instance.bossInstance.stateMachine.CurrentState.ToString().Split(' ', '(')[0];
-                    text3 = Manager<ArcaneGolemBossFightManager>.Instance.bossInstance.head.CurrentHP.ToString() + "/" + Manager<ArcaneGolemBossFightManager>.Instance.bossInstance.head.maxHP;
-                    text3 = text3 + "  P2: " + Manager<ArcaneGolemBossFightManager>.Instance.bossInstance.secondPhaseStartHP;
+                    bossState = Manager<ArcaneGolemBossFightManager>.Instance.bossInstance.stateMachine.CurrentState.ToString().Split(' ', '(')[0];
+                    bossHealth = Manager<ArcaneGolemBossFightManager>.Instance.bossInstance.head.CurrentHP.ToString() + "/" + Manager<ArcaneGolemBossFightManager>.Instance.bossInstance.head.maxHP;
+                    bossHealth = bossHealth + "  P2: " + Manager<ArcaneGolemBossFightManager>.Instance.bossInstance.secondPhaseStartHP;
                 }
             }
             if (currentSceneName == "Level_11_A_CloudRuins_Build") {
-                text = "Manfred";
+                bossName = "Manfred";
                 if (Manager<ManfredBossfightManager>.Instance != null) {
-                    text2 = Manager<ManfredBossfightManager>.Instance.bossInstance.stateMachine.CurrentState.ToString().Split(' ', '(')[0];
-                    text3 = Manager<ManfredBossfightManager>.Instance.bossInstance.head.hittable.CurrentHP.ToString() + "/" + Manager<ManfredBossfightManager>.Instance.bossInstance.head.hittable.maxHP;
+                    bossState = Manager<ManfredBossfightManager>.Instance.bossInstance.stateMachine.CurrentState.ToString().Split(' ', '(')[0];
+                    bossHealth = Manager<ManfredBossfightManager>.Instance.bossInstance.head.hittable.CurrentHP.ToString() + "/" + Manager<ManfredBossfightManager>.Instance.bossInstance.head.hittable.maxHP;
                 }
             }
             if (currentSceneName == "Level_12_UnderWorld_Build") {
-                text = "Demon General";
+                bossName = "Demon General";
                 if (Manager<DemonGeneralFightManager>.Instance != null) {
-                    text2 = Manager<DemonGeneralFightManager>.Instance.bossInstance.stateMachine.CurrentState.ToString().Split(' ', '(')[0];
-                    text3 = Manager<DemonGeneralFightManager>.Instance.bossInstance.CurrentHP.ToString() + "/" + Manager<DemonGeneralFightManager>.Instance.bossInstance.maxHP;
+                    bossState = Manager<DemonGeneralFightManager>.Instance.bossInstance.stateMachine.CurrentState.ToString().Split(' ', '(')[0];
+                    bossHealth = Manager<DemonGeneralFightManager>.Instance.bossInstance.CurrentHP.ToString() + "/" + Manager<DemonGeneralFightManager>.Instance.bossInstance.maxHP;
                 }
             }
             if (currentSceneName == "Level_04_C_RiviereTurquoise_Build") {
-                text = "Butterfly Matriarch";
+                bossName = "Butterfly Matriarch";
                 if (Manager<ButterflyMatriarchFightManager>.Instance != null) {
-                    text2 = Manager<ButterflyMatriarchFightManager>.Instance.bossInstance.stateMachine.CurrentState.ToString().Split(' ', '(')[0];
-                    text3 = Manager<ButterflyMatriarchFightManager>.Instance.bossInstance.CurrentHP.ToString() + "/" + Manager<ButterflyMatriarchFightManager>.Instance.bossInstance.maxHP;
-                    text3 = text3 + "  P2: " + Manager<ButterflyMatriarchFightManager>.Instance.bossInstance.phase1MaxHP;
-                    text3 = text3 + ", P3: " + Manager<ButterflyMatriarchFightManager>.Instance.bossInstance.phase2MaxHP;
+                    bossState = Manager<ButterflyMatriarchFightManager>.Instance.bossInstance.stateMachine.CurrentState.ToString().Split(' ', '(')[0];
+                    bossHealth = Manager<ButterflyMatriarchFightManager>.Instance.bossInstance.CurrentHP.ToString() + "/" + Manager<ButterflyMatriarchFightManager>.Instance.bossInstance.maxHP;
+                    bossHealth = bossHealth + "  P2: " + Manager<ButterflyMatriarchFightManager>.Instance.bossInstance.phase1MaxHP;
+                    bossHealth = bossHealth + ", P3: " + Manager<ButterflyMatriarchFightManager>.Instance.bossInstance.phase2MaxHP;
                 }
             }
             if (currentSceneName == "Level_09_B_ElementalSkylands_Build") {
-                text = "Clockwork Concierge";
+                bossName = "Clockwork Concierge";
                 if (Manager<ConciergeFightManager>.Instance != null) {
-                    string text7 = Manager<ConciergeFightManager>.Instance.bossInstance.stateMachine.CurrentState.ToString().Split(' ', '(')[0];
-                    string text8 = Manager<ConciergeFightManager>.Instance.bossInstance.bodyStateMachine.CurrentState.ToString().Split(' ', '(')[0];
-                    string text9 = Manager<ConciergeFightManager>.Instance.bossInstance.headStateMachine.CurrentState.ToString().Split(' ', '(')[0];
-                    text2 = string.Concat(new object[6]
+                    bossState = string.Concat(new object[]
                     {
-                    text2,
-                    text7,
+                    bossState,
+                    Manager<ConciergeFightManager>.Instance.bossInstance.stateMachine.CurrentState.ToString().Split(' ', '(')[0],
                     " B: ",
-                    text8,
+                    Manager<ConciergeFightManager>.Instance.bossInstance.bodyStateMachine.CurrentState.ToString().Split(' ', '(')[0],
                     " H: ",
-                    text9
+                    Manager<ConciergeFightManager>.Instance.bossInstance.headStateMachine.CurrentState.ToString().Split(' ', '(')[0]
                     });
-                    text3 = ((!Manager<ConciergeFightManager>.Instance.bossInstance.opened) ? (text3 + "H: " + Manager<ConciergeFightManager>.Instance.bossInstance.head.CurrentHP + " C: " + Manager<ConciergeFightManager>.Instance.bossInstance.bodyCanon_1.CurrentHP + "|" + Manager<ConciergeFightManager>.Instance.bossInstance.bodyCanon_2.CurrentHP + "|" + Manager<ConciergeFightManager>.Instance.bossInstance.bodyCanon_3.CurrentHP + " T: " + Manager<ConciergeFightManager>.Instance.bossInstance.sideTrap.CurrentHP) : ("H: " + Manager<ConciergeFightManager>.Instance.bossInstance.heart.CurrentHP + "/" + Manager<ConciergeFightManager>.Instance.bossInstance.heart.maxHP));
+                    bossHealth = ((!Manager<ConciergeFightManager>.Instance.bossInstance.opened) ? (bossHealth + "H: " + Manager<ConciergeFightManager>.Instance.bossInstance.head.CurrentHP + " C: " + Manager<ConciergeFightManager>.Instance.bossInstance.bodyCanon_1.CurrentHP + "|" + Manager<ConciergeFightManager>.Instance.bossInstance.bodyCanon_2.CurrentHP + "|" + Manager<ConciergeFightManager>.Instance.bossInstance.bodyCanon_3.CurrentHP + " T: " + Manager<ConciergeFightManager>.Instance.bossInstance.sideTrap.CurrentHP) : ("H: " + Manager<ConciergeFightManager>.Instance.bossInstance.heart.CurrentHP + "/" + Manager<ConciergeFightManager>.Instance.bossInstance.heart.maxHP));
                 }
             }
             if (currentSceneName == "Level_11_B_MusicBox_Build") {
-                text = "Phantom";
+                bossName = "Phantom";
                 if (Manager<PhantomFightManager>.Instance != null) {
-                    text2 = Manager<PhantomFightManager>.Instance.bossInstance.stateMachine.CurrentState.ToString().Split(' ', '(')[0];
-                    text3 = Manager<PhantomFightManager>.Instance.bossInstance.hittable.CurrentHP.ToString() + "/" + Manager<PhantomFightManager>.Instance.bossInstance.hittable.maxHP;
-                    text3 = text3 + "  P2: " + Manager<PhantomFightManager>.Instance.bossInstance.moveSequence_2_Threshold * (float)Manager<PhantomFightManager>.Instance.bossInstance.hittable.maxHP;
-                    text3 = text3 + ", P3: " + Manager<PhantomFightManager>.Instance.bossInstance.moveSequence_3_Threshold * (float)Manager<PhantomFightManager>.Instance.bossInstance.hittable.maxHP;
+                    bossState = Manager<PhantomFightManager>.Instance.bossInstance.stateMachine.CurrentState.ToString().Split(' ', '(')[0];
+                    bossHealth = Manager<PhantomFightManager>.Instance.bossInstance.hittable.CurrentHP.ToString() + "/" + Manager<PhantomFightManager>.Instance.bossInstance.hittable.maxHP;
+                    bossHealth = bossHealth + "  P2: " + Manager<PhantomFightManager>.Instance.bossInstance.moveSequence_2_Threshold * Manager<PhantomFightManager>.Instance.bossInstance.hittable.maxHP;
+                    bossHealth = bossHealth + ", P3: " + Manager<PhantomFightManager>.Instance.bossInstance.moveSequence_3_Threshold * Manager<PhantomFightManager>.Instance.bossInstance.hittable.maxHP;
                 }
             }
             if (currentSceneName == "Level_15_Surf") {
-                text = "Octo";
+                bossName = "Octo";
                 if (Manager<SurfBossManager>.Instance != null) {
-                    text2 = Manager<SurfBossManager>.Instance.bossInstance.stateMachine.CurrentState.ToString().Split(' ', '(')[0];
-                    text3 = Manager<SurfBossManager>.Instance.bossInstance.hittable.CurrentHP + "/" + Manager<PhantomFightManager>.Instance.bossInstance.hittable.maxHP;
-                    text3 = text3 + "  P2: " + Manager<SurfBossManager>.Instance.bossInstance.moveSequence_2_Threshold * (float)Manager<SurfBossManager>.Instance.bossInstance.hittable.maxHP;
-                    text3 = text3 + ", P3: " + Manager<SurfBossManager>.Instance.bossInstance.moveSequence_3_Threshold * (float)Manager<SurfBossManager>.Instance.bossInstance.hittable.maxHP;
+                    bossState = Manager<SurfBossManager>.Instance.bossInstance.stateMachine.CurrentState.ToString().Split(' ', '(')[0];
+                    bossHealth = Manager<SurfBossManager>.Instance.bossInstance.hittable.CurrentHP + "/" + Manager<PhantomFightManager>.Instance.bossInstance.hittable.maxHP;
+                    bossHealth = bossHealth + "  P2: " + Manager<SurfBossManager>.Instance.bossInstance.moveSequence_2_Threshold * Manager<SurfBossManager>.Instance.bossInstance.hittable.maxHP;
+                    bossHealth = bossHealth + ", P3: " + Manager<SurfBossManager>.Instance.bossInstance.moveSequence_3_Threshold * Manager<SurfBossManager>.Instance.bossInstance.hittable.maxHP;
                 }
             }
             if (currentSceneName == "Level_16_Beach_Build") {
-                text = "Totem";
+                bossName = "Totem";
                 if (Manager<TotemBossFightManager>.Instance != null) {
-                    text2 = Manager<TotemBossFightManager>.Instance.bossInstance.StateMachine.CurrentState.ToString().Split(' ', '(')[0];
-                    text3 = Manager<TotemBossFightManager>.Instance.bossInstance.CurrentHp + "/" + Manager<TotemBossFightManager>.Instance.bossInstance.maxHP;
+                    bossState = Manager<TotemBossFightManager>.Instance.bossInstance.StateMachine.CurrentState.ToString().Split(' ', '(')[0];
+                    bossHealth = Manager<TotemBossFightManager>.Instance.bossInstance.CurrentHp + "/" + Manager<TotemBossFightManager>.Instance.bossInstance.maxHP;
                 }
             }
             if (currentSceneName == "Level_18_Volcano_Chase_Build") {
-                text = "Unable to debug Punch Out Boss";
+                bossName = "Unable to debug Punch Out Boss";
             }
-            if (text3 == "") {
+            if (bossHealth == "") {
                 return "\r\nNo Boss Found";
             }
-            return "\r\n" + text + " HP: " + text3 + "\r\nState: " + text2;
+            return "\r\n" + bossName + " HP: " + bossHealth + "\r\nState: " + bossState;
         }
     }
 }

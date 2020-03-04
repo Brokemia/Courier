@@ -11,6 +11,7 @@ namespace Mod.Courier.UI {
         public string text;
         public GameObject gameObject;
         public View addedTo;
+        public Func<bool> IsEnabled;
 
         protected OptionsButtonInfo(string text, UnityAction onClick) {
             this.text = text;

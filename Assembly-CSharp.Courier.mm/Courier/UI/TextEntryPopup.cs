@@ -15,8 +15,11 @@ namespace Mod.Courier.UI {
         public AudioObjectDefinition eraseLetterSFX;
         
         protected string entryText = string.Empty;
-        
-        public event Action<string> onTextConfirmed;
+
+        /// <summary>
+        /// Called when the user hits confirm on the text entry. Takes the text entered and returns whether or not to call onBack.
+        /// </summary>
+        public event Func<string, bool> onTextConfirmed;
 
         public event Action onBack;
 
@@ -68,9 +71,10 @@ namespace Mod.Courier.UI {
 
         protected void Update() {
             if (Manager<InputManager>.Instance.GetStartDown() && !string.IsNullOrEmpty(entryText)) {
-                gameObject.SetActive(false);
-                onTextConfirmed?.Invoke(entryText);
-                onBack?.Invoke();
+                if (onTextConfirmed?.Invoke(entryText) ?? true) {
+                    gameObject.SetActive(false);
+                    onBack?.Invoke();
+                }
                 return;
             }
             if (Manager<InputManager>.Instance.GetBackDown()) {

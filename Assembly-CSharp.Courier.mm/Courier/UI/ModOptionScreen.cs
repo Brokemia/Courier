@@ -127,10 +127,10 @@ namespace Mod.Courier.UI {
 
         private void HideUnavailableOptions() {
             foreach (OptionsButtonInfo buttonInfo in Courier.UI.ModOptionButtons) {
-                buttonInfo.gameObject.SetActive(true); // TODO Way to deactivate buttons
+                buttonInfo.gameObject.SetActive(buttonInfo.IsEnabled?.Invoke() ?? true); // TODO Way to deactivate buttons
             }
             Vector2 sizeDelta = backgroundFrame.sizeDelta;
-            backgroundFrame.sizeDelta = new Vector2(sizeDelta.x, 110 + heightPerButton * Courier.UI.ModOptionButtons.Count);
+            backgroundFrame.sizeDelta = new Vector2(sizeDelta.x, 110 + heightPerButton * Courier.UI.EnabledModOptionsCount());
         }
 
         private void SetInitialSelection() {
@@ -152,13 +152,15 @@ namespace Mod.Courier.UI {
                 BackToOptionMenu();
             }
             // Line up all of the buttons
-            backButton.position = topButtonPos + new Vector3(0, .45f * (Courier.UI.ModOptionButtons.Count-1));
+            backButton.position = topButtonPos + new Vector3(0, .45f * (Courier.UI.EnabledModOptionsCount()-1));
             foreach (OptionsButtonInfo buttonInfo in Courier.UI.ModOptionButtons) {
                 buttonInfo.nameTextMesh.text = buttonInfo.text; // TODO Patch LoadGeneralLoc to load custom language files
-                // Buttons are added in the same spot as the back button
-                // Then the back button is shifted down to hold the place of the next button
-                buttonInfo.gameObject.transform.position = backButton.transform.position;
-                backButton.position = buttonInfo.gameObject.transform.position - new Vector3(0, .9f);
+                if (buttonInfo.gameObject.activeInHierarchy) {
+                    // Buttons are added in the same spot as the back button
+                    // Then the back button is shifted down to hold the place of the next button
+                    buttonInfo.gameObject.transform.position = backButton.transform.position;
+                    backButton.position = buttonInfo.gameObject.transform.position - new Vector3(0, .9f);
+                }
             }
         }
 

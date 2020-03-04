@@ -62,9 +62,10 @@ public class patch_OptionScreen : OptionScreen {
             OptionsButtonInfo buttonInfo = Courier.UI.OptionButtons[i];
             buttonInfo.nameTextMesh.text = buttonInfo.text; // TODO Patch LoadGeneralLoc to load custom language files
                                                             // TODO Find an earlier place to set this. Currently, it flickers briefly before putting itself in the right spot
-            buttonInfo.gameObject.transform.position = controlsButton.transform.position - new Vector3(9.7f, .9f * (i + 1));
+            buttonInfo.gameObject.transform.position = controlsButton.transform.position - new Vector3(9.7f, .9f * (Courier.UI.EnabledCustomOptionButtonsBeforeButton(buttonInfo) + 1));
 
-            backgroundFrame.Find("OptionsFrame").Find("OptionMenuButtons").Find("Back").position = buttonInfo.gameObject.transform.position + new Vector3(0, -.9f);
+            if(buttonInfo.gameObject.activeInHierarchy)
+                backgroundFrame.Find("OptionsFrame").Find("OptionMenuButtons").Find("Back").position = buttonInfo.gameObject.transform.position + new Vector3(0, -.9f);
         }
         orig_LateUpdate();
     }
@@ -96,9 +97,9 @@ public class patch_OptionScreen : OptionScreen {
     private void HideUnavailableOptions() {
         orig_HideUnavailableOptions();
         foreach (OptionsButtonInfo buttonInfo in Courier.UI.OptionButtons) {
-            buttonInfo.gameObject?.SetActive(true);
+            buttonInfo.gameObject?.SetActive(buttonInfo.IsEnabled?.Invoke() ?? true);
         }
-        backgroundFrame.sizeDelta += new Vector2(0, heightPerButton * Courier.UI.OptionButtons.Count);
+        backgroundFrame.sizeDelta += new Vector2(0, heightPerButton * Courier.UI.EnabledCustomOptionButtonsCount());
     }
 
     private extern void orig_OnDisable();

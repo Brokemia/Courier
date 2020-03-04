@@ -23,7 +23,7 @@ namespace Mod.Courier.UI {
 
         public Func<string> GetInitialText;
 
-        public Action<string> onEntry;
+        public Func<string, bool> onEntry;
 
         public CharsetFlags charsetFlags;
 
@@ -35,7 +35,7 @@ namespace Mod.Courier.UI {
         /// </summary>
         public int maxCharacter;
 
-        public TextEntryButtonInfo(string text, Action<string> onEntry, int maxCharacters = 15, Func<string> GetEntryText = null, Func<string> GetInitialText = null, CharsetFlags charset = DEFAULT_CHARSET) : base(text, null) {
+        public TextEntryButtonInfo(string text, Func<string, bool> onEntry, int maxCharacters = 15, Func<string> GetEntryText = null, Func<string> GetInitialText = null, CharsetFlags charset = DEFAULT_CHARSET) : base(text, null) {
             onClick = onButtonClicked;
             this.GetEntryText = GetEntryText;
             this.GetInitialText = GetInitialText;
@@ -44,12 +44,21 @@ namespace Mod.Courier.UI {
             charsetFlags = charset;
         }
 
-        public override void OnInit(View view) {
-            base.OnInit(view);
-            textEntryPopup = UnityEngine.Object.Instantiate(GameObjectTemplates.textEntryPopup);
+        /// <summary>
+        /// Calling classes should handle onBack and set the text entry popup to inactive themselves.
+        /// </summary>
+        /// <returns>The text entry popup.</returns>
+        /// <param name="parentView">Parent view.</param>
+        /// <param name="heading">Heading.</param>
+        /// <param name="onEntry">On entry.</param>
+        /// <param name="maxCharacter">Max character.</param>
+        /// <param name="GetHeadingText">Get heading text.</param>
+        /// <param name="charsetFlags">Charset flags.</param>
+        public static TextEntryPopup InitTextEntryPopup(View parentView, string heading, Func<string, bool> onEntry, int maxCharacter, Func<string> GetHeadingText, CharsetFlags charsetFlags) {
+            TextEntryPopup textEntryPopup = UnityEngine.Object.Instantiate(GameObjectTemplates.textEntryPopup);
 
             textEntryPopup.maxCharacter = maxCharacter;
-            textEntryPopup.transform.Find("BigFrame").Find("WhatIsYourName").GetComponent<TextMeshProUGUI>().SetText(GetEntryText?.Invoke() ?? text);
+            textEntryPopup.transform.Find("BigFrame").Find("WhatIsYourName").GetComponent<TextMeshProUGUI>().SetText(GetHeadingText?.Invoke() ?? heading);
             textEntryPopup.entryTextfield = textEntryPopup.transform.Find("BigFrame").Find("WhatIsYourName").Find("ActualName").GetComponent<TextMeshProUGUI>();
             textEntryPopup.entryTextfield.name = "EntryTextfield";
 
@@ -67,7 +76,7 @@ namespace Mod.Courier.UI {
             spaceIcon.GetComponent<Button>().onClick = new Button.ButtonClickedEvent();
             spaceIcon.GetComponent<Button>().onClick.AddListener(() => textEntryPopup.OnLetterSelected(" "));
 
-            Manager<UIManager>.Instance.SetParentAndAlign(textEntryPopup.gameObject, addedTo.gameObject);
+            Manager<UIManager>.Instance.SetParentAndAlign(textEntryPopup.gameObject, parentView.gameObject);
 
             if ((charsetFlags & CharsetFlags.Dot) == CharsetFlags.Dot) {
                 RectTransform dash = textEntryPopup.transform.Find("BigFrame").Find("SymbolsGrid").Find("1") as RectTransform;
@@ -82,7 +91,7 @@ namespace Mod.Courier.UI {
                 spaceIcon.transform.position += new Vector3(.7f, 0);
                 eraseIcon.transform.position += new Vector3(.7f, 0);
             }
-            
+
             // Remove numbers if they're disabled
             float numberRowY = textEntryPopup.transform.Find("BigFrame").Find("SymbolsGrid").Find("1").position.y;
             if ((charsetFlags & CharsetFlags.Number) != CharsetFlags.Number) {
@@ -92,11 +101,11 @@ namespace Mod.Courier.UI {
                         UnityEngine.Object.Destroy(symbol.gameObject);
                     }
                 }
-            // If numbers are there, but the dash isn't
+                // If numbers are there, but the dash isn't
             } else if ((charsetFlags & CharsetFlags.Dash) != CharsetFlags.Dash) {
                 UnityEngine.Object.Destroy(textEntryPopup.transform.Find("BigFrame").Find("SymbolsGrid").Find("-").gameObject);
             }
-            
+
             // Remove all the letters if they're disabled
             if ((charsetFlags & CharsetFlags.Letter) != CharsetFlags.Letter) {
                 UnityEngine.Object.Destroy(textEntryPopup.transform.Find("BigFrame").Find("LetterGrid").gameObject);
@@ -111,27 +120,35 @@ namespace Mod.Courier.UI {
                     }
                 }
             }
-            
+
             if ((charsetFlags & CharsetFlags.Space) != CharsetFlags.Space) {
                 UnityEngine.Object.Destroy(spaceIcon.gameObject);
                 eraseIcon.Translate(new Vector2(-.7f, 0));
             }
 
-            if((charsetFlags & CharsetFlags.Dash) != CharsetFlags.Dash) {
+            if ((charsetFlags & CharsetFlags.Dash) != CharsetFlags.Dash) {
                 if ((charsetFlags & CharsetFlags.Space) == CharsetFlags.Space) {
                     spaceIcon.Translate(new Vector2(-.7f, 0));
                 }
                 eraseIcon.Translate(new Vector2(-.7f, 0));
             }
 
-            SetInitialSelection();
+            SetInitialSelection(textEntryPopup, charsetFlags);
 
             textEntryPopup.onTextConfirmed += onEntry;
+
+            return textEntryPopup;
+        }
+
+        public override void OnInit(View view) {
+            base.OnInit(view);
+            textEntryPopup = InitTextEntryPopup(addedTo, text, onEntry, maxCharacter, GetEntryText, charsetFlags);
+
             textEntryPopup.onBack += OnCloseTextEntry;
             textEntryPopup.gameObject.SetActive(false);
         }
 
-        protected void SetInitialSelection() {
+        public static void SetInitialSelection(TextEntryPopup textEntryPopup, CharsetFlags charsetFlags) {
             if (textEntryPopup == null)
                 return;
             if ((charsetFlags & CharsetFlags.Letter) == CharsetFlags.Letter) {

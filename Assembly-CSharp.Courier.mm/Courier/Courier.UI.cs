@@ -17,6 +17,44 @@ namespace Mod.Courier {
             public static bool ModOptionScreenLoaded;
             public static bool ModOptionScreenShowing;
 
+            public static int EnabledModOptionsCount() {
+                int total = 0;
+                foreach(OptionsButtonInfo buttonInfo in ModOptionButtons) {
+                    if (buttonInfo.gameObject.activeInHierarchy)
+                        total++;
+                }
+                return total;
+            }
+
+            public static int EnabledModOptionsBeforeButton(OptionsButtonInfo button) {
+                int total = 0;
+                foreach (OptionsButtonInfo buttonInfo in ModOptionButtons) {
+                    if (buttonInfo.Equals(button)) return total;
+                    if (buttonInfo.gameObject.activeInHierarchy)
+                        total++;
+                }
+                return -1;
+            }
+
+            public static int EnabledCustomOptionButtonsCount() {
+                int total = 0;
+                foreach (OptionsButtonInfo buttonInfo in OptionButtons) {
+                    if (buttonInfo.gameObject.activeInHierarchy)
+                        total++;
+                }
+                return total;
+            }
+
+            public static int EnabledCustomOptionButtonsBeforeButton(OptionsButtonInfo button) {
+                int total = 0;
+                foreach (OptionsButtonInfo buttonInfo in OptionButtons) {
+                    if (buttonInfo.Equals(button)) return total;
+                    if (buttonInfo.gameObject.activeInHierarchy)
+                        total++;
+                }
+                return -1;
+            }
+
             public static void SetupModdedUI() {
                 ModOptionButton = RegisterSubMenuOptionButton("Third Party Mod Options", OnSelectModOptions);
             }
@@ -72,7 +110,7 @@ namespace Mod.Courier {
                 return info;
             }
 
-            public static TextEntryButtonInfo RegisterTextEntryOptionButton(string text, Action<string> onEntry, int maxCharacter = 15, Func<string> GetEntryText = null, Func<string> GetInitialText = null, CharsetFlags charset = TextEntryButtonInfo.DEFAULT_CHARSET) {
+            public static TextEntryButtonInfo RegisterTextEntryOptionButton(string text, Func<string, bool> onEntry, int maxCharacter = 15, Func<string> GetEntryText = null, Func<string> GetInitialText = null, CharsetFlags charset = TextEntryButtonInfo.DEFAULT_CHARSET) {
                 TextEntryButtonInfo info = new TextEntryButtonInfo(text, onEntry, maxCharacter, GetEntryText, GetInitialText, charset);
                 RegisterOptionButton(info);
                 return info;
@@ -103,7 +141,7 @@ namespace Mod.Courier {
                 return info;
             }
 
-            public static TextEntryButtonInfo RegisterTextEntryModOptionButton(string text, Action<string> onEntry, int maxCharacter = 15, Func<string> GetEntryText = null, Func<string> GetInitialText = null, CharsetFlags charset = TextEntryButtonInfo.DEFAULT_CHARSET) {
+            public static TextEntryButtonInfo RegisterTextEntryModOptionButton(string text, Func<string, bool> onEntry, int maxCharacter = 15, Func<string> GetEntryText = null, Func<string> GetInitialText = null, CharsetFlags charset = TextEntryButtonInfo.DEFAULT_CHARSET) {
                 TextEntryButtonInfo info = new TextEntryButtonInfo(text, onEntry, maxCharacter, GetEntryText, GetInitialText, charset);
                 RegisterModOptionButton(info);
                 return info;
