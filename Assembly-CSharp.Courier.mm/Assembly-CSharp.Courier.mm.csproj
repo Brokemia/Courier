@@ -84,6 +84,24 @@
     <Reference Include="DotNetZip">
       <HintPath>..\packages\DotNetZip.1.12.0\lib\net20\DotNetZip.dll</HintPath>
     </Reference>
+    <Reference Include="I18N">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="I18N.CJK">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="I18N.West">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="I18N.Rare">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="I18N.Other">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="I18N.MidEast">
+      <Private>True</Private>
+    </Reference>
     <Reference Include="MonoMod.Utils">
       <HintPath>..\packages\MonoMod.Utils.20.3.5.1\lib\net35\MonoMod.Utils.dll</HintPath>
     </Reference>
