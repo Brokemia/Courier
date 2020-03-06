@@ -35,7 +35,7 @@ namespace Mod.Courier.UI {
         /// </summary>
         public int maxCharacter;
 
-        public TextEntryButtonInfo(string text, Func<string, bool> onEntry, int maxCharacters = 15, Func<string> GetEntryText = null, Func<string> GetInitialText = null, CharsetFlags charset = DEFAULT_CHARSET) : base(text, null) {
+        public TextEntryButtonInfo(Func<string> text, Func<string, bool> onEntry, int maxCharacters = 15, Func<string> GetEntryText = null, Func<string> GetInitialText = null, CharsetFlags charset = DEFAULT_CHARSET) : base(text, null) {
             onClick = onButtonClicked;
             this.GetEntryText = GetEntryText;
             this.GetInitialText = GetInitialText;
@@ -142,7 +142,7 @@ namespace Mod.Courier.UI {
 
         public override void OnInit(View view) {
             base.OnInit(view);
-            textEntryPopup = InitTextEntryPopup(addedTo, text, onEntry, maxCharacter, GetEntryText, charsetFlags);
+            textEntryPopup = InitTextEntryPopup(addedTo, GetText?.Invoke() ?? "", onEntry, maxCharacter, GetEntryText, charsetFlags);
 
             textEntryPopup.onBack += OnCloseTextEntry;
             textEntryPopup.gameObject.SetActive(false);

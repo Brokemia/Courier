@@ -92,8 +92,8 @@ namespace Mod.Courier.UI {
                     Console.WriteLine(buttonInfo.GetType() + " not a known type of OptionsButtonInfo!");
                 }
                 buttonInfo.gameObject.transform.SetParent(transform.Find("Container").Find("BackgroundFrame").Find("OptionsFrame").Find("OptionMenuButtons"));
-                buttonInfo.gameObject.name = buttonInfo.text;
-                buttonInfo.gameObject.transform.name = buttonInfo.text;
+                buttonInfo.gameObject.name = buttonInfo.GetText?.Invoke() ?? "";
+                buttonInfo.gameObject.transform.name = buttonInfo.GetText?.Invoke() ?? "";
                 buttonInfo.addedTo = this;
                 foreach (TextMeshProUGUI text in buttonInfo.gameObject.GetComponentsInChildren<TextMeshProUGUI>()) {
                     if (text.name.Equals("OptionState"))
@@ -127,7 +127,7 @@ namespace Mod.Courier.UI {
 
         private void HideUnavailableOptions() {
             foreach (OptionsButtonInfo buttonInfo in Courier.UI.ModOptionButtons) {
-                buttonInfo.gameObject.SetActive(buttonInfo.IsEnabled?.Invoke() ?? true); // TODO Way to deactivate buttons
+                buttonInfo.gameObject.SetActive(buttonInfo.IsEnabled?.Invoke() ?? true);
             }
             Vector2 sizeDelta = backgroundFrame.sizeDelta;
             backgroundFrame.sizeDelta = new Vector2(sizeDelta.x, 110 + heightPerButton * Courier.UI.EnabledModOptionsCount());
@@ -144,7 +144,7 @@ namespace Mod.Courier.UI {
 
         public void GoOffscreenInstant() {
             gameObject.SetActive(false);
-            Courier.UI.ModOptionScreenShowing = false;
+            Courier.UI.ModOptionScreenLoaded = false;
         }
 
         private void LateUpdate() {
@@ -154,7 +154,7 @@ namespace Mod.Courier.UI {
             // Line up all of the buttons
             backButton.position = topButtonPos + new Vector3(0, .45f * (Courier.UI.EnabledModOptionsCount()-1));
             foreach (OptionsButtonInfo buttonInfo in Courier.UI.ModOptionButtons) {
-                buttonInfo.nameTextMesh.text = buttonInfo.text; // TODO Patch LoadGeneralLoc to load custom language files
+                buttonInfo.nameTextMesh.text = buttonInfo.GetText?.Invoke() ?? "";
                 if (buttonInfo.gameObject.activeInHierarchy) {
                     // Buttons are added in the same spot as the back button
                     // Then the back button is shifted down to hold the place of the next button
@@ -171,7 +171,7 @@ namespace Mod.Courier.UI {
                 defaultSelection = backButton.gameObject;
             }
 
-            backgroundFrame.Find("Title").GetComponent<TextMeshProUGUI>().SetText("Courier Mod Menu - Third Party Content");
+            backgroundFrame.Find("Title").GetComponent<TextMeshProUGUI>().SetText(Manager<LocalizationManager>.Instance.GetText(Courier.UI.MOD_OPTIONS_MENU_TITLE_LOC_ID));
             foreach (OptionsButtonInfo buttonInfo in Courier.UI.ModOptionButtons) {
                 buttonInfo.UpdateStateText();
             }
@@ -188,7 +188,6 @@ namespace Mod.Courier.UI {
 
         public override void Close(bool transitionOut) {
             base.Close(transitionOut);
-            Courier.UI.ModOptionScreenShowing = false;
             Courier.UI.ModOptionScreenLoaded = false;
         }
     }

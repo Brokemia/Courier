@@ -8,6 +8,7 @@ using UnityEngine;
 
 namespace NinjaInvis {
     public class NinjaInvisModule : CourierModule {
+        public const string PLAYER_VISIBILITY_BUTTON_LOC_ID = "NINJA_INVIS_PLAYER_VISIBILITY_BUTTON";
 
         bool ninjaVisibility = true;
 
@@ -20,7 +21,7 @@ namespace NinjaInvis {
         public override void Load() {
             Courier.Events.PlayerController.OnUpdate += PlayerController_OnUpdate;
             On.SaveGameSlot.Load += SaveGameSlot_Load;
-            invisButtonInfo = Courier.UI.RegisterToggleModOptionButton("Player Visibility", OnInvis, (b) => ninjaVisibility);
+            invisButtonInfo = Courier.UI.RegisterToggleModOptionButton(() => Manager<LocalizationManager>.Instance.GetText(PLAYER_VISIBILITY_BUTTON_LOC_ID), OnInvis, (b) => ninjaVisibility);
         }
 
         void OnInvis() {

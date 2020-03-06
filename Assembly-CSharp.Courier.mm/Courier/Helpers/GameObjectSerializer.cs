@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
-using System.Xml.Serialization;
 using UnityEngine;
 
 namespace Mod.Courier.Helpers {

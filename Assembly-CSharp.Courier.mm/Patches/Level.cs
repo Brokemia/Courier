@@ -9,7 +9,7 @@ public class patch_Level : Level {
         // Essentially, make sure the ModOptionScreen isn't showing when trying to open the inventory or map
         if (Manager<PauseManager>.Instance.CanPause() && Manager<InputManager>.Instance.GetStartDown()) {
             orig_LateUpdate();
-        } else if(!Courier.UI.ModOptionScreenShowing) {
+        } else if(!Courier.UI.ModOptionScreenLoaded) {
             orig_LateUpdate();
         }
     }

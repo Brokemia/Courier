@@ -8,13 +8,13 @@ namespace Mod.Courier.UI {
         public UnityAction onClick;
         public TextMeshProUGUI nameTextMesh;
         public TextMeshProUGUI stateTextMesh;
-        public string text;
+        public Func<string> GetText;
         public GameObject gameObject;
         public View addedTo;
         public Func<bool> IsEnabled;
 
-        protected OptionsButtonInfo(string text, UnityAction onClick) {
-            this.text = text;
+        protected OptionsButtonInfo(Func<string> GetText, UnityAction onClick) {
+            this.GetText = GetText;
             this.onClick = onClick;
         }
 

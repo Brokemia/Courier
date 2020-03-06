@@ -14,6 +14,32 @@ using static Mod.Courier.UI.TextEntryButtonInfo;
 
 namespace TrainerReborn {
     public class TrainerRebornModule : CourierModule {
+        public const string INF_HEALTH_BUTTON_LOC_ID = "TRAINER_REBORN_INF_HEALTH_BUTTON";
+        public const string INF_SHURIKEN_BUTTON_LOC_ID = "TRAINER_REBORN_INF_SHURIKEN_BUTTON";
+        public const string INF_JUMP_BUTTON_LOC_ID = "TRAINER_REBORN_INF_JUMP_BUTTON";
+        public const string NO_BOUNDS_BUTTON_LOC_ID = "TRAINER_REBORN_NO_BOUNDS_BUTTON";
+        public const string DEBUG_POS_BUTTON_LOC_ID = "TRAINER_REBORN_DEBUG_POS_BUTTON";
+        public const string DEBUG_BOSS_BUTTON_LOC_ID = "TRAINER_REBORN_DEBUG_BOSS_BUTTON";
+        public const string TOGGLE_COLLISIONS_BUTTON_LOC_ID = "TRAINER_REBORN_TOGGLE_COLLISIONS_BUTTON";
+        public const string SECOND_QUEST_BUTTON_LOC_ID = "TRAINER_REBORN_SECOND_QUEST_BUTTON";
+        public const string RELOAD_BUTTON_LOC_ID = "TRAINER_REBORN_RELOAD_BUTTON";
+        public const string SAVE_BUTTON_LOC_ID = "TRAINER_REBORN_SAVE_BUTTON";
+        public const string SPEED_MULT_BUTTON_LOC_ID = "TRAINER_REBORN_SPEED_MULT_BUTTON";
+        public const string DEBUG_TEXT_COLOR_BUTTON_LOC_ID = "TRAINER_REBORN_DEBUG_TEXT_COLOR_BUTTON";
+        public const string TP_BUTTON_LOC_ID = "TRAINER_REBORN_TP_BUTTON";
+        public const string GET_ITEM_BUTTON_LOC_ID = "TRAINER_REBORN_GET_ITEM_BUTTON";
+        public const string TP_LEVEL_ENTRY_LOC_ID = "TRAINER_REBORN_TP_LEVEL_ENTRY";
+        public const string TP_LOCATION_ENTRY_LOC_ID = "TRAINER_REBORN_TP_LOCATION_ENTRY";
+        public const string ITEM_NAME_ENTRY_LOC_ID = "TRAINER_REBORN_ITEM_NAME_ENTRY";
+        public const string ITEM_NUMBER_ENTRY_LOC_ID = "TRAINER_REBORN_ITEM_NUMBER_ENTRY";
+
+        public const string POS_DEBUG_TEXT_LOC_ID = "TRAINER_REBORN_POS_DEBUG_TEXT";
+        public const string CAMERA_UNLOCKED_DEBUG_TEXT_LOC_ID = "TRAINER_REBORN_CAMERA_UNLOCKED_DEBUG_TEXT";
+        public const string NO_COLLISIONS_DEBUG_TEXT_LOC_ID = "TRAINER_REBORN_NO_COLLISIONS_DEBUG_TEXT";
+        public const string INF_SHURIKEN_DEBUG_TEXT_LOC_ID = "TRAINER_REBORN_INF_SHURIKEN_DEBUG_TEXT";
+        public const string INF_HEALTH_DEBUG_TEXT_LOC_ID = "TRAINER_REBORN_INF_HEALTH_DEBUG_TEXT";
+        public const string INF_JUMP_DEBUG_TEXT_LOC_ID = "TRAINER_REBORN_INF_JUMP_DEBUG_TEXT";
+        public const string SPEED_DEBUG_TEXT_LOC_ID = "TRAINER_REBORN_SPEED_DEBUG_TEXT";
 
         public bool noBounds;
 
@@ -66,23 +92,23 @@ namespace TrainerReborn {
                 Before = { "*" }
             }) {
                 On.PlayerController.Damage += PlayerController_Damage;
-                //On.RetroCamera.SnapPositionToCameraBounds += RetroCamera_SnapPositionToCameraBounds;
+                On.RetroCamera.SnapPositionToCameraBounds += RetroCamera_SnapPositionToCameraBounds;
             }
 
-            infHealthButton = Courier.UI.RegisterToggleModOptionButton("Infinite Health", OnInfHealth, (b) => infHealth);
-            infShurikenButton = Courier.UI.RegisterToggleModOptionButton("Infinite Shurikens", OnInfShuriken, (b) => infShuriken);
-            infJumpButton = Courier.UI.RegisterToggleModOptionButton("Infinite Jumps", OnInfJump, (b) => infJump);
-            //noBoundsButton = Courier.UI.RegisterToggleModOptionButton("No Camera Bounds", OnNoBounds, (b) => noBounds);
-            debugPosButton = Courier.UI.RegisterToggleModOptionButton("Position Debug Display", OnDebugPos, (b) => debugPos);
-            debugBossButton = Courier.UI.RegisterToggleModOptionButton("Boss Debug Display", OnDebugBoss, (b) => debugBoss);
-            toggleCollisionsButton = Courier.UI.RegisterToggleModOptionButton("Collisions", OnToggleCollisions, (b) => !collisionsDisabled);
-            secondQuestButton = Courier.UI.RegisterToggleModOptionButton("Second Quest", OnSecondQuest, (b) => Manager<ProgressionManager>.Instance.secondQuest);
-            speedMultButton = Courier.UI.RegisterTextEntryModOptionButton("Speed Multiplier", OnEnterSpeed, 4, null, () => Manager<PlayerManager>.Instance?.Player?.RunSpeedMultiplier.ToString() ?? "" + speedMult, CharsetFlags.Number | CharsetFlags.Dot);
-            debugTextColorButton = Courier.UI.RegisterTextEntryModOptionButton("Debug Text Color", OnEnterDebugTextColor, 7, null, () => "", CharsetFlags.Letter);
-            tpButton = Courier.UI.RegisterTextEntryModOptionButton("Teleport", OnEnterTeleportLevel, 17, () => "Level To Teleport To", () => GetLevelNameFromEnum(Manager<LevelManager>.Instance?.GetCurrentLevelEnum() ?? ELevel.NONE), CharsetFlags.Letter);
-            getItemButton = Courier.UI.RegisterTextEntryModOptionButton("Give Item", OnEnterItemToGive, 16, () => "Item Name", () => "", CharsetFlags.Letter);
-            reloadButton = Courier.UI.RegisterSubMenuModOptionButton("Reload To Last Checkpoint", OnReloadButton);
-            saveButton = Courier.UI.RegisterSubMenuModOptionButton("Instant Save", OnSaveButton);
+            infHealthButton = Courier.UI.RegisterToggleModOptionButton(() => Manager<LocalizationManager>.Instance.GetText(INF_HEALTH_BUTTON_LOC_ID), OnInfHealth, (b) => infHealth);
+            infShurikenButton = Courier.UI.RegisterToggleModOptionButton(() => Manager<LocalizationManager>.Instance.GetText(INF_SHURIKEN_BUTTON_LOC_ID), OnInfShuriken, (b) => infShuriken);
+            infJumpButton = Courier.UI.RegisterToggleModOptionButton(() => Manager<LocalizationManager>.Instance.GetText(INF_JUMP_BUTTON_LOC_ID), OnInfJump, (b) => infJump);
+            noBoundsButton = Courier.UI.RegisterToggleModOptionButton(() => Manager<LocalizationManager>.Instance.GetText(NO_BOUNDS_BUTTON_LOC_ID), OnNoBounds, (b) => noBounds);
+            debugPosButton = Courier.UI.RegisterToggleModOptionButton(() => Manager<LocalizationManager>.Instance.GetText(DEBUG_POS_BUTTON_LOC_ID), OnDebugPos, (b) => debugPos);
+            debugBossButton = Courier.UI.RegisterToggleModOptionButton(() => Manager<LocalizationManager>.Instance.GetText(DEBUG_BOSS_BUTTON_LOC_ID), OnDebugBoss, (b) => debugBoss);
+            toggleCollisionsButton = Courier.UI.RegisterToggleModOptionButton(() => Manager<LocalizationManager>.Instance.GetText(TOGGLE_COLLISIONS_BUTTON_LOC_ID), OnToggleCollisions, (b) => !collisionsDisabled);
+            secondQuestButton = Courier.UI.RegisterToggleModOptionButton(() => Manager<LocalizationManager>.Instance.GetText(SECOND_QUEST_BUTTON_LOC_ID), OnSecondQuest, (b) => Manager<ProgressionManager>.Instance.secondQuest);
+            speedMultButton = Courier.UI.RegisterTextEntryModOptionButton(() => Manager<LocalizationManager>.Instance.GetText(SPEED_MULT_BUTTON_LOC_ID), OnEnterSpeed, 4, null, () => Manager<PlayerManager>.Instance?.Player?.RunSpeedMultiplier.ToString() ?? "" + speedMult, CharsetFlags.Number | CharsetFlags.Dot);
+            debugTextColorButton = Courier.UI.RegisterTextEntryModOptionButton(() => Manager<LocalizationManager>.Instance.GetText(DEBUG_TEXT_COLOR_BUTTON_LOC_ID), OnEnterDebugTextColor, 7, null, () => "", CharsetFlags.Letter);
+            tpButton = Courier.UI.RegisterTextEntryModOptionButton(() => Manager<LocalizationManager>.Instance.GetText(TP_BUTTON_LOC_ID), OnEnterTeleportLevel, 17, () => Manager<LocalizationManager>.Instance.GetText(TP_LEVEL_ENTRY_LOC_ID), () => GetLevelNameFromEnum(Manager<LevelManager>.Instance?.GetCurrentLevelEnum() ?? ELevel.NONE), CharsetFlags.Letter);
+            getItemButton = Courier.UI.RegisterTextEntryModOptionButton(() => Manager<LocalizationManager>.Instance.GetText(GET_ITEM_BUTTON_LOC_ID), OnEnterItemToGive, 16, () => Manager<LocalizationManager>.Instance.GetText(ITEM_NAME_ENTRY_LOC_ID), () => "", CharsetFlags.Letter);
+            reloadButton = Courier.UI.RegisterSubMenuModOptionButton(() => Manager<LocalizationManager>.Instance.GetText(RELOAD_BUTTON_LOC_ID), OnReloadButton);
+            saveButton = Courier.UI.RegisterSubMenuModOptionButton(() => Manager<LocalizationManager>.Instance.GetText(SAVE_BUTTON_LOC_ID), OnSaveButton);
 
             // Disable certain features until we enter the level
             secondQuestButton.IsEnabled += () => Manager<LevelManager>.Instance.GetCurrentLevelEnum() != ELevel.NONE;
@@ -248,7 +274,7 @@ namespace TrainerReborn {
             }
             level = level.Replace(" ", "");
             if (Dicts.tpDict.ContainsKey(level)) {
-                TextEntryPopup locationPopup = InitTextEntryPopup(tpButton.addedTo, "Location To Teleport To", (entry) => OnEnterTeleportLocation(level, entry), 2, null, CharsetFlags.Number | CharsetFlags.Dash);
+                TextEntryPopup locationPopup = InitTextEntryPopup(tpButton.addedTo, Manager<LocalizationManager>.Instance.GetText(TP_LOCATION_ENTRY_LOC_ID), (entry) => OnEnterTeleportLocation(level, entry), 2, null, CharsetFlags.Number | CharsetFlags.Dash);
                 locationPopup.onBack += () => {
                     locationPopup.gameObject.SetActive(false);
                     tpButton.textEntryPopup.gameObject.SetActive(true);
@@ -304,7 +330,7 @@ namespace TrainerReborn {
             }
             item = item.Replace(" ", "");
             if (Dicts.itemDict.ContainsKey(item)) {
-                TextEntryPopup quantityPopup = InitTextEntryPopup(getItemButton.addedTo, "Number Of Items", (entry) => OnEnterItemQuantity(item, entry), 4, null, CharsetFlags.Number | CharsetFlags.Dash);
+                TextEntryPopup quantityPopup = InitTextEntryPopup(getItemButton.addedTo, Manager<LocalizationManager>.Instance.GetText(ITEM_NUMBER_ENTRY_LOC_ID), (entry) => OnEnterItemQuantity(item, entry), 4, null, CharsetFlags.Number | CharsetFlags.Dash);
                 quantityPopup.onBack += () => {
                     quantityPopup.gameObject.SetActive(false);
                     getItemButton.textEntryPopup.gameObject.SetActive(true);
@@ -419,35 +445,40 @@ namespace TrainerReborn {
             debugText16.text += debug;
         }
 
-        private void UpdateDebugText() {
+        private void UpdateDebugText() { // TODO
             if (debugPos) {
                 Vector2 playerPos = Manager<PlayerManager>.Instance.Player.transform.position;
-                AddToDebug("\r\nPos (" + playerPos.x.ToString("F1") + ", " + playerPos.y.ToString("F1") + ")");
+                string posText = Manager<LocalizationManager>.Instance.GetText(POS_DEBUG_TEXT_LOC_ID);
+                posText = posText.Replace("[posX]", playerPos.x.ToString("F1"));
+                posText = posText.Replace("[posY]", playerPos.y.ToString("F1"));
+                AddToDebug("\r\n" + posText);
             }
             if (noBounds) {
-                AddToDebug("\r\nCamera Unlocked");
+                AddToDebug("\r\n" + Manager<LocalizationManager>.Instance.GetText(CAMERA_UNLOCKED_DEBUG_TEXT_LOC_ID));
             }
             if (collisionsDisabled) {
-                AddToDebug("\r\nNo Collisions");
+                AddToDebug("\r\n" + Manager<LocalizationManager>.Instance.GetText(NO_COLLISIONS_DEBUG_TEXT_LOC_ID));
             }
             if (infShuriken) {
-                AddToDebug("\r\nInf Shuriken");
+                AddToDebug("\r\n" + Manager<LocalizationManager>.Instance.GetText(INF_SHURIKEN_DEBUG_TEXT_LOC_ID));
             }
             if (infHealth) {
-                AddToDebug("\r\nInf Health");
+                AddToDebug("\r\n" + Manager<LocalizationManager>.Instance.GetText(INF_HEALTH_DEBUG_TEXT_LOC_ID));
             }
             if (infJump) {
-                AddToDebug("\r\nInf Jumps");
+                AddToDebug("\r\n" + Manager<LocalizationManager>.Instance.GetText(INF_JUMP_DEBUG_TEXT_LOC_ID));
             }
             if (Manager<PlayerManager>.Instance.Player.RunSpeedMultiplier > 1f) {
-                AddToDebug("\r\nSpeed: " + Manager<PlayerManager>.Instance.Player.RunSpeedMultiplier);
+                string speedText = Manager<LocalizationManager>.Instance.GetText(SPEED_DEBUG_TEXT_LOC_ID);
+                speedText = speedText.Replace("[Speed]", Manager<PlayerManager>.Instance.Player.RunSpeedMultiplier.ToString());
+                AddToDebug("\r\n" + speedText);
             }
             if (debugBoss) {
                 AddToDebug(GetDebugBossString());
             }
         }
 
-        private string GetDebugBossString() {
+        private string GetDebugBossString() { // TODO
             string bossName = "";
             string bossState = "";
             string bossHealth = "";

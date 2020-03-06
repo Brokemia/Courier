@@ -23,8 +23,8 @@ public class patch_OptionScreen : OptionScreen {
                 Console.WriteLine(buttonInfo.GetType() + " not a known type of OptionsButtonInfo!");
             }
             buttonInfo.gameObject.transform.SetParent(transform.Find("Container").Find("BackgroundFrame").Find("OptionsFrame").Find("OptionMenuButtons"));
-            buttonInfo.gameObject.name = buttonInfo.text;
-            buttonInfo.gameObject.transform.name = buttonInfo.text;
+            buttonInfo.gameObject.name = buttonInfo.GetText?.Invoke() ?? "";
+            buttonInfo.gameObject.transform.name = buttonInfo.GetText?.Invoke() ?? "";
             buttonInfo.addedTo = this;
             foreach (TextMeshProUGUI text in buttonInfo.gameObject.GetComponentsInChildren<TextMeshProUGUI>()) {
                 if (text.name.Equals("OptionState"))
@@ -60,7 +60,7 @@ public class patch_OptionScreen : OptionScreen {
         //transform.position -= new Vector3(0, .9f * Courier.UI.OptionButtons.Count);
         for (int i = 0; i < Courier.UI.OptionButtons.Count; i++) {
             OptionsButtonInfo buttonInfo = Courier.UI.OptionButtons[i];
-            buttonInfo.nameTextMesh.text = buttonInfo.text; // TODO Patch LoadGeneralLoc to load custom language files
+            buttonInfo.nameTextMesh.text = buttonInfo.GetText?.Invoke() ?? ""; // TODO Patch LoadGeneralLoc to load custom language files
                                                             // TODO Find an earlier place to set this. Currently, it flickers briefly before putting itself in the right spot
             buttonInfo.gameObject.transform.position = controlsButton.transform.position - new Vector3(9.7f, .9f * (Courier.UI.EnabledCustomOptionButtonsBeforeButton(buttonInfo) + 1));
 

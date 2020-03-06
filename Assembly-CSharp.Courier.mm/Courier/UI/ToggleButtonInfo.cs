@@ -10,7 +10,7 @@ namespace Mod.Courier.UI {
         // Takes the default offLocID
         public Func<string, string> GetOffText;
 
-        public ToggleButtonInfo(string text, UnityAction onClick, Func<ToggleButtonInfo, bool> GetState, Func<string, string> GetOnText, Func<string, string> GetOffText) : base(text, onClick) {
+        public ToggleButtonInfo(Func<string> text, UnityAction onClick, Func<ToggleButtonInfo, bool> GetState, Func<string, string> GetOnText, Func<string, string> GetOffText) : base(text, onClick) {
             this.GetOnText = GetOnText;
             this.GetOffText = GetOffText;
             this.GetState = GetState;
