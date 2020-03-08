@@ -112,9 +112,8 @@ namespace Mod.Courier.UI {
 
                 buttonInfo.OnInit(this);
             }
-
+            
             // Make the border frames blue
-            ResourceHelper.SpriteConfig["Mod.Courier.UI.mod_options_frame"] = new SpriteParams { pixelsPerUnit = 20, border = new Vector4(15, 15, 15, 15) };
             Sprite borderSprite = backgroundFrame.GetComponent<Image>().sprite = Courier.EmbeddedSprites["Mod.Courier.UI.mod_options_frame"];
             borderSprite.bounds.extents.Set(1.7f, 1.7f, 0.1f);
             borderSprite.texture.filterMode = FilterMode.Point;
@@ -210,12 +209,6 @@ namespace Mod.Courier.UI {
                 }
             }
 
-            foreach (Image image in transform.GetComponentsInChildren<Image>().Where((c) => c.name.Equals("SelectionFrame"))) {
-                //image.color = new Color(0, .633f, 1f);
-                if (image.overrideSprite != null && image.overrideSprite.name != "Empty") {
-                    Console.WriteLine(GameObjectSerializer.SerializeObject(image.overrideSprite, 0));
-                }
-            }
             // Make the selection frames blue
             foreach (Image image in transform.GetComponentsInChildren<Image>().Where((c) => c.name.Equals("SelectionFrame"))) {
                 try {

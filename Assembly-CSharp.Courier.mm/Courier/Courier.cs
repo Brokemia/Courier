@@ -23,8 +23,11 @@ namespace Mod.Courier {
 
         private static Dictionary<string, Sprite> embeddedSprites;
 
+        private static bool spriteParamsSetup;
+
         public static Dictionary<string, Sprite> EmbeddedSprites {
             get {
+                if (!spriteParamsSetup) SetupCourierSpriteParams();
                 return embeddedSprites ?? (embeddedSprites = ResourceHelper.GetSprites());
             }
         }
@@ -109,6 +112,11 @@ namespace Mod.Courier {
                 (o as CourierModule).Load();
                 Modules.Add(o as CourierModule);
             }
+        }
+
+        internal static void SetupCourierSpriteParams() {
+            spriteParamsSetup = true;
+            ResourceHelper.SpriteConfig["Mod.Courier.UI.mod_options_frame"] = new SpriteParams { pixelsPerUnit = 20, border = new Vector4(15, 15, 15, 15)};
         }
 
         internal static void AddCourierLocalization(string languageID) {
