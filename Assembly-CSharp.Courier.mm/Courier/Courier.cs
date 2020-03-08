@@ -18,8 +18,16 @@ namespace Mod.Courier {
         public static string CacheFolder = Path.Combine(ModsFolder, "Cache");
 
         public static bool Loaded { get; private set; }
-        
+
         public static List<CourierModule> Modules = new List<CourierModule>();
+
+        private static Dictionary<string, Sprite> embeddedSprites;
+
+        public static Dictionary<string, Sprite> EmbeddedSprites {
+            get {
+                return embeddedSprites ?? (embeddedSprites = ResourceHelper.GetSprites());
+            }
+        }
 
         public static void DumpHierarchy(Transform transform) {
             Console.WriteLine("Dumping hierarchy for: " + transform.name);

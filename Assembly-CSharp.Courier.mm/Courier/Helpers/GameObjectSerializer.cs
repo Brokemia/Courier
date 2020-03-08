@@ -36,9 +36,11 @@ namespace Mod.Courier.Helpers {
             ignored.Add(new IgnoreEntry(typeof(Transform), "childCount"));
             ignored.Add(new IgnoreEntry(typeof(Transform), "worldToLocalMatrix"));
             ignored.Add(new IgnoreEntry(typeof(Transform), "localToWorldMatrix"));
+            ignored.Add(new IgnoreEntry(typeof(Sprite), "packingMode"));
+            ignored.Add(new IgnoreEntry(typeof(Sprite), "packingRotation"));
         }
 
-        private static string SerializeObject(object o, int level) {
+        public static string SerializeObject(object o, int level) {
             if(o is GameObject) {
                 return SerializeGameObject(o as GameObject, level);
             }
@@ -59,7 +61,7 @@ namespace Mod.Courier.Helpers {
             return res;
         }
 
-        private static string SerializeGameObject(GameObject gameObject, int level) {
+        public static string SerializeGameObject(GameObject gameObject, int level) {
             string res = "";
             res += GetIndent(level) + "(" + gameObject.GetType() + ") name='" + gameObject.name + "' tag='" + gameObject.tag + "' layer='" + gameObject.layer;
             res += "' activeSelf='" + gameObject.activeSelf + "' isStatic='" + gameObject.isStatic + "' hideFlags='" + gameObject.hideFlags + "'\n";

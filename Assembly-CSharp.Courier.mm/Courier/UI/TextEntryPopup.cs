@@ -3,10 +3,13 @@ using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 namespace Mod.Courier.UI {
     public class TextEntryPopup : MonoBehaviour {
         public int maxCharacter = 15;
+
+        public bool blueFrame = true;
 
         public TextMeshProUGUI entryTextfield;
 
@@ -28,6 +31,42 @@ namespace Mod.Courier.UI {
         }
 
         public void Init(string initialText) {
+            if (blueFrame) {
+                Sprite borderSprite = transform.Find("BigFrame").GetComponent<Image>().sprite = Courier.EmbeddedSprites["Mod.Courier.UI.mod_options_frame"];
+                borderSprite.bounds.extents.Set(1.7f, 1.7f, 0.1f);
+                borderSprite.texture.filterMode = FilterMode.Point;
+
+                // Make the selection frame blue
+                //transform.Find("BigFrame").Find("LetterSelectionFrame").GetComponent<Image>().color = new Color(0, .633f, 1f);
+                Image image = transform.Find("BigFrame").Find("LetterSelectionFrame").GetComponent<Image>();
+                try {
+                    if (image.overrideSprite != null && image.overrideSprite.name != "Empty") {
+                        RenderTexture rt = new RenderTexture(image.overrideSprite.texture.width, image.overrideSprite.texture.height, 0);
+                        RenderTexture.active = rt;
+                        Graphics.Blit(image.overrideSprite.texture, rt);
+
+                        Texture2D res = new Texture2D(rt.width, rt.height, TextureFormat.RGBA32, true);
+                        res.ReadPixels(new Rect(0, 0, rt.width, rt.height), 0, 0, false);
+
+                        Color[] pxls = res.GetPixels();
+                        for (int i = 0; i < pxls.Length; i++) {
+                            if (Math.Abs(pxls[i].r - .973) < .01 && Math.Abs(pxls[i].g - .722) < .01) {
+                                pxls[i].r = 0;
+                                pxls[i].g = .633f;
+                                pxls[i].b = 1;
+                            }
+                        }
+                        res.SetPixels(pxls);
+                        res.Apply();
+
+                        Sprite sprite = image.overrideSprite = Sprite.Create(res, new Rect(0, 0, res.width, res.height), new Vector2(16, 16), 20, 1, SpriteMeshType.FullRect, new Vector4(5, 5, 5, 5));
+                        sprite.bounds.extents.Set(.8f, .8f, 0.1f);
+                        sprite.texture.filterMode = FilterMode.Point;
+                    }
+                } catch {
+                    Console.WriteLine("Image not Read/Writeable when recoloring selection frames in ModOptionScreen");
+                }
+            }
             entryText = initialText;
             UpdateNameField();
         }

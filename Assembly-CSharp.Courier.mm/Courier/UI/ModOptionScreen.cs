@@ -1,5 +1,9 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using Mod.Courier.Helpers;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -30,7 +34,7 @@ namespace Mod.Courier.UI {
         public static string musicLocID = "OPTIONS_SCREEN_MUSIC";
 
         public float initialHeight;
-        
+
         public static ModOptionScreen BuildModOptionScreen(OptionScreen optionScreen) {
             GameObject gameObject = new GameObject();
             ModOptionScreen modOptionScreen = gameObject.AddComponent<ModOptionScreen>();
@@ -38,14 +42,14 @@ namespace Mod.Courier.UI {
             modOptionScreen.name = "ModOptionScreen";
             // Iterate backwards so elements don't shift as lower ones are removed
             // If you know, you know
-            for (int i = newScreen.transform.childCount-1; i >= 0; i--) {
+            for (int i = newScreen.transform.childCount - 1; i >= 0; i--) {
                 newScreen.transform.GetChild(i).SetParent(modOptionScreen.transform, false);
             }
             modOptionScreen.optionMenuButtons = modOptionScreen.transform.Find("Container").Find("BackgroundFrame").Find("OptionsFrame").Find("OptionMenuButtons");
             modOptionScreen.backButton = modOptionScreen.optionMenuButtons.Find("Back");
             // Delete OptionScreen buttons except for the Back button
-            foreach(Transform child in modOptionScreen.optionMenuButtons.GetChildren()) {
-                if(!child.Equals(modOptionScreen.backButton))
+            foreach (Transform child in modOptionScreen.optionMenuButtons.GetChildren()) {
+                if (!child.Equals(modOptionScreen.backButton))
                     Destroy(child.gameObject);
             }
             modOptionScreen.optionMenuButtons.DetachChildren();
@@ -55,7 +59,7 @@ namespace Mod.Courier.UI {
             Button button = modOptionScreen.backButton.GetComponentInChildren<Button>();
             button.onClick = new Button.ButtonClickedEvent();
             button.onClick.AddListener(modOptionScreen.BackToOptionMenu);
-            
+
             modOptionScreen.InitStuffUnityWouldDo();
 
             modOptionScreen.gameObject.SetActive(value: false);
@@ -81,6 +85,7 @@ namespace Mod.Courier.UI {
 
         public override void Init(IViewParams screenParams) {
             base.Init(screenParams);
+
             foreach (OptionsButtonInfo buttonInfo in Courier.UI.ModOptionButtons) {
                 OptionScreen optionScreen = Manager<UIManager>.Instance.GetView<OptionScreen>();
                 if (buttonInfo is ToggleButtonInfo) {
@@ -107,9 +112,51 @@ namespace Mod.Courier.UI {
 
                 buttonInfo.OnInit(this);
             }
+
+            // Make the border frames blue
+            ResourceHelper.SpriteConfig["Mod.Courier.UI.mod_options_frame"] = new SpriteParams { pixelsPerUnit = 20, border = new Vector4(15, 15, 15, 15) };
+            Sprite borderSprite = backgroundFrame.GetComponent<Image>().sprite = Courier.EmbeddedSprites["Mod.Courier.UI.mod_options_frame"];
+            borderSprite.bounds.extents.Set(1.7f, 1.7f, 0.1f);
+            borderSprite.texture.filterMode = FilterMode.Point;
+
+            borderSprite = backgroundFrame.Find("OptionsFrame").GetComponent<Image>().sprite = Courier.EmbeddedSprites["Mod.Courier.UI.mod_options_frame"];
+            borderSprite.bounds.extents.Set(1.7f, 1.7f, 0.1f);
+            borderSprite.texture.filterMode = FilterMode.Point;
+
             HideUnavailableOptions();
             InitOptions();
             SetInitialSelection();
+
+            // Make the selection frames blue
+            foreach (Image image in transform.GetComponentsInChildren<Image>().Where((c) => c.name.Equals("SelectionFrame"))) {
+                try {
+                    if (image.overrideSprite != null && image.overrideSprite.name != "Empty") {
+                        RenderTexture rt = new RenderTexture(image.overrideSprite.texture.width, image.overrideSprite.texture.height, 0);
+                        RenderTexture.active = rt;
+                        Graphics.Blit(image.overrideSprite.texture, rt);
+
+                        Texture2D res = new Texture2D(rt.width, rt.height, TextureFormat.RGBA32, true);
+                        res.ReadPixels(new Rect(0, 0, rt.width, rt.height), 0, 0, false);
+
+                        Color[] pxls = res.GetPixels();
+                        for (int i = 0; i < pxls.Length; i++) {
+                            if (Math.Abs(pxls[i].r - .973) < .01 && Math.Abs(pxls[i].g - .722) < .01) {
+                                pxls[i].r = 0;
+                                pxls[i].g = .633f;
+                                pxls[i].b = 1;
+                            }
+                        }
+                        res.SetPixels(pxls);
+                        res.Apply();
+
+                        Sprite sprite = image.overrideSprite = Sprite.Create(res, new Rect(0, 0, res.width, res.height), new Vector2(16, 16), 20, 1, SpriteMeshType.FullRect, new Vector4(5, 5, 5, 5));
+                        sprite.bounds.extents.Set(.8f, .8f, 0.1f);
+                        sprite.texture.filterMode = FilterMode.Point;
+                    }
+                } catch {
+                    Console.WriteLine("Image not Read/Writeable when recoloring selection frames in ModOptionScreen");
+                }
+            }
         }
 
         private IEnumerator WaitAndSelectInitialButton() {
@@ -152,7 +199,7 @@ namespace Mod.Courier.UI {
                 BackToOptionMenu();
             }
             // Line up all of the buttons
-            backButton.position = topButtonPos + new Vector3(0, .45f * (Courier.UI.EnabledModOptionsCount()-1));
+            backButton.position = topButtonPos + new Vector3(0, .45f * (Courier.UI.EnabledModOptionsCount() - 1));
             foreach (OptionsButtonInfo buttonInfo in Courier.UI.ModOptionButtons) {
                 buttonInfo.nameTextMesh.text = buttonInfo.GetText?.Invoke() ?? "";
                 if (buttonInfo.gameObject.activeInHierarchy) {
@@ -160,6 +207,43 @@ namespace Mod.Courier.UI {
                     // Then the back button is shifted down to hold the place of the next button
                     buttonInfo.gameObject.transform.position = backButton.transform.position;
                     backButton.position = buttonInfo.gameObject.transform.position - new Vector3(0, .9f);
+                }
+            }
+
+            foreach (Image image in transform.GetComponentsInChildren<Image>().Where((c) => c.name.Equals("SelectionFrame"))) {
+                //image.color = new Color(0, .633f, 1f);
+                if (image.overrideSprite != null && image.overrideSprite.name != "Empty") {
+                    Console.WriteLine(GameObjectSerializer.SerializeObject(image.overrideSprite, 0));
+                }
+            }
+            // Make the selection frames blue
+            foreach (Image image in transform.GetComponentsInChildren<Image>().Where((c) => c.name.Equals("SelectionFrame"))) {
+                try {
+                    if (image.overrideSprite != null && image.overrideSprite.name.Equals("ShopItemSelectionFrame")) {
+                        RenderTexture rt = new RenderTexture(image.overrideSprite.texture.width, image.overrideSprite.texture.height, 0);
+                        RenderTexture.active = rt;
+                        Graphics.Blit(image.overrideSprite.texture, rt);
+
+                        Texture2D res = new Texture2D(rt.width, rt.height, TextureFormat.RGBA32, true);
+                        res.ReadPixels(new Rect(0, 0, rt.width, rt.height), 0, 0, false);
+
+                        Color[] pxls = res.GetPixels();
+                        for (int i = 0; i < pxls.Length; i++) {
+                            if (Math.Abs(pxls[i].r - .973) < .01 && Math.Abs(pxls[i].g - .722) < .01) {
+                                pxls[i].r = 0;
+                                pxls[i].g = .633f;
+                                pxls[i].b = 1;
+                            }
+                        }
+                        res.SetPixels(pxls);
+                        res.Apply();
+
+                        Sprite sprite = image.overrideSprite = Sprite.Create(res, new Rect(0, 0, res.width, res.height), new Vector2(16, 16), 20, 1, SpriteMeshType.FullRect, new Vector4(5, 5, 5, 5));
+                        sprite.bounds.extents.Set(.8f, .8f, 0.1f);
+                        sprite.texture.filterMode = FilterMode.Point;
+                    }
+                } catch {
+                    Console.WriteLine("Image not Read/Writeable when recoloring selection frames in ModOptionScreen");
                 }
             }
         }

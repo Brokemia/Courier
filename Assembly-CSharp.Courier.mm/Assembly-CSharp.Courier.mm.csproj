@@ -85,19 +85,23 @@
       <HintPath>..\packages\DotNetZip.1.12.0\lib\net20\DotNetZip.dll</HintPath>
     </Reference>
     <Reference Include="MonoMod.Utils">
-      <HintPath>..\packages\MonoMod.Utils.20.3.5.1\lib\net35\MonoMod.Utils.dll</HintPath>
+      <HintPath>..\packages\MonoMod.Utils.20.3.7.1\lib\net35\MonoMod.Utils.dll</HintPath>
     </Reference>
     <Reference Include="MonoMod">
-      <HintPath>..\packages\MonoMod.20.3.5.1\lib\net35\MonoMod.exe</HintPath>
+      <HintPath>..\packages\MonoMod.20.3.7.1\lib\net35\MonoMod.exe</HintPath>
     </Reference>
     <Reference Include="MonoMod.RuntimeDetour">
-      <HintPath>..\packages\MonoMod.RuntimeDetour.20.3.5.1\lib\net35\MonoMod.RuntimeDetour.dll</HintPath>
+      <HintPath>..\packages\MonoMod.RuntimeDetour.20.3.7.1\lib\net35\MonoMod.RuntimeDetour.dll</HintPath>
     </Reference>
     <Reference Include="MonoMod.RuntimeDetour.HookGen">
-      <HintPath>..\packages\MonoMod.RuntimeDetour.HookGen.20.3.5.1\lib\net35\MonoMod.RuntimeDetour.HookGen.exe</HintPath>
+      <HintPath>..\packages\MonoMod.RuntimeDetour.HookGen.20.3.7.1\lib\net35\MonoMod.RuntimeDetour.HookGen.exe</HintPath>
     </Reference>
     <Reference Include="MonoMod.Common">
-      <HintPath>..\packages\MonoMod.Common.20.3.5.1\lib\net35\MonoMod.Common.dll</HintPath>
+      <HintPath>..\packages\MonoMod.Common.20.3.7.1\lib\net35\MonoMod.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.ImageConversionModule">
+      <HintPath>..\..\TheMessenger_Data\Managed\UnityEngine.ImageConversionModule.dll</HintPath>
+      <Private>False</Private>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -114,7 +118,6 @@
     <Compile Include="Patches\OptionScreen.cs" />
     <Compile Include="Courier\UI\OptionsButtonInfo.cs" />
     <Compile Include="Courier\UI\ToggleButtonInfo.cs" />
-    <Compile Include="Courier\UI\ModOptionScreen.cs" />
     <Compile Include="Patches\DemoManager.cs" />
     <Compile Include="Patches\Level.cs" />
     <Compile Include="Courier\UI\SubMenuButtonInfo.cs" />
@@ -132,6 +135,11 @@
     <Compile Include="Courier\Helpers\GameObjectSerializer.cs" />
     <Compile Include="Patches\DialogManager.cs" />
     <Compile Include="Patches\LocalizationManager.cs" />
+    <Compile Include="Courier\Helpers\ResourceHelper.cs" />
+    <Compile Include="Courier\UI\ModOptionScreen.cs">
+      <LogicalName>Mod.Courier.UI.mod_options_frame.png</LogicalName>
+    </Compile>
+    <Compile Include="Courier\Helpers\SpriteParams.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Patches\" />
@@ -142,6 +150,14 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="mod_options_frame.png">
+      <LogicalName>Mod.Courier.UI.mod_options_frame.png</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="courier_watermark.png">
+      <LogicalName>Mod.Courier.UI.courier_watermark.png</LogicalName>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>
