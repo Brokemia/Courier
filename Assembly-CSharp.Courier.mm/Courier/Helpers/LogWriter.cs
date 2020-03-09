@@ -50,6 +50,5 @@ namespace Mod.Courier.Helpers {
             STDOUT?.Close();
             File?.Close();
         }
-
     }
 }

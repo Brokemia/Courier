@@ -11,6 +11,11 @@ public class patch_UIManager : UIManager {
     [MonoModIgnore]
     private Dictionary<Type, List<GameObject>> preloadedScreens;
 
+    [MonoModIgnore]
+    private List<RectTransform> layers;
+
+    public List<RectTransform> Layers => layers;
+
     public List<GameObject> GetPreloadedViews<T>() {
         Type typeFromHandle = typeof(T);
         return GetPreloadedViews(typeFromHandle);

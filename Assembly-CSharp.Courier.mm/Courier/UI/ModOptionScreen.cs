@@ -35,6 +35,11 @@ namespace Mod.Courier.UI {
 
         public float initialHeight;
 
+        // The least y value the menu will be at without scrolling
+        public float startYMax = -90 - 18f * 10;
+
+        public Vector3 defaultPos = new Vector3(28.2f, 5.5f, 5.1f);
+
         public static ModOptionScreen BuildModOptionScreen(OptionScreen optionScreen) {
             GameObject gameObject = new GameObject();
             ModOptionScreen modOptionScreen = gameObject.AddComponent<ModOptionScreen>();
@@ -73,7 +78,7 @@ namespace Mod.Courier.UI {
 
         // You heard me
         private void InitStuffUnityWouldDo() {
-            transform.position -= new Vector3(0, 90 + heightPerButton * Courier.UI.ModOptionButtons.Count);
+            //transform.position = new Vector3(0, Math.Max(-90 - heightPerButton * Courier.UI.ModOptionButtons.Count, startYMax));
             backgroundFrame = (RectTransform)transform.Find("Container").Find("BackgroundFrame");
             initialHeight = backgroundFrame.sizeDelta.y;
             gameObject.AddComponent<Canvas>();
@@ -193,12 +198,26 @@ namespace Mod.Courier.UI {
             Courier.UI.ModOptionScreenLoaded = false;
         }
 
+        public int GetSelectedButtonIndex() {
+            if (backButton.Find("Button").gameObject.Equals(EventSystem.current.currentSelectedGameObject)) return Courier.UI.EnabledModOptionsCount();
+            foreach(OptionsButtonInfo buttonInfo in Courier.UI.ModOptionButtons) {
+                if (buttonInfo.gameObject.transform.Find("Button").gameObject.Equals(EventSystem.current.currentSelectedGameObject)) {
+                    return Courier.UI.EnabledModOptionsBeforeButton(buttonInfo);
+                }
+            }
+            return -1;
+        }
+
         private void LateUpdate() {
             if (Manager<InputManager>.Instance.GetBackDown()) {
                 BackToOptionMenu();
             }
+
+            Vector3 windowOffset = new Vector3(0, Math.Min(GetSelectedButtonIndex(), Math.Max(0, Courier.UI.EnabledModOptionsCount() - 10)) * .9f) - new Vector3(0, Math.Max(0, Courier.UI.EnabledModOptionsCount() - 11) * .45f);
+            transform.position = defaultPos + windowOffset;
+
             // Line up all of the buttons
-            backButton.position = topButtonPos + new Vector3(0, .45f * (Courier.UI.EnabledModOptionsCount() - 1));
+            backButton.position = topButtonPos + new Vector3(0, .45f * (Courier.UI.EnabledModOptionsCount() - 1)) + windowOffset;
             foreach (OptionsButtonInfo buttonInfo in Courier.UI.ModOptionButtons) {
                 buttonInfo.nameTextMesh.text = buttonInfo.GetText?.Invoke() ?? "";
                 if (buttonInfo.gameObject.activeInHierarchy) {

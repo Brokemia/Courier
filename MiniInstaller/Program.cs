@@ -100,7 +100,7 @@ namespace MiniInstaller {
             }
 
             PathOrig = Path.Combine(PathManaged, "orig");
-            PathLog = Path.Combine(PathManaged, "miniinstaller-log.txt");
+            PathLog = Path.Combine(PathManaged, "../../miniinstaller-log.txt");
 
             if (!Directory.Exists(Path.Combine(PathManaged, "../../Mods"))) {
                 LogLine("Creating Mods directory");

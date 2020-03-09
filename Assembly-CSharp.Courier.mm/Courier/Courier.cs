@@ -25,6 +25,8 @@ namespace Mod.Courier {
 
         private static bool spriteParamsSetup;
 
+        public static LogWriter logWriter;
+
         public static Dictionary<string, Sprite> EmbeddedSprites {
             get {
                 if (!spriteParamsSetup) SetupCourierSpriteParams();
@@ -49,7 +51,24 @@ namespace Mod.Courier {
         }
 
         public static void Boot() {
+            if (File.Exists("log.txt"))
+                File.Delete("Log.txt");
+
+            Stream fileStream = new FileStream("log.txt", FileMode.OpenOrCreate, FileAccess.Write, FileShare.ReadWrite | FileShare.Delete);
+            StreamWriter fileWriter = new StreamWriter(fileStream, Console.OutputEncoding);
+            logWriter = new LogWriter {
+                STDOUT = Console.Out,
+                File = fileWriter
+            };
+            Debug.unityLogger.logHandler = new UnityLogHandler();
+            Console.SetOut(logWriter);
+
             UI.SetupModdedUI();
+        }
+
+        public static void Quit() {
+            Console.SetOut(logWriter.STDOUT);
+            logWriter.STDOUT = null;
         }
 
         public static void LoadAssemblyMods() {

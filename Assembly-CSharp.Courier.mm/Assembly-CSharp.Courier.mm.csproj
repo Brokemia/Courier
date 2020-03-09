@@ -49,10 +49,6 @@
       <HintPath>..\..\TheMessenger_Data\Managed\UnityEngine.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="UnityEngine.CoreModule">
-      <HintPath>..\..\TheMessenger_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
     <Reference Include="System.Core">
       <HintPath>..\..\TheMessenger_Data\Vanilla\System.Core.dll</HintPath>
       <Private>False</Private>
@@ -103,6 +99,10 @@
       <HintPath>..\..\TheMessenger_Data\Managed\UnityEngine.ImageConversionModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>..\..\TheMessenger_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -140,6 +140,8 @@
       <LogicalName>Mod.Courier.UI.mod_options_frame.png</LogicalName>
     </Compile>
     <Compile Include="Courier\Helpers\SpriteParams.cs" />
+    <Compile Include="Courier\Logger.cs" />
+    <Compile Include="Courier\Helpers\UnityLogHandler.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Patches\" />
