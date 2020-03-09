@@ -91,32 +91,7 @@ namespace Mod.Courier.UI {
         public override void Init(IViewParams screenParams) {
             base.Init(screenParams);
 
-            foreach (OptionsButtonInfo buttonInfo in Courier.UI.ModOptionButtons) {
-                OptionScreen optionScreen = Manager<UIManager>.Instance.GetView<OptionScreen>();
-                if (buttonInfo is ToggleButtonInfo) {
-                    buttonInfo.gameObject = Instantiate(optionScreen.fullscreenOption, transform.Find("Container").Find("BackgroundFrame"));
-                } else if (buttonInfo is SubMenuButtonInfo) {
-                    buttonInfo.gameObject = Instantiate(optionScreen.controlsButton.transform.parent.gameObject, transform.Find("Container").Find("BackgroundFrame"));
-                } else {
-                    // TODO Mods add their own ButtonInfo
-                    Console.WriteLine(buttonInfo.GetType() + " not a known type of OptionsButtonInfo!");
-                }
-                buttonInfo.gameObject.transform.SetParent(transform.Find("Container").Find("BackgroundFrame").Find("OptionsFrame").Find("OptionMenuButtons"));
-                buttonInfo.gameObject.name = buttonInfo.GetText?.Invoke() ?? "";
-                buttonInfo.gameObject.transform.name = buttonInfo.GetText?.Invoke() ?? "";
-                buttonInfo.addedTo = this;
-                foreach (TextMeshProUGUI text in buttonInfo.gameObject.GetComponentsInChildren<TextMeshProUGUI>()) {
-                    if (text.name.Equals("OptionState"))
-                        buttonInfo.stateTextMesh = text;
-                    if (text.name.Equals("OptionName"))
-                        buttonInfo.nameTextMesh = text;
-                }
-                Button button = buttonInfo.gameObject.GetComponentInChildren<Button>();
-                button.onClick = new Button.ButtonClickedEvent();
-                button.onClick.AddListener(buttonInfo.onClick);
-
-                buttonInfo.OnInit(this);
-            }
+            Courier.UI.InitOptionsViewWithModButtons(this, Courier.UI.ModOptionButtons);
             
             // Make the border frames blue
             Sprite borderSprite = backgroundFrame.GetComponent<Image>().sprite = Courier.EmbeddedSprites["Mod.Courier.UI.mod_options_frame"];
@@ -173,13 +148,13 @@ namespace Mod.Courier.UI {
                 Manager<UIManager>.Instance.SetParentAndAlign(gameObject, transform.parent.gameObject);
             }
             EventSystem.current.SetSelectedGameObject(null);
-            StartCoroutine(WaitAndSelectInitialButton());
         }
 
         private void HideUnavailableOptions() {
             foreach (OptionsButtonInfo buttonInfo in Courier.UI.ModOptionButtons) {
                 buttonInfo.gameObject.SetActive(buttonInfo.IsEnabled?.Invoke() ?? true);
             }
+            StartCoroutine(WaitAndSelectInitialButton());
             Vector2 sizeDelta = backgroundFrame.sizeDelta;
             backgroundFrame.sizeDelta = new Vector2(sizeDelta.x, 110 + heightPerButton * Courier.UI.EnabledModOptionsCount());
         }
@@ -261,10 +236,12 @@ namespace Mod.Courier.UI {
         }
 
         private void InitOptions() {
-            if (Courier.UI.ModOptionButtons.Count > 0) {
-                defaultSelection = Courier.UI.ModOptionButtons[0].gameObject;
-            } else {
-                defaultSelection = backButton.gameObject;
+            defaultSelection = backButton.gameObject;
+            foreach(OptionsButtonInfo buttonInfo in Courier.UI.ModOptionButtons) {
+                if (buttonInfo.IsEnabled?.Invoke() ?? true) {
+                    defaultSelection = buttonInfo.gameObject;
+                    break;
+                }
             }
 
             backgroundFrame.Find("Title").GetComponent<TextMeshProUGUI>().SetText(Manager<LocalizationManager>.Instance.GetText(Courier.UI.MOD_OPTIONS_MENU_TITLE_LOC_ID));

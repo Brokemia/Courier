@@ -13,31 +13,8 @@ using UnityEngine.UI;
 public class patch_OptionScreen : OptionScreen {
     public extern void orig_Init(IViewParams screenParams);
     public void Init(IViewParams screenParams) {
-        foreach (OptionsButtonInfo buttonInfo in Courier.UI.OptionButtons) {
-            if (buttonInfo is ToggleButtonInfo) {
-                buttonInfo.gameObject = Instantiate(fullscreenOption, transform.Find("Container").Find("BackgroundFrame"));
-            } else if (buttonInfo is SubMenuButtonInfo) {
-                buttonInfo.gameObject = Instantiate(controlsButton.transform.parent.gameObject, transform.Find("Container").Find("BackgroundFrame"));
-            } else {
-                // TODO Mods add their own ButtonInfo
-                Console.WriteLine(buttonInfo.GetType() + " not a known type of OptionsButtonInfo!");
-            }
-            buttonInfo.gameObject.transform.SetParent(transform.Find("Container").Find("BackgroundFrame").Find("OptionsFrame").Find("OptionMenuButtons"));
-            buttonInfo.gameObject.name = buttonInfo.GetText?.Invoke() ?? "";
-            buttonInfo.gameObject.transform.name = buttonInfo.GetText?.Invoke() ?? "";
-            buttonInfo.addedTo = this;
-            foreach (TextMeshProUGUI text in buttonInfo.gameObject.GetComponentsInChildren<TextMeshProUGUI>()) {
-                if (text.name.Equals("OptionState"))
-                    buttonInfo.stateTextMesh = text;
-                if (text.name.Equals("OptionName"))
-                    buttonInfo.nameTextMesh = text;
-            }
-            Button button = buttonInfo.gameObject.GetComponentInChildren<Button>();
-            button.onClick = new Button.ButtonClickedEvent();
-            button.onClick.AddListener(buttonInfo.onClick);
+        Courier.UI.InitOptionsViewWithModButtons(this, Courier.UI.OptionButtons);
 
-            buttonInfo.OnInit(this);
-        }
         orig_Init(screenParams);
     }
 

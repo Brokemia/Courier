@@ -4,6 +4,7 @@ using Mod.Courier.UI;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.UI;
 using static Mod.Courier.UI.TextEntryButtonInfo;
 
 namespace Mod.Courier {
@@ -59,6 +60,40 @@ namespace Mod.Courier {
 
             public static void SetupModdedUI() {
                 ModOptionButton = RegisterSubMenuOptionButton(() => Manager<LocalizationManager>.Instance.GetText(MOD_OPTIONS_BUTTON_LOC_ID), OnSelectModOptions);
+            }
+
+            public static void InitOptionsViewWithModButtons(View view, IEnumerable<OptionsButtonInfo> buttons) {
+                OptionScreen optionScreen = Manager<UIManager>.Instance.GetView<OptionScreen>();
+                if (view is OptionScreen)
+                    optionScreen = (OptionScreen)view;
+
+                foreach (OptionsButtonInfo buttonInfo in buttons) {
+                    if (buttonInfo is ToggleButtonInfo) {
+                        buttonInfo.gameObject = UnityEngine.Object.Instantiate(optionScreen.fullscreenOption, view.transform.Find("Container").Find("BackgroundFrame"));
+                    } else if (buttonInfo is SubMenuButtonInfo) {
+                        buttonInfo.gameObject = UnityEngine.Object.Instantiate(optionScreen.controlsButton.transform.parent.gameObject, view.transform.Find("Container").Find("BackgroundFrame"));
+                    } else if (buttonInfo is MultipleOptionButtonInfo) {
+                        buttonInfo.gameObject = UnityEngine.Object.Instantiate(optionScreen.languageOption, view.transform.Find("Container").Find("BackgroundFrame"));
+                    } else {
+                        // TODO Mods add their own ButtonInfo
+                        Console.WriteLine(buttonInfo.GetType() + " not a known type of OptionsButtonInfo!");
+                    }
+                    buttonInfo.gameObject.transform.SetParent(view.transform.Find("Container").Find("BackgroundFrame").Find("OptionsFrame").Find("OptionMenuButtons"));
+                    buttonInfo.gameObject.name = buttonInfo.GetText?.Invoke() ?? "";
+                    buttonInfo.gameObject.transform.name = buttonInfo.GetText?.Invoke() ?? "";
+                    buttonInfo.addedTo = view;
+                    foreach (TextMeshProUGUI text in buttonInfo.gameObject.GetComponentsInChildren<TextMeshProUGUI>()) {
+                        if (text.name.Equals("OptionState") || text.name.Equals("Text"))
+                            buttonInfo.stateTextMesh = text;
+                        if (text.name.Equals("OptionName"))
+                            buttonInfo.nameTextMesh = text;
+                    }
+                    Button button = buttonInfo.gameObject.GetComponentInChildren<Button>();
+                    button.onClick = new Button.ButtonClickedEvent();
+                    button.onClick.AddListener(buttonInfo.onClick);
+
+                    buttonInfo.OnInit(view);
+                }
             }
 
             public static void OnSelectModOptions() {
@@ -117,6 +152,12 @@ namespace Mod.Courier {
                 return info;
             }
 
+            public static MultipleOptionButtonInfo RegisterMultipleOptionButton(Func<string> GetText, UnityAction onClick, Action<int> onSwitch, Func<MultipleOptionButtonInfo, int> GetIndex, Func<int, string> GetTextForIndex) {
+                MultipleOptionButtonInfo info = new MultipleOptionButtonInfo(GetText, onClick, onSwitch, GetIndex, GetTextForIndex);
+                RegisterOptionButton(info);
+                return info;
+            }
+
             public static void RegisterModOptionButton(OptionsButtonInfo buttonInfo) {
                 ModOptionButtons.Add(buttonInfo);
             }
@@ -144,6 +185,12 @@ namespace Mod.Courier {
 
             public static TextEntryButtonInfo RegisterTextEntryModOptionButton(Func<string> GetText, Func<string, bool> onEntry, int maxCharacter = 15, Func<string> GetEntryText = null, Func<string> GetInitialText = null, CharsetFlags charset = TextEntryButtonInfo.DEFAULT_CHARSET) {
                 TextEntryButtonInfo info = new TextEntryButtonInfo(GetText, onEntry, maxCharacter, GetEntryText, GetInitialText, charset);
+                RegisterModOptionButton(info);
+                return info;
+            }
+
+            public static MultipleOptionButtonInfo RegisterMultipleModOptionButton(Func<string> GetText, UnityAction onClick, Action<int> onSwitch, Func<MultipleOptionButtonInfo, int> GetIndex, Func<int, string> GetTextForIndex) {
+                MultipleOptionButtonInfo info = new MultipleOptionButtonInfo(GetText, onClick, onSwitch, GetIndex, GetTextForIndex);
                 RegisterModOptionButton(info);
                 return info;
             }

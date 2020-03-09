@@ -142,6 +142,8 @@
     <Compile Include="Courier\Helpers\SpriteParams.cs" />
     <Compile Include="Courier\Logger.cs" />
     <Compile Include="Courier\Helpers\UnityLogHandler.cs" />
+    <Compile Include="Courier\UI\MultipleOptionButtonInfo.cs" />
+    <Compile Include="Courier\UI\MultipleOptionSelector.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Patches\" />
