@@ -150,6 +150,10 @@ namespace Mod.Courier.UI {
             EventSystem.current.SetSelectedGameObject(null);
         }
 
+        private void OnDisable() {
+            transform.position = defaultPos;
+        }
+
         private void HideUnavailableOptions() {
             foreach (OptionsButtonInfo buttonInfo in Courier.UI.ModOptionButtons) {
                 buttonInfo.gameObject.SetActive(buttonInfo.IsEnabled?.Invoke() ?? true);

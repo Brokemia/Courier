@@ -169,8 +169,8 @@ namespace Mod.Courier.UI {
         protected void onButtonClicked() {
             textEntryPopup.Init(GetInitialText?.Invoke() ?? string.Empty);
             textEntryPopup.gameObject.SetActive(true);
-            textEntryPopup.transform.SetParent(addedTo.transform.parent);
             addedTo.gameObject.SetActive(false);
+            textEntryPopup.transform.SetParent(addedTo.transform.parent);
             Canvas.ForceUpdateCanvases();
             textEntryPopup.initialSelection.GetComponent<UIObjectAudioHandler>().playAudio = false;
             EventSystem.current.SetSelectedGameObject(textEntryPopup.initialSelection);
