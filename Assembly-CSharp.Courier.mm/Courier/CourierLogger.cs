@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Mod.Courier {
     // https://github.com/EverestAPI/Everest/blob/master/Celeste.Mod.mm/Mod/Everest/Logger.cs
-    public static class Logger {
+    public static class CourierLogger {
         /// <summary>
         /// Log a string to the console and to log.txt
         /// </summary>

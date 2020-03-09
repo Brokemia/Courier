@@ -35,7 +35,7 @@ public class patch_DialogManager : DialogManager {
             // Check files in subfolders
             foreach (string path in modFiles) {
                 if (path.EndsWith(".tsv", StringComparison.InvariantCulture) && Path.GetFileName(path).Contains("Dialog")) {
-                    Mod.Courier.Logger.Log("Courier", "Loading dialog localization file from " + path);
+                    Mod.Courier.CourierLogger.Log("Courier", "Loading dialog localization file from " + path);
                     LoadTSVDialogsFromStream(languageID, File.OpenRead(path));
                 }
             }
@@ -48,7 +48,7 @@ public class patch_DialogManager : DialogManager {
                 foreach (ZipEntry entry in zip) {
                     if (entry.FileName.EndsWith(".tsv", StringComparison.InvariantCulture) && entry.FileName.Contains("Dialog")) {
                         CrcCalculatorStream stream = entry.OpenReader();
-                        Mod.Courier.Logger.Log("Courier", "Loading zipped dialog localization file from " + Path.Combine(mod, entry.FileName));
+                        Mod.Courier.CourierLogger.Log("Courier", "Loading zipped dialog localization file from " + Path.Combine(mod, entry.FileName));
                         LoadTSVDialogsFromStream(languageID, stream);
                     }
                 }

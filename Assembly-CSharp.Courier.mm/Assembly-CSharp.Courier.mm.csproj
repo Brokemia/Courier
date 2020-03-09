@@ -140,10 +140,11 @@
       <LogicalName>Mod.Courier.UI.mod_options_frame.png</LogicalName>
     </Compile>
     <Compile Include="Courier\Helpers\SpriteParams.cs" />
-    <Compile Include="Courier\Logger.cs" />
+    <Compile Include="Courier\CourierLogger.cs" />
     <Compile Include="Courier\Helpers\UnityLogHandler.cs" />
     <Compile Include="Courier\UI\MultipleOptionButtonInfo.cs" />
     <Compile Include="Courier\UI\MultipleOptionSelector.cs" />
+    <Compile Include="Courier\Helpers\HSBColor.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Patches\" />
