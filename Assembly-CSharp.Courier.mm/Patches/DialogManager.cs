@@ -35,7 +35,7 @@ public class patch_DialogManager : DialogManager {
             // Check files in subfolders
             foreach (string path in modFiles) {
                 if (path.EndsWith(".tsv", StringComparison.InvariantCulture) && Path.GetFileName(path).Contains("Dialog")) {
-                    Console.WriteLine("Loading dialog localization file from " + path);
+                    Mod.Courier.Logger.Log("Courier", "Loading dialog localization file from " + path);
                     LoadTSVDialogsFromStream(languageID, File.OpenRead(path));
                 }
             }
@@ -48,7 +48,7 @@ public class patch_DialogManager : DialogManager {
                 foreach (ZipEntry entry in zip) {
                     if (entry.FileName.EndsWith(".tsv", StringComparison.InvariantCulture) && entry.FileName.Contains("Dialog")) {
                         CrcCalculatorStream stream = entry.OpenReader();
-                        Console.WriteLine("Loading zipped dialog localization file from " + Path.Combine(mod, entry.FileName));
+                        Mod.Courier.Logger.Log("Courier", "Loading zipped dialog localization file from " + Path.Combine(mod, entry.FileName));
                         LoadTSVDialogsFromStream(languageID, stream);
                     }
                 }
@@ -70,6 +70,9 @@ public class patch_DialogManager : DialogManager {
         int locIDIndex = -1;
         for (int i = headings.Length - 1; i >= 0; i--) {
             if (headings[i] == languageID) {
+                langColumnIndex = i;
+            } else if (headings[i] == ELanguage.EN.ToString() && langColumnIndex == -1) {
+                // Set it to English if a language hasn't been found yet
                 langColumnIndex = i;
             } else if (headings[i] == "LOC_ID") {
                 locIDIndex = i;

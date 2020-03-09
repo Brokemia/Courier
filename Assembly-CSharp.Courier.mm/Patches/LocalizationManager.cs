@@ -7,8 +7,6 @@ using System.Linq;
 using Ionic.Crc;
 using Ionic.Zip;
 using Mod.Courier;
-using MonoMod;
-using UnityEngine;
 
 public class patch_LocalizationManager : LocalizationManager {
     public Dictionary<string, string> textByLocID;
@@ -60,6 +58,9 @@ public class patch_LocalizationManager : LocalizationManager {
                 langColumnIndex = i;
                 break;
             }
+            // Set it to English if a language hasn't been found yet
+            if (headings[i] == ELanguage.EN.ToString() && langColumnIndex == -1)
+                langColumnIndex = i;
         }
         if (langColumnIndex == -1) {
             return;
