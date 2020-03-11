@@ -41,7 +41,7 @@ namespace Mod.Courier.Helpers {
 
                         // Create texture from bytes
                         Texture2D tex = new Texture2D(1, 1);
-                        tex.LoadImage(buffer, true);
+                        tex.LoadImage(buffer);
 
                         // Create sprite from texture
                         if (SpriteConfig.ContainsKey(resName)) {
@@ -54,10 +54,9 @@ namespace Mod.Courier.Helpers {
                         }
                     }
                 } catch (Exception e) {
-                    Console.WriteLine(e);
-                    //LogError(e);
+                    CourierLogger.LogDetailed(e, "ResourceHelper");
+                    }
                 }
-            }
 
             return sprites;
         }

@@ -17,9 +17,9 @@ If you are still having issues with the installer, create an issue [here](https:
 ## Creating a mod for Courier
 1) Install Courier
 2) Make a .NET Framework library project
-3) Add Assembly-CSharp.dll and MMHOOK_Assembly-CSharp.dll to your refrences 
+3) Add Assembly-CSharp.dll and MMHOOK_Assembly-CSharp.dll to your references 
 (Located in the \The Messenger\TheMessenger_Data\Managed\ folder after installing Courier.)
-4) Add your own code to methods by utilizing On.ClassName.MethodName += YourMethodHook; just like if you were to regester an event.
+4) Add your own code to methods by utilizing On.ClassName.MethodName += YourMethodHook; just like if you were to register an event.
 
 Here are some mods you can use as examples: 
 [TrainerReborn](https://github.com/Brokemia/TrainerReborn), [NinjaInvis](https://github.com/Brokemia/NinjaInvis) and [NinjaAesthetic](https://github.com/Brokemia/NinjaAesthetic).
