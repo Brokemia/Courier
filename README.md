@@ -1,21 +1,21 @@
-## Courier Mod Loader
+# Courier Mod Loader
 
 A mod loader for Sabotage Studio's The Messenger.
 
-#### Installation Instructions
+## Installation Instructions
 
-##### Windows:
+### Windows:
 
 1. Dump the contents of a [release ZIP](https://github.com/Brokemia/Courier/releases/download/v0.2-alpha/Courier-v0.2-alpha.zip) into your TheMessenger folder.
 2. MiniInstaller.exe needs to be in the TheMessenger folder. Run it.
 3. Add Mod zip files to the Mods folder after installing the loader.
 
 *Windows users may need to "unblock" the downloaded zip file in file explorer if your browser/os flags the download as "unsafe".*
-##### Mac OS/Linux Based/*nix
+### Mac OS/Linux Based/*nix
 
 Follow the Windows instructions but use [Mono](https://www.mono-project.com/) (Preferred) or [Wine](https://www.winehq.org/) to run the installer.
 
-#### Creating a Mod for Courier
+## Creating a mod for Courier
 1) Install Courier
 2) Make a .NET Framework library project
 3) Add Assembly-CSharp.dll and MMHOOK_Assembly-CSharp.dll to your refrences 
