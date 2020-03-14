@@ -12,7 +12,29 @@ using UnityEngine;
 namespace Mod.Courier.Helpers {
     public static class ResourceHelper {
         public static Dictionary<string, SpriteParams> SpriteConfig = new Dictionary<string, SpriteParams>();
-        
+
+        public static Sprite GetSpriteFromFile(string path, SpriteParams spriteParams = null) {
+            return GetSpriteFromStream(File.OpenRead(path), spriteParams);
+        }
+
+        public static Sprite GetSpriteFromStream(Stream stream, SpriteParams spriteParams = null) {
+            if (stream == null) return null;
+
+            byte[] buffer = new byte[stream.Length];
+            stream.Read(buffer, 0, buffer.Length);
+
+            // Create texture from bytes
+            Texture2D tex = new Texture2D(1, 1);
+            tex.LoadImage(buffer);
+
+            // Create sprite from texture
+            if (spriteParams != null) {
+                return Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), spriteParams.pivot, spriteParams.pixelsPerUnit, spriteParams.extrude, spriteParams.meshType, spriteParams.border);
+            }
+
+            return Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0.5f, 0.5f));
+        }
+
         [MethodImpl(MethodImplOptions.NoInlining)]
         public static Dictionary<string, Sprite> GetSprites(string prefix = null) {
             Assembly callingAssembly = new StackFrame(1, false).GetMethod()?.DeclaringType?.Assembly;
@@ -31,32 +53,23 @@ namespace Mod.Courier.Helpers {
                             continue;
                         }
 
-                        byte[] buffer = new byte[stream.Length];
-                        stream.Read(buffer, 0, buffer.Length);
-
                         string resName = Path.GetFileNameWithoutExtension(resource);
                         if (!string.IsNullOrEmpty(prefix)) {
                             resName = resName.Replace(prefix, "");
                         }
 
-                        // Create texture from bytes
-                        Texture2D tex = new Texture2D(1, 1);
-                        tex.LoadImage(buffer);
-
                         // Create sprite from texture
                         if (SpriteConfig.ContainsKey(resName)) {
                             SpriteParams spriteParams = SpriteConfig[resName];
-                            sprites.Add(resName,
-                                Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), spriteParams.pivot, spriteParams.pixelsPerUnit, spriteParams.extrude, spriteParams.meshType, spriteParams.border));
+                            sprites.Add(resName, GetSpriteFromStream(stream, spriteParams));
                         } else {
-                            sprites.Add(resName,
-                                Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0.5f, 0.5f)));
+                            sprites.Add(resName, GetSpriteFromStream(stream));
                         }
                     }
                 } catch (Exception e) {
                     CourierLogger.LogDetailed(e, "ResourceHelper");
-                    }
                 }
+            }
 
             return sprites;
         }
