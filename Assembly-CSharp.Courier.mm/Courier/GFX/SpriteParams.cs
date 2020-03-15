@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace Mod.Courier.Helpers {
+namespace Mod.Courier.GFX {
     public class SpriteParams {
         public float pixelsPerUnit = 100;
         public uint extrude = 1;

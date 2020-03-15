@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using Ionic.Zip;
+using Mod.Courier.GFX;
 using Mod.Courier.Helpers;
 using Mod.Courier.Module;
 using UnityEngine;
@@ -30,7 +31,7 @@ namespace Mod.Courier {
         public static Dictionary<string, Sprite> EmbeddedSprites {
             get {
                 if (!spriteParamsSetup) SetupCourierSpriteParams();
-                return embeddedSprites ?? (embeddedSprites = ResourceHelper.GetSprites());
+                return embeddedSprites ?? (embeddedSprites = ResourceHelper.GetEmbeddedSprites());
             }
         }
 

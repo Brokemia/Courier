@@ -135,16 +135,21 @@
     <Compile Include="Courier\Helpers\GameObjectSerializer.cs" />
     <Compile Include="Patches\DialogManager.cs" />
     <Compile Include="Patches\LocalizationManager.cs" />
-    <Compile Include="Courier\Helpers\ResourceHelper.cs" />
     <Compile Include="Courier\UI\ModOptionScreen.cs">
       <LogicalName>Mod.Courier.UI.mod_options_frame.png</LogicalName>
     </Compile>
-    <Compile Include="Courier\Helpers\SpriteParams.cs" />
     <Compile Include="Courier\CourierLogger.cs" />
     <Compile Include="Courier\Helpers\UnityLogHandler.cs" />
     <Compile Include="Courier\UI\MultipleOptionButtonInfo.cs" />
     <Compile Include="Courier\UI\MultipleOptionSelector.cs" />
     <Compile Include="Courier\Helpers\HSBColor.cs" />
+    <Compile Include="Courier\GFX\SpriteParams.cs" />
+    <Compile Include="Courier\GFX\ResourceHelper.cs" />
+    <Compile Include="Courier\GFX\AnimationHelper.cs" />
+    <Compile Include="Courier\GFX\AnimationFrame.cs" />
+    <Compile Include="Courier\GFX\CourierAnimator.cs" />
+    <Compile Include="Courier\GFX\SpriteSheetOrientation.cs" />
+    <Compile Include="Courier\Helpers\AnimationExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Patches\" />
@@ -152,6 +157,7 @@
     <Folder Include="Courier\Module\" />
     <Folder Include="Courier\Helpers\" />
     <Folder Include="Courier\UI\" />
+    <Folder Include="Courier\GFX\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -162,6 +168,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="courier_watermark.png">
       <LogicalName>Mod.Courier.UI.courier_watermark.png</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="courier_watermark_animated.png">
+      <LogicalName>Mod.Courier.UI.courier_watermark_animated.png</LogicalName>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
