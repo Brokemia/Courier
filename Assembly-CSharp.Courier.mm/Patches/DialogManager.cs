@@ -112,9 +112,10 @@ public class patch_DialogManager : DialogManager {
                         conversationLocID = locID.Substring(0, locID.Length - 6);
                     }
                 }
-                if (!dialogByLocID.ContainsKey(conversationLocID) || dialogByLocID[conversationLocID] == null) {
-                    dialogByLocID[conversationLocID] = new List<DialogInfo>();
-                }
+                // I removed a thing to check if anything was already in this conversationLocID
+                // I can't think of anything that could go wrong, but you never know
+                dialogByLocID[conversationLocID] = new List<DialogInfo>();
+
                 CreateDialogInfo(conversationLocID, entry, langColumnIndex, skippableIndex, avatarIndex, boxPositionIndex, autoCloseIndex, autoCloseDelayIndex, locIDIndex, forcedPortraitOrientationIndex);
                 continue;
             }
