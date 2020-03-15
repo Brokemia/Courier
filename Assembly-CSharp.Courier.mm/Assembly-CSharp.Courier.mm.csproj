@@ -118,7 +118,6 @@
     <Compile Include="Patches\OptionScreen.cs" />
     <Compile Include="Courier\UI\OptionsButtonInfo.cs" />
     <Compile Include="Courier\UI\ToggleButtonInfo.cs" />
-    <Compile Include="Patches\DemoManager.cs" />
     <Compile Include="Patches\Level.cs" />
     <Compile Include="Courier\UI\SubMenuButtonInfo.cs" />
     <Compile Include="Patches\UIManager.cs" />
@@ -150,6 +149,7 @@
     <Compile Include="Courier\GFX\CourierAnimator.cs" />
     <Compile Include="Courier\GFX\SpriteSheetOrientation.cs" />
     <Compile Include="Courier\Helpers\AnimationExtensions.cs" />
+    <Compile Include="Patches\CreditScreen.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Patches\" />

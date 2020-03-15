@@ -1,0 +1,91 @@
+﻿#pragma warning disable CS0114 // Member hides inherited member; missing override keyword
+#pragma warning disable CS0626 // Method, operator, or accessor is marked external and has no attributes on it
+
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using Ionic.Crc;
+using Ionic.Zip;
+using Mod.Courier;
+
+public class patch_CreditScreen : CreditScreen {
+    private List<CreditItemData> toAppend;
+
+    protected extern void orig_LoadCredits();
+    protected virtual void LoadCredits() {
+        orig_LoadCredits();
+        // Create the Mods folder if it doesn't exist
+        if (!Directory.Exists(Courier.ModsFolder)) {
+            Directory.CreateDirectory(Courier.ModsFolder);
+        }
+
+        toAppend = new List<CreditItemData>();
+
+        string[] mods = Directory.GetDirectories(Courier.ModsFolder);
+
+        foreach (string mod in mods) {
+            string[] modFiles = Directory.GetFiles(mod);
+            // Check files in subfolders
+            foreach (string path in modFiles) {
+                if (path.EndsWith(".tsv", StringComparison.InvariantCulture) && !Path.GetFileName(path).Contains("Credits")) {
+                    List<CreditItemData> credits = LoadCreditsFromStream(File.OpenRead(path));
+                    if (Path.GetFileName(path).Equals("Credits.tsv") || Path.GetFileName(path).Equals("Credits_PP.tsv")) {
+                        creditItems.Clear();
+                        creditItems.AddRange(credits);
+                    } else {
+                        // Put appended credits away for later so they don't get overwritten
+                        toAppend.AddRange(credits);
+                    }
+                    Console.WriteLine("Loading credits file from " + path);
+                }
+            }
+        }
+
+        IEnumerable<string> zippedMods = Directory.GetFiles(Courier.ModsFolder).Where((s) => s.EndsWith(".zip", StringComparison.InvariantCulture));
+
+        foreach (string mod in zippedMods) {
+            using (ZipFile zip = new ZipFile(mod)) {
+                foreach (ZipEntry entry in zip) {
+                    if (entry.FileName.EndsWith(".tsv", StringComparison.InvariantCulture) && !entry.FileName.Contains("Credits")) {
+                        CrcCalculatorStream stream = entry.OpenReader();
+                        Console.WriteLine("Loading zipped credits file from " + Path.Combine(mod, entry.FileName));
+                        List<CreditItemData> credits = LoadCreditsFromStream(stream);
+                        if (entry.FileName.Equals("Credits.tsv") || entry.FileName.Equals("Credits_PP.tsv")) {
+                            creditItems.Clear();
+                            creditItems.AddRange(credits);
+                        } else {
+                            // Put appended credits away for later so they don't get overwritten
+                            toAppend.AddRange(credits);
+                        }
+                    }
+                }
+            }
+        }
+        creditItems.AddRange(toAppend);
+        toAppend = null;
+    }
+
+    private List<CreditItemData> LoadCreditsFromStream(Stream stream) {
+        List<CreditItemData> credits = new List<CreditItemData>();
+        StreamReader streamReader = new StreamReader(stream);
+        string text = streamReader.ReadLine();
+        string[] array = text.Split('\t');
+        int num = 0;
+        int num2 = 0;
+        for (int num3 = array.Length - 1; num3 >= 0; num3--) {
+            if (array[num3] == "CREDIT_ITEM") {
+                num = num3;
+            } else if (array[num3] == "TYPE") {
+                num2 = num3;
+            }
+        }
+        while (!streamReader.EndOfStream) {
+            string[] array2 = streamReader.ReadLine().Split('\t');
+            CreditItemData item = new CreditItemData(array2[num], array2[num2]);
+            credits.Add(item);
+        }
+        streamReader.Close();
+        return credits;
+    }
+}
