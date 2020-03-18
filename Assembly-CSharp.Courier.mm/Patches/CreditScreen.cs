@@ -23,17 +23,17 @@ public class patch_CreditScreen : CreditScreen {
         toAppend = new List<CreditItemData>();
 
         string[] mods = Directory.GetDirectories(Courier.ModsFolder);
-
+        
         foreach (string mod in mods) {
             string[] modFiles = Directory.GetFiles(mod);
             // Check files in subfolders
             foreach (string path in modFiles) {
-                if (path.EndsWith(".tsv", StringComparison.InvariantCulture) && !Path.GetFileName(path).Contains("Credits")) {
+                if (path.EndsWith(".tsv", StringComparison.InvariantCulture) && Path.GetFileName(path).Contains("Credits")) {
                     List<CreditItemData> credits = LoadCreditsFromStream(File.OpenRead(path));
-                    if (Path.GetFileName(path).Equals("Credits.tsv") || Path.GetFileName(path).Equals("Credits_PP.tsv")) {
+                    if (Path.GetFileNameWithoutExtension(path).Equals(creditFile)) {
                         creditItems.Clear();
                         creditItems.AddRange(credits);
-                    } else {
+                    } else if(!Path.GetFileName(path).Equals("Credits.tsv") && !Path.GetFileName(path).Equals("Credits_PP.tsv")) {
                         // Put appended credits away for later so they don't get overwritten
                         toAppend.AddRange(credits);
                     }
@@ -47,14 +47,14 @@ public class patch_CreditScreen : CreditScreen {
         foreach (string mod in zippedMods) {
             using (ZipFile zip = new ZipFile(mod)) {
                 foreach (ZipEntry entry in zip) {
-                    if (entry.FileName.EndsWith(".tsv", StringComparison.InvariantCulture) && !entry.FileName.Contains("Credits")) {
+                    if (entry.FileName.EndsWith(".tsv", StringComparison.InvariantCulture) && entry.FileName.Contains("Credits")) {
                         CrcCalculatorStream stream = entry.OpenReader();
                         Console.WriteLine("Loading zipped credits file from " + Path.Combine(mod, entry.FileName));
                         List<CreditItemData> credits = LoadCreditsFromStream(stream);
-                        if (entry.FileName.Equals("Credits.tsv") || entry.FileName.Equals("Credits_PP.tsv")) {
+                        if (Path.GetFileNameWithoutExtension(entry.FileName).Equals(creditFile)) {
                             creditItems.Clear();
                             creditItems.AddRange(credits);
-                        } else {
+                        } else if(!entry.FileName.Equals("Credits.tsv") && !entry.FileName.Equals("Credits_PP.tsv")){
                             // Put appended credits away for later so they don't get overwritten
                             toAppend.AddRange(credits);
                         }

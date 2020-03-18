@@ -47,6 +47,8 @@ public class patch_InGameHud : InGameHud {
     }
 
     private void OnBeforeSave() {
+        if (!Manager<Level>.Instance.Initialized || !enabled) return;
+
         Animation animation_8 = CourierWatermark_8?.GetComponent<Animation>();
         Animation animation_16 = CourierWatermark_16?.GetComponent<Animation>();
         if (animation_8 != null) {
@@ -60,6 +62,8 @@ public class patch_InGameHud : InGameHud {
     }
 
     private void OnSaveDone() {
+        if (!Manager<Level>.Instance.Initialized || !enabled) return;
+
         Animation animation_8 = CourierWatermark_8?.GetComponent<Animation>();
         Animation animation_16 = CourierWatermark_16?.GetComponent<Animation>();
         if(animation_8 != null) {
@@ -68,6 +72,11 @@ public class patch_InGameHud : InGameHud {
         if (animation_16 != null) {
             animation_16.wrapMode = WrapMode.Once;
         }
+    }
+
+    public void OnDisable() {
+        Manager<SaveManager>.Instance.onSaveDone -= OnSaveDone;
+        Manager<SaveManager>.Instance.onBeforeSave -= OnBeforeSave;
     }
 
     // This allows mods to hook OnGUI()
