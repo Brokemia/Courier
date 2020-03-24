@@ -124,7 +124,6 @@
     <Compile Include="Patches\LeafGolemBoss.cs" />
     <Compile Include="Patches\NecromancerBoss.cs" />
     <Compile Include="Patches\ColossusesBoss.cs" />
-    <Compile Include="Patches\BaseColossus.cs" />
     <Compile Include="Patches\EmeraldGolemBoss.cs" />
     <Compile Include="Patches\InGameHud.cs" />
     <Compile Include="Courier\UI\TextEntryPopup.cs" />
