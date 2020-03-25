@@ -26,7 +26,7 @@ public class patch_LocalizationManager : LocalizationManager {
             // Check files in subfolders
             foreach (string path in modFiles) {
                 if (path.EndsWith(".tsv", StringComparison.InvariantCulture) && !Path.GetFileName(path).Contains("Dialog") && !Path.GetFileName(path).Contains("Credits")) {
-                    Console.WriteLine("Loading localization file from " + path);
+                    CourierLogger.Log("LocalizationManager", "Loading localization file from " + path);
                     LoadGeneralLocFromStream(languageID, File.OpenRead(path));
                 }
             }
@@ -39,7 +39,7 @@ public class patch_LocalizationManager : LocalizationManager {
                 foreach (ZipEntry entry in zip) {
                     if (entry.FileName.EndsWith(".tsv", StringComparison.InvariantCulture) && !entry.FileName.Contains("Dialog") && !entry.FileName.Contains("Credits")) {
                         CrcCalculatorStream stream = entry.OpenReader();
-                        Console.WriteLine("Loading zipped localization file from " + Path.Combine(mod, entry.FileName));
+                        CourierLogger.Log("LocalizationManager", "Loading zipped localization file from " + Path.Combine(mod, entry.FileName));
                         LoadGeneralLocFromStream(languageID, stream);
                     }
                 }

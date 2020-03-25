@@ -37,7 +37,7 @@ public class patch_CreditScreen : CreditScreen {
                         // Put appended credits away for later so they don't get overwritten
                         toAppend.AddRange(credits);
                     }
-                    Console.WriteLine("Loading credits file from " + path);
+                    CourierLogger.Log("CreditScreen", "Loading credits file from " + path);
                 }
             }
         }
@@ -49,7 +49,7 @@ public class patch_CreditScreen : CreditScreen {
                 foreach (ZipEntry entry in zip) {
                     if (entry.FileName.EndsWith(".tsv", StringComparison.InvariantCulture) && entry.FileName.Contains("Credits")) {
                         CrcCalculatorStream stream = entry.OpenReader();
-                        Console.WriteLine("Loading zipped credits file from " + Path.Combine(mod, entry.FileName));
+                        CourierLogger.Log("CreditScreen", "Loading zipped credits file from " + Path.Combine(mod, entry.FileName));
                         List<CreditItemData> credits = LoadCreditsFromStream(stream);
                         if (Path.GetFileNameWithoutExtension(entry.FileName).Equals(creditFile)) {
                             creditItems.Clear();

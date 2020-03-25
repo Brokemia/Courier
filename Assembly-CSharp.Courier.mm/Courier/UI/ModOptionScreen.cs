@@ -132,8 +132,9 @@ namespace Mod.Courier.UI {
                         sprite.bounds.extents.Set(.8f, .8f, 0.1f);
                         sprite.texture.filterMode = FilterMode.Point;
                     }
-                } catch {
-                    Console.WriteLine("Image not Read/Writeable when recoloring selection frames in ModOptionScreen");
+                } catch(Exception e) {
+                    CourierLogger.Log(LogType.Exception, "ModOptionsScreen", "Image not Read/Writeable when recoloring selection frames in ModOptionScreen");
+                    CourierLogger.LogDetailed(e);
                 }
             }
         }
@@ -233,8 +234,9 @@ namespace Mod.Courier.UI {
                         sprite.bounds.extents.Set(.8f, .8f, 0.1f);
                         sprite.texture.filterMode = FilterMode.Point;
                     }
-                } catch {
-                    Console.WriteLine("Image not Read/Writeable when recoloring selection frames in ModOptionScreen");
+                } catch(Exception e) {
+                    CourierLogger.Log(LogType.Exception, "ModOptionsScreen", "Image not Read/Writeable when recoloring selection frames in ModOptionScreen");
+                    CourierLogger.LogDetailed(e);
                 }
             }
         }

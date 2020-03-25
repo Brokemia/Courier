@@ -76,7 +76,7 @@ namespace Mod.Courier {
                         buttonInfo.gameObject = UnityEngine.Object.Instantiate(optionScreen.languageOption, view.transform.Find("Container").Find("BackgroundFrame"));
                     } else {
                         // TODO Mods add their own ButtonInfo
-                        Console.WriteLine(buttonInfo.GetType() + " not a known type of OptionsButtonInfo!");
+                        CourierLogger.Log(LogType.Warning, "OptionsMenu", buttonInfo.GetType() + " not a known type of OptionsButtonInfo!");
                     }
                     buttonInfo.gameObject.transform.SetParent(view.transform.Find("Container").Find("BackgroundFrame").Find("OptionsFrame").Find("OptionMenuButtons"));
                     buttonInfo.gameObject.name = buttonInfo.GetText?.Invoke() ?? "";

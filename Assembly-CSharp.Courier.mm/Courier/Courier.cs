@@ -36,7 +36,7 @@ namespace Mod.Courier {
         }
 
         public static void DumpHierarchy(Transform transform) {
-            Console.WriteLine("Dumping hierarchy for: " + transform.name);
+            CourierLogger.Log("DumpHierarchy", "Dumping hierarchy for: " + transform.name);
             DumpHierarchy(transform, 0);
         }
 
@@ -45,7 +45,7 @@ namespace Mod.Courier {
             for(int i = 0; i < level; i++) {
                 spaces += "   ";
             }
-            Console.WriteLine(spaces + transform.name);
+            CourierLogger.Log("DumpHierarchy", spaces + transform.name);
             foreach(Transform t in transform.GetChildren()) {
                 DumpHierarchy(t, level + 1);
             }
@@ -94,7 +94,7 @@ namespace Mod.Courier {
                 // Check files in subfolders
                 foreach (string path in modFiles) {
                     if (path.EndsWith(".dll", StringComparison.InvariantCulture)) {
-                        Console.WriteLine("Loading assembly from " + path);
+                        CourierLogger.Log("ModLoader", "Loading assembly from " + path);
                         LoadDLL(path);
                     }
                 }
@@ -112,7 +112,7 @@ namespace Mod.Courier {
                             }
 
                             entry.Extract(CacheFolder);
-                            Console.WriteLine("Loading zipped assembly from " + Path.Combine(CacheFolder, entry.FileName));
+                            CourierLogger.Log("ModLoader", "Loading zipped assembly from " + Path.Combine(CacheFolder, entry.FileName));
                             LoadDLL(Path.Combine(CacheFolder, entry.FileName));
                         }
                     }
@@ -123,14 +123,19 @@ namespace Mod.Courier {
         }
 
         public static void LoadDLL(string path) {
-            Assembly asm = Assembly.LoadFrom(path);
+            try {
+                Assembly asm = Assembly.LoadFrom(path);
 
-            IEnumerable<Type> modules = FindDerivedTypes(asm, typeof(CourierModule));
+                IEnumerable<Type> modules = FindDerivedTypes(asm, typeof(CourierModule));
 
-            foreach (Type moduleType in modules) {
-                object o = asm.CreateInstance(moduleType.FullName, false, BindingFlags.ExactBinding, null, new object[] { }, null, null);
-                (o as CourierModule).Load();
-                Modules.Add(o as CourierModule);
+                foreach (Type moduleType in modules) {
+                    object o = asm.CreateInstance(moduleType.FullName, false, BindingFlags.ExactBinding, null, new object[] { }, null, null);
+                    (o as CourierModule).Load();
+                    Modules.Add(o as CourierModule);
+                }
+            } catch(Exception e) {
+                CourierLogger.Log(LogType.Error, "ModLoader", "Uncaught exception while loading assembly from: " + path);
+                CourierLogger.LogDetailed(e);
             }
         }
 
