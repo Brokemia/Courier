@@ -5,7 +5,7 @@ namespace Mod.Courier.Helpers {
     public class UnityLogHandler : ILogHandler {
 
         public void LogException(Exception exception, UnityEngine.Object context) {
-            CourierLogger.LogDetailed(exception, context.name + " (" + context.GetType() + ")");
+            CourierLogger.LogDetailed(exception, context == null ? null : (context.name + " (" + context.GetType() + ")"));
         }
 
         public void LogFormat(LogType logType, UnityEngine.Object context, string format, params object[] args) {

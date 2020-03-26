@@ -81,19 +81,19 @@
       <HintPath>..\packages\DotNetZip.1.12.0\lib\net20\DotNetZip.dll</HintPath>
     </Reference>
     <Reference Include="MonoMod.Utils">
-      <HintPath>..\packages\MonoMod.Utils.20.3.24.3\lib\net35\MonoMod.Utils.dll</HintPath>
+      <HintPath>..\packages\MonoMod.Utils.20.3.25.2\lib\net35\MonoMod.Utils.dll</HintPath>
     </Reference>
     <Reference Include="MonoMod">
-      <HintPath>..\packages\MonoMod.20.3.24.3\lib\net35\MonoMod.exe</HintPath>
+      <HintPath>..\packages\MonoMod.20.3.25.2\lib\net35\MonoMod.exe</HintPath>
     </Reference>
     <Reference Include="MonoMod.RuntimeDetour">
-      <HintPath>..\packages\MonoMod.RuntimeDetour.20.3.24.3\lib\net35\MonoMod.RuntimeDetour.dll</HintPath>
+      <HintPath>..\packages\MonoMod.RuntimeDetour.20.3.25.2\lib\net35\MonoMod.RuntimeDetour.dll</HintPath>
     </Reference>
     <Reference Include="MonoMod.RuntimeDetour.HookGen">
-      <HintPath>..\packages\MonoMod.RuntimeDetour.HookGen.20.3.24.3\lib\net35\MonoMod.RuntimeDetour.HookGen.exe</HintPath>
+      <HintPath>..\packages\MonoMod.RuntimeDetour.HookGen.20.3.25.2\lib\net35\MonoMod.RuntimeDetour.HookGen.exe</HintPath>
     </Reference>
     <Reference Include="MonoMod.Common">
-      <HintPath>..\packages\MonoMod.Common.20.3.24.3\lib\net35\MonoMod.Common.dll</HintPath>
+      <HintPath>..\packages\MonoMod.Common.20.3.25.2\lib\net35\MonoMod.Common.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.ImageConversionModule">
       <HintPath>..\..\TheMessenger_Data\Managed\UnityEngine.ImageConversionModule.dll</HintPath>
