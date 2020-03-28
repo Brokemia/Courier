@@ -63,9 +63,16 @@ namespace Mod.Courier {
             };
             Debug.unityLogger.logHandler = new UnityLogHandler();
             Console.SetOut(logWriter);
+            AppDomain currentDomain = AppDomain.CurrentDomain;
+            currentDomain.UnhandledException += UnhandledExceptionHandler;
 
             UI.SetupModdedUI();
         }
+
+        static void UnhandledExceptionHandler(object sender, UnhandledExceptionEventArgs e) {
+            (e.ExceptionObject as Exception ?? new Exception("Unknown unhandled exception")).LogDetailed("UNHANDLED");
+        }
+
 
         public static void Quit() {
             Console.SetOut(logWriter.STDOUT);
