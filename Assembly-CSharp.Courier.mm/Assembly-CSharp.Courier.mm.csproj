@@ -149,6 +149,7 @@
     <Compile Include="Courier\GFX\SpriteSheetOrientation.cs" />
     <Compile Include="Courier\Helpers\AnimationExtensions.cs" />
     <Compile Include="Patches\CreditScreen.cs" />
+    <Compile Include="Patches\WeakReference.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Patches\" />

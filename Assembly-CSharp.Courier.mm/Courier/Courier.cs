@@ -22,6 +22,8 @@ namespace Mod.Courier {
 
         public static List<CourierModule> Modules = new List<CourierModule>();
 
+        public static List<AssetBundle> AssetBundles = new List<AssetBundle>();
+
         private static Dictionary<string, Sprite> embeddedSprites;
 
         private static bool spriteParamsSetup;
@@ -70,13 +72,83 @@ namespace Mod.Courier {
         }
 
         static void UnhandledExceptionHandler(object sender, UnhandledExceptionEventArgs e) {
-            (e.ExceptionObject as Exception ?? new Exception("Unknown unhandled exception")).LogDetailed("UNHANDLED");
+            (e?.ExceptionObject as Exception ?? new Exception("Unknown unhandled exception")).LogDetailed("UNHANDLED");
         }
 
 
         public static void Quit() {
             Console.SetOut(logWriter.STDOUT);
             logWriter.STDOUT = null;
+        }
+
+        public static void LoadMods() {
+            if (Loaded) return;
+
+            LoadAssetBundleMods();
+            LoadAssemblyMods();
+
+            Loaded = true;
+        }
+
+        public static void LoadAssetBundleMods() {
+            if (Loaded) return;
+
+            // Create the Mods folder if it doesn't exist
+            if (!Directory.Exists(ModsFolder)) {
+                Directory.CreateDirectory(ModsFolder);
+            }
+
+            string[] mods = Directory.GetDirectories(ModsFolder);
+
+            // Loop through unzipped mods
+            foreach (string mod in mods) {
+                if (Directory.Exists(Path.Combine(mod, "AssetBundles"))) {
+                    string[] assetBundles = Directory.GetFiles(Path.Combine(mod, "AssetBundles"));
+
+                    // Check files in subfolders
+                    foreach (string path in assetBundles) {
+                        // Assume it's an assetbundle if there's an associated .manifest file
+                        if (File.Exists(path + ".manifest")) {
+                            CourierLogger.Log("ModLoader", "Loading AssetBundle from " + path);
+                            try {
+                                LoadAssetBundle(File.OpenRead(path));
+                            } catch (Exception e) {
+                                CourierLogger.Log(LogType.Error, "ModLoader", "Exception while loading AssetBundle from: " + path);
+                                e.LogDetailed();
+                            }
+                        }
+                    }
+                }
+            }
+
+            IEnumerable<string> zippedMods = Directory.GetFiles(ModsFolder).Where((s) => s.EndsWith(".zip", StringComparison.InvariantCulture));
+            foreach (string mod in zippedMods) {
+                using (ZipFile zip = new ZipFile(mod)) {
+                    ZipEntry assetBundleFolder = zip["AssetBundles"];
+                    if (assetBundleFolder != null && assetBundleFolder.IsDirectory) {
+                        foreach (ZipEntry entry in zip) {
+                            if (entry.FileName.EndsWith(".manifest", StringComparison.InvariantCulture) && entry.FileName.Replace('\\', '/').StartsWith("AssetBundle/", StringComparison.InvariantCulture)) {
+                                ZipEntry assetBundle = zip[entry.FileName.Substring(0, entry.FileName.Length - ".manifest".Length)];
+                                CourierLogger.Log("ModLoader", "Loading zipped AssetBundle from " + Path.Combine(mod, assetBundle.FileName));
+                                try {
+                                    LoadAssetBundle(assetBundle.OpenReader());
+                                } catch (Exception e) {
+                                    CourierLogger.Log(LogType.Error, "ModLoader", "Exception while loading zipped AssetBundle from: " + Path.Combine(mod, assetBundle.FileName));
+                                    e.LogDetailed();
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        public static void LoadAssetBundle(Stream stream) {
+            AssetBundle ab = AssetBundle.LoadFromStream(stream);
+            foreach(string name in ab.GetAllAssetNames()) {
+                CourierLogger.Log("AssetBundle", name);
+            }
+            AssetBundles.Add(ab);
         }
 
         public static void LoadAssemblyMods() {
@@ -125,8 +197,6 @@ namespace Mod.Courier {
                     }
                 }
             }
-
-            Loaded = true;
         }
 
         public static void LoadDLL(string path) {
@@ -141,7 +211,7 @@ namespace Mod.Courier {
                     Modules.Add(o as CourierModule);
                 }
             } catch(Exception e) {
-                CourierLogger.Log(LogType.Error, "ModLoader", "Uncaught exception while loading assembly from: " + path);
+                CourierLogger.Log(LogType.Error, "ModLoader", "Exception while loading assembly from: " + path);
                 CourierLogger.LogDetailed(e);
             }
         }
@@ -159,6 +229,16 @@ namespace Mod.Courier {
                     ((patch_LocalizationManager)Manager<LocalizationManager>.Instance).textByLocID[UI.MOD_OPTIONS_MENU_TITLE_LOC_ID] = "Courier Mod Menu - Third Party Content";
                     break;
             }
+        }
+
+        public static T LoadFromAssetBundles<T>(string path) where T : UnityEngine.Object {
+            foreach(AssetBundle ab in AssetBundles) {
+                T asset = ab.LoadAsset<T>(path);
+                if(asset != null) {
+                    return asset;
+                }
+            }
+            return null;
         }
 
         public static IEnumerable<Type> FindDerivedTypes(Assembly assembly, Type baseType) {

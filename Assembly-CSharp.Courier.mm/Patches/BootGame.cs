@@ -8,7 +8,7 @@ public class patch_BootGame : BootGame {
     private extern void orig_Start();
     private void Start() {
         Courier.Boot();
-        Courier.LoadAssemblyMods();
+        Courier.LoadMods();
 
         orig_Start();
     }

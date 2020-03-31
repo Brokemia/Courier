@@ -21,7 +21,7 @@ namespace Mod.Courier.UI {
         }
 
         public override string GetStateText() {
-            return GetState?.Invoke(this) ?? false ? GetOnText(ModOptionScreen.onLocID) : GetOffText(ModOptionScreen.offLocID); // TODO Use Localization IDs instead
+            return GetState?.Invoke(this) ?? false ? GetOnText(ModOptionScreen.onLocID) : GetOffText(ModOptionScreen.offLocID);
         }
     }
 }
