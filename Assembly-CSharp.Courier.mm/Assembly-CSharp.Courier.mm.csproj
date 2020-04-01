@@ -103,6 +103,10 @@
       <HintPath>..\..\TheMessenger_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="UnityEngine.JSONSerializeModule">
+      <HintPath>..\..\TheMessenger_Data\Managed\UnityEngine.JSONSerializeModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -150,6 +154,7 @@
     <Compile Include="Courier\Helpers\AnimationExtensions.cs" />
     <Compile Include="Patches\CreditScreen.cs" />
     <Compile Include="Patches\WeakReference.cs" />
+    <Compile Include="Courier\Helpers\SaveLoadJSON.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Patches\" />

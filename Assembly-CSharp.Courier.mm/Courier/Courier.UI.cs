@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Mod.Courier.Helpers;
 using Mod.Courier.UI;
 using TMPro;
 using UnityEngine;
@@ -60,6 +61,8 @@ namespace Mod.Courier {
 
             public static void SetupModdedUI() {
                 ModOptionButton = RegisterSubMenuOptionButton(() => Manager<LocalizationManager>.Instance.GetText(MOD_OPTIONS_BUTTON_LOC_ID), OnSelectModOptions);
+
+                SaveLoadJSON.RegisterModOptions();
             }
 
             public static void InitOptionsViewWithModButtons(View view, IEnumerable<OptionsButtonInfo> buttons) {

@@ -134,7 +134,7 @@ namespace Mod.Courier.UI {
                     }
                 } catch(Exception e) {
                     CourierLogger.Log(LogType.Exception, "ModOptionsScreen", "Image not Read/Writeable when recoloring selection frames in ModOptionScreen");
-                    CourierLogger.LogDetailed(e);
+                    e.LogDetailed();
                 }
             }
         }
@@ -257,7 +257,8 @@ namespace Mod.Courier.UI {
         }
 
         public void BackToOptionMenu() {
-            //Manager<SaveManager>.Instance.SaveOptions(); TODO Mod options in save file
+            // TODO Mod options in save file
+            //Manager<SaveManager>.Instance.SaveOptions(); 
             Close(false);
             Manager<UIManager>.Instance.GetView<OptionScreen>().gameObject.SetActive(true);
             Courier.UI.ModOptionButton.gameObject.transform.Find("Button").GetComponent<UIObjectAudioHandler>().playAudio = false;

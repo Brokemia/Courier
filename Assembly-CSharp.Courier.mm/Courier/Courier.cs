@@ -222,11 +222,15 @@ namespace Mod.Courier {
         }
 
         internal static void AddCourierLocalization(string languageID) {
+            patch_LocalizationManager locManager = ((patch_LocalizationManager)Manager<LocalizationManager>.Instance);
+
             // Defaults to English
             switch (languageID) {
                 default:
-                    ((patch_LocalizationManager)Manager<LocalizationManager>.Instance).textByLocID[UI.MOD_OPTIONS_BUTTON_LOC_ID] = "Third Party Mod Options";
-                    ((patch_LocalizationManager)Manager<LocalizationManager>.Instance).textByLocID[UI.MOD_OPTIONS_MENU_TITLE_LOC_ID] = "Courier Mod Menu - Third Party Content";
+                    locManager.textByLocID[UI.MOD_OPTIONS_BUTTON_LOC_ID] = "Third Party Mod Options";
+                    locManager.textByLocID[UI.MOD_OPTIONS_MENU_TITLE_LOC_ID] = "Courier Mod Menu - Third Party Content";
+                    locManager.textByLocID[SaveLoadJSON.SAVE_TO_JSON_BUTTON_LOC_ID] = "Save as JSON";
+                    locManager.textByLocID[SaveLoadJSON.LOAD_FROM_JSON_BUTTON_LOC_ID] = "Load from JSON";
                     break;
             }
         }
