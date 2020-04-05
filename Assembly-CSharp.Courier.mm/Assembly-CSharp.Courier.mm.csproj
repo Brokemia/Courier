@@ -113,7 +113,7 @@
     <Compile Include="Patches\BootGame.cs" />
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Courier\Courier.cs" />
-    <Compile Include="Courier\Module\PostmanModule.cs" />
+    <Compile Include="Courier\Module\CourierModule.cs" />
     <Compile Include="Courier\Helpers\ReflectionHelper.cs" />
     <Compile Include="Courier\Courier.Events.cs" />
     <Compile Include="Patches\PlayerController.cs" />
@@ -155,6 +155,12 @@
     <Compile Include="Patches\CreditScreen.cs" />
     <Compile Include="Patches\WeakReference.cs" />
     <Compile Include="Courier\Helpers\SaveLoadJSON.cs" />
+    <Compile Include="Patches\SaveGame.cs" />
+    <Compile Include="Patches\SaveLoadStandalone.cs" />
+    <Compile Include="Courier\Save\OptionSaveMethod.cs" />
+    <Compile Include="Courier\Save\ModdedOptionsSave.cs" />
+    <Compile Include="Courier\Save\BooleanOptionSaveMethod.cs" />
+    <Compile Include="Patches\InitialScene.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Patches\" />
@@ -163,6 +169,7 @@
     <Folder Include="Courier\Helpers\" />
     <Folder Include="Courier\UI\" />
     <Folder Include="Courier\GFX\" />
+    <Folder Include="Courier\Save\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

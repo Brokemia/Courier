@@ -1,4 +1,5 @@
 ﻿using System;
+using Mod.Courier.Save;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
@@ -12,6 +13,7 @@ namespace Mod.Courier.UI {
         public GameObject gameObject;
         public View addedTo;
         public Func<bool> IsEnabled;
+        public OptionSaveMethod SaveMethod = new OptionSaveMethod();
 
         protected OptionsButtonInfo(Func<string> GetText, UnityAction onClick) {
             this.GetText = GetText;

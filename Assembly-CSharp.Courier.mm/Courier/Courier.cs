@@ -206,6 +206,7 @@ namespace Mod.Courier {
                 IEnumerable<Type> modules = FindDerivedTypes(asm, typeof(CourierModule));
 
                 foreach (Type moduleType in modules) {
+                    CourierLogger.Log("ModLoader", "Loading module class " + moduleType);
                     object o = asm.CreateInstance(moduleType.FullName, false, BindingFlags.ExactBinding, null, new object[] { }, null, null);
                     (o as CourierModule).Load();
                     Modules.Add(o as CourierModule);
@@ -213,6 +214,12 @@ namespace Mod.Courier {
             } catch(Exception e) {
                 CourierLogger.Log(LogType.Error, "ModLoader", "Exception while loading assembly from: " + path);
                 CourierLogger.LogDetailed(e);
+            }
+        }
+
+        public static void InitMods() {
+            foreach(CourierModule mod in Modules) {
+                mod.Initialize();
             }
         }
 
