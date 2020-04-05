@@ -1,4 +1,5 @@
 ﻿#pragma warning disable CS0626 // Method, operator, or accessor is marked external and has no attributes on it
+#pragma warning disable CS0649
 
 using System;
 using System.Collections.Generic;
@@ -14,7 +15,7 @@ public class patch_UIManager : UIManager {
     [MonoModIgnore]
     private List<RectTransform> layers;
 
-    public List<RectTransform> Layers => layers;
+    public new List<RectTransform> Layers => layers;
 
     public List<GameObject> GetPreloadedViews<T>() {
         Type typeFromHandle = typeof(T);
