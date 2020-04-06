@@ -83,7 +83,7 @@ namespace MiniInstaller {
         }
 
         public static void SetupPaths() {
-            PathManaged = Path.Combine(Directory.GetCurrentDirectory(), "TheMessenger_Data", "Managed");
+            PathManaged = Path.Combine(Path.Combine(Directory.GetCurrentDirectory(), "TheMessenger_Data"), "Managed");
 
             if (Path.GetFileName(PathManaged) == "Courier-update" &&
                 File.Exists(Path.Combine(Path.GetDirectoryName(PathManaged), "Assembly-CSharp.dll"))) {
