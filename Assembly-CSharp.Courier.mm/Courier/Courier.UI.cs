@@ -124,6 +124,10 @@ namespace Mod.Courier {
                 return view;
             }
 
+            public static void ShowDebugConsole() {
+                Manager<UIManager>.Instance.ShowView<DebugConsole>(EScreenLayers.PROMPT);
+            }
+
             public static void RegisterOptionButton(OptionsButtonInfo buttonInfo) {
                 OptionButtons.Add(buttonInfo);
             }
