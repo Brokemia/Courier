@@ -31,20 +31,22 @@ public class patch_OptionScreen : OptionScreen {
             buttonInfo.UpdateStateText();
     }
 
-    private extern void orig_LateUpdate();
-    private void LateUpdate() {
+    public void OnGUI() {
         //Needs to be moved when the flickering bug is fixed
-        //transform.position -= new Vector3(0, .9f * Courier.UI.OptionButtons.Count);
         for (int i = 0; i < Courier.UI.OptionButtons.Count; i++) {
             OptionsButtonInfo buttonInfo = Courier.UI.OptionButtons[i];
             buttonInfo.nameTextMesh.text = buttonInfo.GetText?.Invoke() ?? "";
-                                                            // TODO Find an earlier place to set this. Currently, it flickers briefly before putting itself in the right spot
-            buttonInfo.gameObject.transform.position = controlsButton.transform.position - new Vector3(9.7f, .9f * (Courier.UI.EnabledCustomOptionButtonsBeforeButton(buttonInfo) + 1));
 
-            if(buttonInfo.gameObject.activeInHierarchy)
-                backgroundFrame.Find("OptionsFrame").Find("OptionMenuButtons").Find("Back").position = buttonInfo.gameObject.transform.position + new Vector3(0, -.9f);
+            try {
+                if (buttonInfo.gameObject.activeInHierarchy) {
+                    // TODO Find an earlier place to set this. Currently, it flickers briefly before putting itself in the right spot
+                    buttonInfo.gameObject.transform.position = controlsButton.transform.position - new Vector3(9.7f, .9f * (Courier.UI.EnabledCustomOptionButtonsBeforeButton(buttonInfo) + 1));
+                    backgroundFrame.Find("OptionsFrame").Find("OptionMenuButtons").Find("Back").position = buttonInfo.gameObject.transform.position + new Vector3(0, -.9f);
+                }
+            } catch(Exception e) {
+                e.LogDetailed("OptionScreen");
+            }
         }
-        orig_LateUpdate();
     }
 
     //private extern void orig_InitOptions();

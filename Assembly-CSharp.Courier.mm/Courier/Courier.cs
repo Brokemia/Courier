@@ -12,6 +12,8 @@ using UnityEngine;
 namespace Mod.Courier {
     public static partial class Courier {
 
+        public const string CourierVersion = "Courier v0.5.3-alpha";
+
         public static string CourierAssemblyLocation = typeof(Courier).Assembly.Location;
 
         public static string ModsFolder = Path.Combine(CourierAssemblyLocation.Substring(0, CourierAssemblyLocation.Length - typeof(patch_BootGame).Assembly.GetName().Name.Length - 4), "../../Mods").Replace('\\', '/');
