@@ -162,6 +162,8 @@
     <Compile Include="Courier\Save\BooleanOptionSaveMethod.cs" />
     <Compile Include="Patches\InitialScene.cs" />
     <Compile Include="Patches\PauseScreen.cs" />
+    <Compile Include="Patches\TitleScreen.cs" />
+    <Compile Include="Courier\UI\ModSaveSelectionScreen.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Patches\" />

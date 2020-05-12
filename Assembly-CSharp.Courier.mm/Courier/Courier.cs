@@ -240,6 +240,7 @@ namespace Mod.Courier {
                     locManager.textByLocID[UI.MOD_OPTIONS_MENU_TITLE_LOC_ID] = "Courier Mod Menu - Third Party Content";
                     locManager.textByLocID[SaveLoadJSON.SAVE_TO_JSON_BUTTON_LOC_ID] = "Save as JSON";
                     locManager.textByLocID[SaveLoadJSON.LOAD_FROM_JSON_BUTTON_LOC_ID] = "Load from JSON";
+                    locManager.textByLocID[patch_TitleScreen.PLAY_MODS_BUTTON_LOC_ID] = "Play Mods";
                     break;
             }
         }
