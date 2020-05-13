@@ -23,7 +23,7 @@ public class patch_PauseScreen : PauseScreen {
         if(!string.IsNullOrEmpty(fullVersionString)) {
             fullVersionString += " + ";
         }
-        fullVersionString += Courier.CourierVersion;
+        fullVersionString += Courier.CourierVersionString;
         orig_Start();
     }
 }

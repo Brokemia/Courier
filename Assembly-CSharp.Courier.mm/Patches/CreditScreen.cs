@@ -8,6 +8,7 @@ using System.Linq;
 using Ionic.Crc;
 using Ionic.Zip;
 using Mod.Courier;
+using Mod.Courier.Module;
 
 public class patch_CreditScreen : CreditScreen {
     private List<CreditItemData> toAppend;
@@ -15,46 +16,36 @@ public class patch_CreditScreen : CreditScreen {
     protected extern void orig_LoadCredits();
     protected virtual void LoadCredits() {
         orig_LoadCredits();
-        // Create the Mods folder if it doesn't exist
-        if (!Directory.Exists(Courier.ModsFolder)) {
-            Directory.CreateDirectory(Courier.ModsFolder);
-        }
 
         toAppend = new List<CreditItemData>();
-
-        string[] mods = Directory.GetDirectories(Courier.ModsFolder);
         
-        foreach (string mod in mods) {
-            string[] modFiles = Directory.GetFiles(mod);
-            // Check files in subfolders
-            foreach (string path in modFiles) {
-                if (path.EndsWith(".tsv", StringComparison.InvariantCulture) && Path.GetFileName(path).Contains("Credits")) {
-                    List<CreditItemData> credits = LoadCreditsFromStream(File.OpenRead(path));
-                    if (Path.GetFileNameWithoutExtension(path).Equals(creditFile)) {
-                        creditItems.Clear();
-                        creditItems.AddRange(credits);
-                    } else if(!Path.GetFileName(path).Equals("Credits.tsv") && !Path.GetFileName(path).Equals("Credits_PP.tsv")) {
-                        // Put appended credits away for later so they don't get overwritten
-                        toAppend.AddRange(credits);
+        foreach (CourierModuleMetadata modMeta in Courier.Mods) {
+            if (modMeta.DirectoryMod) {
+                string[] modFiles = Directory.GetFiles(modMeta.DirectoryPath);
+                // Check files in subfolders
+                foreach (string path in modFiles) {
+                    if (path.EndsWith(".tsv", StringComparison.InvariantCulture) && Path.GetFileName(path).Contains("Credits")) {
+                        List<CreditItemData> credits = LoadCreditsFromStream(File.OpenRead(path));
+                        if (Path.GetFileNameWithoutExtension(path).Equals(creditFile)) {
+                            creditItems.Clear();
+                            creditItems.AddRange(credits);
+                        } else if (!Path.GetFileName(path).Equals("Credits.tsv") && !Path.GetFileName(path).Equals("Credits_PP.tsv")) {
+                            // Put appended credits away for later so they don't get overwritten
+                            toAppend.AddRange(credits);
+                        }
+                        CourierLogger.Log("CreditScreen", "Loading credits file from " + path);
                     }
-                    CourierLogger.Log("CreditScreen", "Loading credits file from " + path);
                 }
-            }
-        }
-
-        IEnumerable<string> zippedMods = Directory.GetFiles(Courier.ModsFolder).Where((s) => s.EndsWith(".zip", StringComparison.InvariantCulture));
-
-        foreach (string mod in zippedMods) {
-            using (ZipFile zip = new ZipFile(mod)) {
-                foreach (ZipEntry entry in zip) {
+            } else if(modMeta.ZippedMod) {
+                foreach (ZipEntry entry in modMeta.ZipFile) {
                     if (entry.FileName.EndsWith(".tsv", StringComparison.InvariantCulture) && entry.FileName.Contains("Credits")) {
                         CrcCalculatorStream stream = entry.OpenReader();
-                        CourierLogger.Log("CreditScreen", "Loading zipped credits file from " + Path.Combine(mod, entry.FileName));
+                        CourierLogger.Log("CreditScreen", "Loading zipped credits file from " + Path.Combine(modMeta.ZipFile.Name, entry.FileName));
                         List<CreditItemData> credits = LoadCreditsFromStream(stream);
                         if (Path.GetFileNameWithoutExtension(entry.FileName).Equals(creditFile)) {
                             creditItems.Clear();
                             creditItems.AddRange(credits);
-                        } else if(!entry.FileName.Equals("Credits.tsv") && !entry.FileName.Equals("Credits_PP.tsv")){
+                        } else if (!entry.FileName.Equals("Credits.tsv") && !entry.FileName.Equals("Credits_PP.tsv")) {
                             // Put appended credits away for later so they don't get overwritten
                             toAppend.AddRange(credits);
                         }
@@ -62,6 +53,7 @@ public class patch_CreditScreen : CreditScreen {
                 }
             }
         }
+
         creditItems.AddRange(toAppend);
         toAppend = null;
     }

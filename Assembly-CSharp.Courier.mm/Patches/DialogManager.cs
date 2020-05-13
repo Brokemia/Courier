@@ -8,6 +8,7 @@ using System.Linq;
 using Ionic.Crc;
 using Ionic.Zip;
 using Mod.Courier;
+using Mod.Courier.Module;
 using MonoMod;
 using UnityEngine;
 
@@ -24,32 +25,22 @@ public class patch_DialogManager : DialogManager {
     private extern void orig_LoadTSVDialogs(string languageID);
     private void LoadTSVDialogs(string languageID) {
         orig_LoadTSVDialogs(languageID);
-        // Create the Mods folder if it doesn't exist
-        if (!Directory.Exists(Courier.ModsFolder)) {
-            Directory.CreateDirectory(Courier.ModsFolder);
-        }
-
-        string[] mods = Directory.GetDirectories(Courier.ModsFolder);
-
-        foreach (string mod in mods) {
-            string[] modFiles = Directory.GetFiles(mod);
-            // Check files in subfolders
-            foreach (string path in modFiles) {
-                if (path.EndsWith(".tsv", StringComparison.InvariantCulture) && Path.GetFileName(path).Contains("Dialog")) {
-                    Mod.Courier.CourierLogger.Log("Courier", "Loading dialog localization file from " + path);
-                    LoadTSVDialogsFromStream(languageID, File.OpenRead(path));
+        
+        foreach (CourierModuleMetadata modMeta in Courier.Mods) {
+            if (modMeta.DirectoryMod) {
+                string[] modFiles = Directory.GetFiles(modMeta.DirectoryPath);
+                // Check files in subfolders
+                foreach (string path in modFiles) {
+                    if (path.EndsWith(".tsv", StringComparison.InvariantCulture) && Path.GetFileName(path).Contains("Dialog")) {
+                        Mod.Courier.CourierLogger.Log("Courier", "Loading dialog localization file from " + path);
+                        LoadTSVDialogsFromStream(languageID, File.OpenRead(path));
+                    }
                 }
-            }
-        }
-
-        IEnumerable<string> zippedMods = Directory.GetFiles(Courier.ModsFolder).Where((s) => s.EndsWith(".zip", StringComparison.InvariantCulture));
-
-        foreach (string mod in zippedMods) {
-            using (ZipFile zip = new ZipFile(mod)) {
-                foreach (ZipEntry entry in zip) {
+            } else if (modMeta.ZippedMod) {
+                foreach (ZipEntry entry in modMeta.ZipFile) {
                     if (entry.FileName.EndsWith(".tsv", StringComparison.InvariantCulture) && entry.FileName.Contains("Dialog")) {
                         CrcCalculatorStream stream = entry.OpenReader();
-                        Mod.Courier.CourierLogger.Log("Courier", "Loading zipped dialog localization file from " + Path.Combine(mod, entry.FileName));
+                        Mod.Courier.CourierLogger.Log("Courier", "Loading zipped dialog localization file from " + Path.Combine(modMeta.ZipFile.Name, entry.FileName));
                         LoadTSVDialogsFromStream(languageID, stream);
                     }
                 }

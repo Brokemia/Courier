@@ -107,6 +107,9 @@
       <HintPath>..\..\TheMessenger_Data\Managed\UnityEngine.JSONSerializeModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="YamlDotNet">
+      <HintPath>..\packages\YamlDotNet.8.1.1\lib\net35\YamlDotNet.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -164,6 +167,9 @@
     <Compile Include="Patches\PauseScreen.cs" />
     <Compile Include="Patches\TitleScreen.cs" />
     <Compile Include="Courier\UI\ModSaveSelectionScreen.cs" />
+    <Compile Include="Courier\Module\CourierModuleMetadata.cs" />
+    <Compile Include="Courier\Module\CourierLevelSet.cs" />
+    <Compile Include="Courier\Helpers\Tommy.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Patches\" />
