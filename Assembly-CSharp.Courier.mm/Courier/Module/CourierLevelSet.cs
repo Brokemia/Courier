@@ -1,10 +1,20 @@
 ﻿using System;
+using Mod.Courier.Save;
+
 namespace Mod.Courier.Module {
     public class CourierLevelSet {
         public CourierLevelSet() {
             // Give a unique ID to each level set
-            SlotID = SlotIDCount;
-            SlotIDCount++;
+            ID = IDCount;
+            IDCount++;
+        }
+
+        public SaveGameSlot AddSlot() {
+            SlotID = ModSaveGame.Instance.modSaveSlots.Count;
+            Slot = new SaveGameSlot();
+            Slot.Clear(true);
+            ModSaveGame.Instance.modSaveSlots.Add(Slot);
+            return Slot;
         }
 
         public virtual string StartingScene {
@@ -17,12 +27,22 @@ namespace Mod.Courier.Module {
             set;
         }
 
-        public static int SlotIDCount {
+        public static int IDCount {
             get;
             private set;
         }
 
         public int SlotID {
+            get;
+            private set;
+        }
+
+        public SaveGameSlot Slot {
+            get;
+            private set;
+        }
+
+        public int ID {
             get;
             private set;
         }

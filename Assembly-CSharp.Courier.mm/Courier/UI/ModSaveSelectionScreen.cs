@@ -91,7 +91,7 @@ namespace Mod.Courier.UI {
 
         public override void Init(IViewParams screenParams) {
             base.Init(screenParams);
-            numSlots = CourierLevelSet.SlotIDCount;
+            numSlots = ModSaveGame.Instance.modSaveSlots.Count;
             CreateSaveSlots();
             saveGameSelected = false;
             newGamePlusPopup.SetActive(false);
@@ -121,7 +121,7 @@ namespace Mod.Courier.UI {
             // Add any extra slot containers
             for (int i = 3; i < numSlots; i++) {
                 RectTransform container = (RectTransform)Instantiate(containers.Find("Slot_1Container"), containers);
-                container.position = lastSlotPos -= new Vector3(0, 5.2f, 0);
+                container.position = lastSlotPos -= new Vector3(0, 5.25f, 0);
                 saveSlotContainers.Add((RectTransform)container.Find("SaveSlotContainer"));
                 newGamePlusContainers.Add((RectTransform)container.Find("NewGamePlusContainer"));
             }
@@ -137,10 +137,7 @@ namespace Mod.Courier.UI {
                 tf.SetParent(saveSlotContainers[i], false);
                 tf.localPosition = Vector3.zero;
                 tf.localScale = Vector3.one;
-                if (i < 3)
-                    slot.SetSaveData(ModSaveGame.Instance.modSaveSlots[i], i);
-                else
-                    slot.slotIndex = i;
+                slot.SetSaveData(ModSaveGame.Instance.modSaveSlots[i], i);
                 slot.newGamePlusPopupAnchor = newGamePlusContainers[i];
                 slot.onSubmit += OnSlotSelected;
                 slot.onEraseSlot += OnEraseSlot;
@@ -277,8 +274,9 @@ namespace Mod.Courier.UI {
             // Set the scrolling
             Transform saveSlotContainer = transform.Find("Container").Find("Background").Find("SaveSlotContainer");
             GameObject selectedSlot = EventSystem.current.currentSelectedGameObject;
-            SaveSlotUI slot;
-            if (selectedSlot != null && (slot = selectedSlot.GetComponent<SaveSlotUI>()) != null) {
+            ModSaveSlotUI slot;
+            // Scrolling specifically prohibited for 2 slots because it throws off my calculations
+            if (slotsUI.Count != 2 && selectedSlot != null && (slot = selectedSlot.GetComponent<ModSaveSlotUI>()) != null) {
                 saveSlotContainer.transform.localPosition = new Vector3(0, (Mathf.Clamp(slot.slotIndex, 1, slotsUI.Count - 2) - 1) * 105);
             }
 
@@ -398,6 +396,7 @@ namespace Mod.Courier.UI {
                 focusedSlot.Delete();
                 for (int i = 0; i < slotsUI.Count; i++) {
                     slotsUI[i].SetSaveData(ModSaveGame.Instance.modSaveSlots[i], i);
+                    // TODO Delete the save slot from the UI
                 }
             }
             StartCoroutine(ReturnFocusedSlotToOriginalPosition(SelectSlot));
@@ -716,7 +715,7 @@ namespace Mod.Courier.UI {
 
             ArmoireInteractionTrigger.currentDialogIndex = 0;
 
-            CourierLevelSet levelSet = Courier.FindLevelSetWithID(slotIndex);
+            CourierLevelSet levelSet = Courier.FindLevelSetWithSlotID(slotIndex);
             LaunchNewGame(levelSet.StartingScene + "_Build");
         }
 

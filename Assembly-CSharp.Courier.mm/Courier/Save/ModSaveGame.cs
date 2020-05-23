@@ -24,7 +24,12 @@ namespace Mod.Courier.Save {
         }
 
         public string GetJson() {
-            return JsonUtility.ToJson(this);
+            // Temporarily remove empty mod save slots
+            List<SaveGameSlot> allSlots = new List<SaveGameSlot>(modSaveSlots);
+            modSaveSlots.RemoveAll((slot) => slot == null || slot.IsEmpty());
+            string json = JsonUtility.ToJson(this);
+            modSaveSlots = allSlots;
+            return json;
         }
 
         public void LoadOptions() {

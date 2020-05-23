@@ -34,11 +34,11 @@ public class patch_SaveLoadStandalone : SaveLoadStandalone {
 
     public extern void orig_Load();
     public override void Load() {
-        LoadModOptions();
+        LoadModSave();
         orig_Load();
     }
 
-    public static void LoadModOptions() {
+    public static void LoadModSave() {
         ModSaveGame moddedSave = null;
         string text = string.Empty;
         try {
@@ -56,15 +56,13 @@ public class patch_SaveLoadStandalone : SaveLoadStandalone {
                 moddedSave = JsonUtility.FromJson<ModSaveGame>(text);
             } catch (Exception e) {
                 CourierLogger.Log(LogType.Exception, "Mod Options Load", "Error while reading modded save from the registry.");
-                e.LogDetailed("Mod Options Load");
+                e.LogDetailed("Mod Save Load");
                 moddedSave = null;
             }
         }
         if (moddedSave != null) {
             ModSaveGame.Instance = moddedSave;
-            SaveGameSlot slot = new SaveGameSlot();
-            slot.Clear(true);
-            moddedSave.modSaveSlots.Add(slot);
+            Courier.AddLevelSetSlots();
         }
         ModSaveGame.Instance.LoadOptions();
     }
