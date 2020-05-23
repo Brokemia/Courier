@@ -278,17 +278,18 @@ namespace Mod.Courier {
 
         private static void LoadZippedMod(CourierModuleMetadata modMeta) {
             if (Loaded || !modMeta.ZippedMod || modMeta.DirectoryMod || modMeta.ZipFile == null) return;
-            string[] modFiles = Directory.GetFiles(modMeta.DirectoryPath);
 
             // Load AssetBundles
-            ZipEntry assetBundleFolder = modMeta.ZipFile["AssetBundles"];
+            ZipEntry assetBundleFolder = modMeta.ZipFile["AssetBundles/"];
             if (assetBundleFolder != null && assetBundleFolder.IsDirectory) {
                 foreach (ZipEntry entry in modMeta.ZipFile) {
-                    if (entry.FileName.EndsWith(".manifest", StringComparison.InvariantCulture) && entry.FileName.Replace('\\', '/').StartsWith("AssetBundle/", StringComparison.InvariantCulture)) {
+                    if (entry.FileName.EndsWith(".manifest", StringComparison.InvariantCulture) && entry.FileName.Replace('\\', '/').StartsWith("AssetBundles/", StringComparison.InvariantCulture)) {
                         ZipEntry assetBundle = modMeta.ZipFile[entry.FileName.Substring(0, entry.FileName.Length - ".manifest".Length)];
                         CourierLogger.Log("ModLoader", "Loading zipped AssetBundle from " + Path.Combine(modMeta.ZipFile.Name, assetBundle.FileName));
                         try {
-                            modMeta.AssetBundles.Add(LoadAssetBundle(assetBundle.OpenReader()));
+                            MemoryStream assetBundleStream = new MemoryStream();
+                            assetBundle.Extract(assetBundleStream);
+                            modMeta.AssetBundles.Add(LoadAssetBundle(assetBundleStream));
                         } catch (Exception e) {
                             CourierLogger.Log(LogType.Error, "ModLoader", "Exception while loading zipped AssetBundle from: " + Path.Combine(modMeta.ZipFile.Name, assetBundle.FileName));
                             e.LogDetailed();
