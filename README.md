@@ -1,6 +1,6 @@
 # Courier Mod Loader
 
-A mod loader for Sabotage Studio's The Messenger.
+A mod loader for Sabotage Studio's The Messenger. Join our [Discord Server](https://discord.gg/dm8Wbg) for support and additional discussion.
 
 ## Installation Instructions
 
