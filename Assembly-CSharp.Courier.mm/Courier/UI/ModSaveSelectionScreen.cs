@@ -694,7 +694,8 @@ namespace Mod.Courier.UI {
             ModSaveSlotUI realSlot = slotsUI[saveSlot.slotIndex];
             nameSavePopup.onNameConfirmed -= OnNameConfirmed;
             nameSavePopup.onBack -= OnCloseNameSave;
-            TimeTrackerScreen.SpeedRunEnabled = (Manager<InputManager>.Instance.GetRightTrigger() && (realSlot.saveGameSlot.IsEmpty() || realSlot.saveGameSlot.NewGamePlus));
+            // TODO Enable on supported versions only
+            //TimeTrackerScreen.SpeedRunEnabled = (Manager<InputManager>.Instance.GetRightTrigger() && (realSlot.saveGameSlot.IsEmpty() || realSlot.saveGameSlot.NewGamePlus));
             // Indicate mods by selecting slot 3, which doesn't exist
             Manager<SaveManager>.Instance.SelectSaveGameSlot(3);
             ModSaveGame.Instance.currentModSaveSlotIndex = realSlot.slotIndex;
@@ -771,7 +772,7 @@ namespace Mod.Courier.UI {
             Manager<ProgressionManager>.Instance.lastSaveTime = Time.time;
             Manager<InputManager>.Instance.CancelJumpTimeDown();
             levelLoadingInfo.bootInTotHQ = false;
-            Manager<LevelManager>.Instance.LoadLevel(levelLoadingInfo); // TODO fix level enum not getting set. Maybe change to sclout level
+            Manager<LevelManager>.Instance.LoadLevel(levelLoadingInfo);
         }
 
         private void LaunchGame(string levelToLoad, CheckpointSaveInfo checkpointSaveInfo) {
