@@ -1,6 +1,12 @@
 ﻿using System;
 namespace Mod.Courier.Module {
     public class CourierLevelSet {
+        public CourierLevelSet() {
+            // Give a unique ID to each level set
+            SlotID = SlotIDCount;
+            SlotIDCount++;
+        }
+
         public virtual string StartingScene {
             get;
             set;
@@ -11,5 +17,14 @@ namespace Mod.Courier.Module {
             set;
         }
 
+        public static int SlotIDCount {
+            get;
+            private set;
+        }
+
+        public int SlotID {
+            get;
+            private set;
+        }
     }
 }

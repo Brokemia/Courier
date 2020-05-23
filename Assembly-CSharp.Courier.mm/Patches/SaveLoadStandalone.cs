@@ -9,7 +9,7 @@ using UnityEngine;
 public class patch_SaveLoadStandalone : SaveLoadStandalone {
     public extern void orig_Save(SaveGame saveGame);
     public override void Save(SaveGame saveGame) {
-        string json = ModdedOptionsSave.Instance.GetJson();
+        string json = ModSaveGame.Instance.GetJson();
         PlayerPrefs.SetString("ModSave", json);
         string path = Application.persistentDataPath + "/ModSave.json";
         try {
@@ -39,7 +39,7 @@ public class patch_SaveLoadStandalone : SaveLoadStandalone {
     }
 
     public static void LoadModOptions() {
-        ModdedOptionsSave moddedSave = null;
+        ModSaveGame moddedSave = null;
         string text = string.Empty;
         try {
             text = File.ReadAllText(Application.persistentDataPath + "/ModSave.json");
@@ -47,13 +47,13 @@ public class patch_SaveLoadStandalone : SaveLoadStandalone {
                 throw new Exception("Modded SaveLoadStandalone::Load : Modded save file is empty.");
             }
             text = text.Replace("\u008c\u008b", string.Empty);
-            moddedSave = JsonUtility.FromJson<ModdedOptionsSave>(text);
+            moddedSave = JsonUtility.FromJson<ModSaveGame>(text);
         } catch (Exception) {
             try {
                 if (PlayerPrefs.HasKey("ModSave")) {
                     text = PlayerPrefs.GetString("ModSave");
                 }
-                moddedSave = JsonUtility.FromJson<ModdedOptionsSave>(text);
+                moddedSave = JsonUtility.FromJson<ModSaveGame>(text);
             } catch (Exception e) {
                 CourierLogger.Log(LogType.Exception, "Mod Options Load", "Error while reading modded save from the registry.");
                 e.LogDetailed("Mod Options Load");
@@ -61,8 +61,11 @@ public class patch_SaveLoadStandalone : SaveLoadStandalone {
             }
         }
         if (moddedSave != null) {
-            ModdedOptionsSave.Instance = moddedSave;
+            ModSaveGame.Instance = moddedSave;
+            SaveGameSlot slot = new SaveGameSlot();
+            slot.Clear(true);
+            moddedSave.modSaveSlots.Add(slot);
         }
-        ModdedOptionsSave.Instance.LoadOptions();
+        ModSaveGame.Instance.LoadOptions();
     }
 }

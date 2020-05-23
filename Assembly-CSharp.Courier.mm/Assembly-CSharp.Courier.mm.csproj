@@ -110,6 +110,10 @@
     <Reference Include="YamlDotNet">
       <HintPath>..\packages\YamlDotNet.8.1.1\lib\net35\YamlDotNet.dll</HintPath>
     </Reference>
+    <Reference Include="UnityEngine.ParticleSystemModule">
+      <HintPath>..\..\TheMessenger_Data\Managed\UnityEngine.ParticleSystemModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -129,9 +133,6 @@
     <Compile Include="Courier\UI\SubMenuButtonInfo.cs" />
     <Compile Include="Patches\UIManager.cs" />
     <Compile Include="Patches\LeafGolemBoss.cs" />
-    <Compile Include="Patches\NecromancerBoss.cs" />
-    <Compile Include="Patches\ColossusesBoss.cs" />
-    <Compile Include="Patches\EmeraldGolemBoss.cs" />
     <Compile Include="Patches\InGameHud.cs" />
     <Compile Include="Courier\UI\TextEntryPopup.cs" />
     <Compile Include="Courier\UI\TextEntryButtonInfo.cs" />
@@ -161,7 +162,7 @@
     <Compile Include="Patches\SaveGame.cs" />
     <Compile Include="Patches\SaveLoadStandalone.cs" />
     <Compile Include="Courier\Save\OptionSaveMethod.cs" />
-    <Compile Include="Courier\Save\ModdedOptionsSave.cs" />
+    <Compile Include="Courier\Save\ModSaveGame.cs" />
     <Compile Include="Courier\Save\BooleanOptionSaveMethod.cs" />
     <Compile Include="Patches\InitialScene.cs" />
     <Compile Include="Patches\PauseScreen.cs" />
@@ -170,6 +171,14 @@
     <Compile Include="Courier\Module\CourierModuleMetadata.cs" />
     <Compile Include="Courier\Module\CourierLevelSet.cs" />
     <Compile Include="Courier\Helpers\Tommy.cs" />
+    <Compile Include="Courier\UI\ModSaveSlotUI.cs" />
+    <Compile Include="Courier\UI\SaveFileItemIconExtensions.cs" />
+    <Compile Include="Patches\SaveManager.cs" />
+    <Compile Include="Courier\Helpers\EventExtensions.cs" />
+    <Compile Include="Patches\InGameHudUI_Base.cs" />
+    <Compile Include="Patches\LevelManager.cs" />
+    <Compile Include="Courier\Helpers\CourierShaderAdder.cs" />
+    <Compile Include="Courier\Helpers\CourierParticleSystemShaderAdder.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Patches\" />

@@ -1,8 +1,15 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using Mod.Courier.Helpers;
+using Mod.Courier.Module;
+using Mod.Courier.Save;
+using MonoMod.Utils;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 
@@ -31,19 +38,7 @@ namespace Mod.Courier.UI {
 
         public List<RectTransform> saveSlotContainers;
 
-        //public RectTransform saveSlot_1Container;
-
-        //public RectTransform saveSlot_2Container;
-
-        //public RectTransform saveSlot_3Container;
-
         public List<RectTransform> newGamePlusContainers;
-
-        //public RectTransform newGamePlusContainer_1;
-
-        //public RectTransform newGamePlusContainer_2;
-
-        //public RectTransform newGamePlusContainer_3;
 
         public GameObject deleteInstructions;
 
@@ -74,17 +69,17 @@ namespace Mod.Courier.UI {
 
         private const ELevel FIRST_LEVEL = ELevel.Level_01_NinjaVillage;
 
-        private List<SaveSlotUI> slotsUI = new List<SaveSlotUI>();
+        private List<ModSaveSlotUI> slotsUI = new List<ModSaveSlotUI>();
 
-        private SaveSlotUI focusedSlot;
+        private ModSaveSlotUI focusedSlot;
 
         private Vector3 focusedSlotOriginalPos;
 
         private RectTransform activeFocusPosition;
 
-        private SaveSlotUI newGameSelectedSlot;
+        private ModSaveSlotUI newGameSelectedSlot;
 
-        private SaveSlotUI loadGameSelectedSlot;
+        private ModSaveSlotUI loadGameSelectedSlot;
 
         private bool saveGameSelected;
 
@@ -92,10 +87,11 @@ namespace Mod.Courier.UI {
 
         private EScreenState state;
 
-        public int numSlots = 3;
+        public int numSlots;
 
         public override void Init(IViewParams screenParams) {
             base.Init(screenParams);
+            numSlots = CourierLevelSet.SlotIDCount;
             CreateSaveSlots();
             saveGameSelected = false;
             newGamePlusPopup.SetActive(false);
@@ -131,14 +127,18 @@ namespace Mod.Courier.UI {
             }
 
             for (int i = 0; i < numSlots; i++) {
-                SaveSlotUI slot = Instantiate(saveSlotPrefab).GetComponent<SaveSlotUI>();
+                SaveSlotUI vanillaSlot = Instantiate(saveSlotPrefab).GetComponent<SaveSlotUI>();
+                ModSaveSlotUI slot = vanillaSlot.gameObject.AddComponent<ModSaveSlotUI>();
+                CopyOverSaveSlotToModded(vanillaSlot, slot);
+                slot.OnEnable();
+                Destroy(vanillaSlot);
+
                 RectTransform tf = slot.GetComponent<RectTransform>();
                 tf.SetParent(saveSlotContainers[i], false);
                 tf.localPosition = Vector3.zero;
                 tf.localScale = Vector3.one;
-                // TODO Actually set data
                 if (i < 3)
-                    slot.SetSaveData(Manager<SaveManager>.Instance.GetSaveSlot(i), i);
+                    slot.SetSaveData(ModSaveGame.Instance.modSaveSlots[i], i);
                 else
                     slot.slotIndex = i;
                 slot.newGamePlusPopupAnchor = newGamePlusContainers[i];
@@ -147,7 +147,7 @@ namespace Mod.Courier.UI {
                 slotsUI.Add(slot);
             }
 
-            for(int i = 0; i < numSlots; i++) {
+            for (int i = 0; i < numSlots; i++) {
                 Navigation navigation = slotsUI[i].button.navigation;
                 navigation.mode = Navigation.Mode.Explicit;
                 if (i != 0) {
@@ -164,8 +164,38 @@ namespace Mod.Courier.UI {
             }
         }
 
-        private void ResetSlotsToDefaultPosition(SaveSlotUI exception = null) {
-            for(int i = 0; i < numSlots; i++) {
+        private void CopyOverSaveSlotToModded(SaveSlotUI saveSlot, ModSaveSlotUI modSlot) {
+            modSlot.submitSFX = saveSlot.submitSFX;
+            modSlot.saveGameName = saveSlot.saveGameName;
+            modSlot.timeShardQuantity = saveSlot.timeShardQuantity;
+            modSlot.timePlayedTitle = saveSlot.timePlayedTitle;
+            modSlot.timePlayed = saveSlot.timePlayed;
+            modSlot.locationTitle = saveSlot.locationTitle;
+            modSlot.locationName = saveSlot.locationName;
+            modSlot.powerSealQuantity = saveSlot.powerSealQuantity;
+            modSlot.button = saveSlot.button;
+            modSlot.itemIcons = saveSlot.itemIcons;
+            modSlot.powerSeal = saveSlot.powerSeal;
+            modSlot.playerImage = saveSlot.playerImage;
+            modSlot.playerImage_16 = saveSlot.playerImage_16;
+            modSlot.playerImage_16_Legs = saveSlot.playerImage_16_Legs;
+            modSlot.playerImageNoScroll = saveSlot.playerImageNoScroll;
+            modSlot.shardIcon = saveSlot.shardIcon;
+            modSlot.lifePoints = saveSlot.lifePoints;
+            modSlot.lifePointsRow2 = saveSlot.lifePointsRow2;
+            modSlot.manaPoints = saveSlot.manaPoints;
+            modSlot.newGamePlusAvailable = saveSlot.newGamePlusAvailable;
+            modSlot.selectedArt = saveSlot.selectedArt;
+            modSlot.newGamePlusHighScore = saveSlot.newGamePlusHighScore;
+            modSlot.newGamePlusCurrentCount = saveSlot.newGamePlusCurrentCount;
+            modSlot.newGamePlusCurrentText = saveSlot.newGamePlusCurrentText;
+            modSlot.newGamePlusHighScoreText = saveSlot.newGamePlusHighScoreText;
+            modSlot.eraseGameBackground = saveSlot.eraseGameBackground;
+            modSlot.newGamePlusPopupAnchor = saveSlot.newGamePlusPopupAnchor;
+        }
+
+        private void ResetSlotsToDefaultPosition(ModSaveSlotUI exception = null) {
+            for (int i = 0; i < numSlots; i++) {
                 Navigation navigation = slotsUI[i].button.navigation;
                 navigation.mode = Navigation.Mode.Explicit;
                 if (i != 0) {
@@ -216,7 +246,7 @@ namespace Mod.Courier.UI {
             }
         }
 
-        private void OnEraseSlot(SaveSlotUI slot) {
+        private void OnEraseSlot(ModSaveSlotUI slot) {
             state = EScreenState.ERASING_SLOT;
             EventSystem.current.SetSelectedGameObject(null);
             SetFocusedSlot(slot);
@@ -227,7 +257,7 @@ namespace Mod.Courier.UI {
             StartCoroutine(TweenSlotToFocusPositionCoroutine(slot, ConfirmSaveDelete));
         }
 
-        private void SetFocusedSlot(SaveSlotUI slot, bool saveOriginalPosition = true) {
+        private void SetFocusedSlot(ModSaveSlotUI slot, bool saveOriginalPosition = true) {
             focusedSlot = slot;
             activeFocusPosition = focusSlotPosition;
             if (saveOriginalPosition) {
@@ -235,7 +265,7 @@ namespace Mod.Courier.UI {
             }
         }
 
-        private void SetFocusedSlot(SaveSlotUI slot, RectTransform focusPosition, bool saveOriginalPosition = true) {
+        private void SetFocusedSlot(ModSaveSlotUI slot, RectTransform focusPosition, bool saveOriginalPosition = true) {
             focusedSlot = slot;
             activeFocusPosition = focusPosition;
             if (saveOriginalPosition) {
@@ -248,8 +278,7 @@ namespace Mod.Courier.UI {
             Transform saveSlotContainer = transform.Find("Container").Find("Background").Find("SaveSlotContainer");
             GameObject selectedSlot = EventSystem.current.currentSelectedGameObject;
             SaveSlotUI slot;
-            if(selectedSlot != null && (slot = selectedSlot.GetComponent<SaveSlotUI>()) != null) {
-                Console.WriteLine(slot.slotIndex);
+            if (selectedSlot != null && (slot = selectedSlot.GetComponent<SaveSlotUI>()) != null) {
                 saveSlotContainer.transform.localPosition = new Vector3(0, (Mathf.Clamp(slot.slotIndex, 1, slotsUI.Count - 2) - 1) * 105);
             }
 
@@ -303,7 +332,7 @@ namespace Mod.Courier.UI {
             state = EScreenState.SELECT_SLOT;
             loadingSaveFile = false;
             saveGameSelected = false;
-            SaveSlotUI saveSlotUI = (!(newGameSelectedSlot == null)) ? newGameSelectedSlot : loadGameSelectedSlot;
+            ModSaveSlotUI saveSlotUI = (!(newGameSelectedSlot == null)) ? newGameSelectedSlot : loadGameSelectedSlot;
             if (isNewGame) {
                 saveSlotUI.saveGameSlot.Clear(true);
                 saveSlotUI.SetSaveData(saveSlotUI.saveGameSlot, saveSlotUI.slotIndex);
@@ -317,7 +346,7 @@ namespace Mod.Courier.UI {
             selectItemPopup.gameObject.SetActive(false);
         }
 
-        private void OnExitNewGamePlusBaseSelection(SaveSlotUI obj) {
+        private void OnExitNewGamePlusBaseSelection(ModSaveSlotUI obj) {
             EventSystem.current.SetSelectedGameObject(newGameSelectedSlot.button.gameObject);
             for (int i = 0; i < slotsUI.Count; i++) {
                 slotsUI[i].gameObject.SetActive(true);
@@ -351,7 +380,7 @@ namespace Mod.Courier.UI {
             animator.enabled = true;
         }
 
-        private void ConfirmSaveDelete(SaveSlotUI slot) {
+        private void ConfirmSaveDelete(ModSaveSlotUI slot) {
             confirmPopup.gameObject.SetActive(true);
             string text = Manager<LocalizationManager>.Instance.GetText(deleteSaveConfirmationLocId).Replace("\\n", "\n");
             confirmPopup.Init(text);
@@ -368,13 +397,13 @@ namespace Mod.Courier.UI {
             if (delete) {
                 focusedSlot.Delete();
                 for (int i = 0; i < slotsUI.Count; i++) {
-                    slotsUI[i].SetSaveData(Manager<SaveManager>.Instance.GetSaveSlot(i), i);
+                    slotsUI[i].SetSaveData(ModSaveGame.Instance.modSaveSlots[i], i);
                 }
             }
             StartCoroutine(ReturnFocusedSlotToOriginalPosition(SelectSlot));
         }
 
-        private void SelectSlot(SaveSlotUI slot) {
+        private void SelectSlot(ModSaveSlotUI slot) {
             state = EScreenState.SELECT_SLOT;
             for (int num = slotsUI.Count - 1; num >= 0; num--) {
                 slotsUI[num].gameObject.SetActive(true);
@@ -386,7 +415,7 @@ namespace Mod.Courier.UI {
             slot.gameObject.GetComponent<UIObjectAudioHandler>().playAudio = true;
         }
 
-        private IEnumerator ReturnFocusedSlotToOriginalPosition(Action<SaveSlotUI> callback) {
+        private IEnumerator ReturnFocusedSlotToOriginalPosition(Action<ModSaveSlotUI> callback) {
             float progress = 0f;
             Vector3 startPosition = focusedSlot.transform.position;
             Vector3 targetPosition = focusedSlotOriginalPos;
@@ -399,7 +428,7 @@ namespace Mod.Courier.UI {
             state = EScreenState.SELECT_SLOT;
         }
 
-        private IEnumerator TweenSlotToFocusPositionCoroutine(SaveSlotUI slot, Action<SaveSlotUI> callback) {
+        private IEnumerator TweenSlotToFocusPositionCoroutine(ModSaveSlotUI slot, Action<ModSaveSlotUI> callback) {
             float progress = 0f;
             Vector3 startPosition = slot.transform.position;
             Vector3 targetPosition = activeFocusPosition.position;
@@ -411,7 +440,7 @@ namespace Mod.Courier.UI {
             callback?.Invoke(slot);
         }
 
-        private void OnSlotSelected(SaveSlotUI slot) {
+        private void OnSlotSelected(ModSaveSlotUI slot) {
             if (selectingNewGamePlusBase) {
                 OnNewGamePlusBaseSelected(slot);
             } else if (!loadingSaveFile) {
@@ -422,7 +451,7 @@ namespace Mod.Courier.UI {
             }
         }
 
-        private IEnumerator BlinkSaveSlotCoroutine(SaveSlotUI slot) {
+        private IEnumerator BlinkSaveSlotCoroutine(ModSaveSlotUI slot) {
             int blinkCount = 15;
             while (blinkCount != 0) {
                 slot.gameObject.SetActive(!slot.gameObject.activeSelf);
@@ -437,10 +466,10 @@ namespace Mod.Courier.UI {
             }
         }
 
-        public void OnNewGame(SaveSlotUI slot) {
+        public void OnNewGame(ModSaveSlotUI slot) {
             loadGameSelectedSlot = null;
             newGameSelectedSlot = slot;
-            if (NewGamePlusAvailable()) {
+            if (slot.saveGameSlot.CanBeUsedAsNewGamePlusBase()) {
                 state = EScreenState.SELECTING_NEW_GAME_TYPE;
                 EventSystem.current.SetSelectedGameObject(null);
                 for (int i = 0; i < slotsUI.Count; i++) {
@@ -496,7 +525,7 @@ namespace Mod.Courier.UI {
             OnNewGamePlusBaseSelected(slotsUI[num2]);
         }
 
-        private void OnNewGamePlusBaseSelectionFocusDone(SaveSlotUI focusedSlot) {
+        private void OnNewGamePlusBaseSelectionFocusDone(ModSaveSlotUI focusedSlot) {
             bool flag = false;
             focusedSlot.button.interactable = false;
             state = EScreenState.SELECTING_NEW_GAME_PLUS_BASE;
@@ -537,7 +566,7 @@ namespace Mod.Courier.UI {
             selectingNewGamePlusBase = true;
         }
 
-        private void OnNewGamePlusBaseSelected(SaveSlotUI newGamePlusBase) {
+        private void OnNewGamePlusBaseSelected(ModSaveSlotUI newGamePlusBase) {
             selectingNewGamePlusBase = false;
             Vector3 position = newGameSelectedSlot.transform.position;
             ResetSlotsToDefaultPosition();
@@ -555,10 +584,12 @@ namespace Mod.Courier.UI {
         }
 
         private void GoToItemSelection(bool isNewGame) {
-            if (Manager<SaveManager>.Instance.GetSaveSlot((!isNewGame) ? loadGameSelectedSlot.slotIndex : newGameSelectedSlot.slotIndex).GetNewGameplusItemListAvailable().Count <= 0) {
+            if (ModSaveGame.Instance.modSaveSlots[(!isNewGame) ? loadGameSelectedSlot.slotIndex : newGameSelectedSlot.slotIndex].GetNewGameplusItemListAvailable().Count <= 0) {
                 SetupGameForNewCycle();
                 loadGameSelectedSlot.saveGameSlot.MustSelectItem = false;
-                Manager<SaveManager>.Instance.SelectSaveGameSlot(loadGameSelectedSlot.slotIndex);
+                // Indicate mods by selecting slot 3, which doesn't exist
+                Manager<SaveManager>.Instance.SelectSaveGameSlot(3);
+                ModSaveGame.Instance.currentModSaveSlotIndex = loadGameSelectedSlot.slotIndex;
                 LoadNewGame(loadGameSelectedSlot.slotIndex);
                 return;
             }
@@ -590,12 +621,14 @@ namespace Mod.Courier.UI {
             } else {
                 bool mustSelectItem = loadGameSelectedSlot.saveGameSlot.MustSelectItem;
                 loadGameSelectedSlot.saveGameSlot.MustSelectItem = false;
-                Manager<SaveManager>.Instance.SelectSaveGameSlot(loadGameSelectedSlot.slotIndex);
+                // Indicate mods by selecting slot 3, which doesn't exist
+                Manager<SaveManager>.Instance.SelectSaveGameSlot(3);
+                ModSaveGame.Instance.currentModSaveSlotIndex = loadGameSelectedSlot.slotIndex;
                 if (!mustSelectItem) {
                     SetupGameForNewCycle();
                 } else {
-                    Manager<SaveManager>.Instance.GetCurrentSaveGameSlot().ResetNewGamePlus(keepLockedItems: true);
-                    Manager<SaveManager>.Instance.GetCurrentSaveGameSlot().MustSelectItem = false;
+                    ModSaveGame.Instance.modSaveSlots[ModSaveGame.Instance.currentModSaveSlotIndex].ResetNewGamePlus(true);
+                    ModSaveGame.Instance.modSaveSlots[ModSaveGame.Instance.currentModSaveSlotIndex].MustSelectItem = false;
                 }
                 LoadNewGame(loadGameSelectedSlot.slotIndex);
             }
@@ -615,23 +648,19 @@ namespace Mod.Courier.UI {
             }
         }
 
-        public bool NewGamePlusAvailable() {
-            return Manager<SaveManager>.Instance.NewGamePlusAvailable();
-        }
-
         private int NewGamePlusBaseCount(int slotIndexToIgnore = -1) {
             int num = 0;
             for (int i = 0; i < 3; i++) {
-                if (i != slotIndexToIgnore && Manager<SaveManager>.Instance.GetSaveSlot(i).CanBeUsedAsNewGamePlusBase()) {
+                if (i != slotIndexToIgnore && ModSaveGame.Instance.modSaveSlots[i].CanBeUsedAsNewGamePlusBase()) {
                     num++;
                 }
             }
             return num;
         }
 
-        private void OnNewGameInFocus(SaveSlotUI slot) {
+        private void OnNewGameInFocus(ModSaveSlotUI slot) {
             slot.button.enabled = false;
-            nameSavePopup.Init(slot);
+            nameSavePopup.Init(new SaveSlotUI { slotIndex = slot.slotIndex, saveGameName = slot.saveGameName });
             nameSavePopup.onNameConfirmed += OnNameConfirmed;
             nameSavePopup.onBack += OnCloseNameSave;
             nameSavePopup.gameObject.SetActive(value: true);
@@ -641,44 +670,53 @@ namespace Mod.Courier.UI {
             nameSavePopup.initialSelection.GetComponent<UIObjectAudioHandler>().playAudio = true;
         }
 
+        // This method gets passed a dummy save slot so I don't have to rewrite NameSavePopup
         private void OnCloseNameSave(SaveSlotUI saveSlot) {
-            nameSavePopup.gameObject.SetActive(value: false);
-            saveSlot.button.enabled = true;
+            nameSavePopup.gameObject.SetActive(false);
+            ModSaveSlotUI realSlot = slotsUI[saveSlot.slotIndex];
+            realSlot.button.enabled = true;
             loadingSaveFile = false;
             saveGameSelected = false;
             nameSavePopup.onNameConfirmed -= OnNameConfirmed;
             nameSavePopup.onBack -= OnCloseNameSave;
-            if (saveSlot.saveGameSlot.NewGamePlus) {
-                saveSlot.saveGameSlot.Clear(resetNewGamePlushighScore: true);
-                saveSlot.SetSaveData(saveSlot.saveGameSlot, saveSlot.slotIndex);
+            if (realSlot.saveGameSlot.NewGamePlus) {
+                realSlot.saveGameSlot.Clear(true);
+                realSlot.SetSaveData(realSlot.saveGameSlot, realSlot.slotIndex);
             }
-            confirmInstructions.SetActive(value: false);
-            confirmPopup.gameObject.SetActive(value: false);
+            confirmInstructions.SetActive(false);
+            confirmPopup.gameObject.SetActive(false);
             EventSystem.current.SetSelectedGameObject(null);
             StartCoroutine(ReturnFocusedSlotToOriginalPosition(SelectSlot));
         }
 
+        // This method gets passed a dummy save slot so I don't have to rewrite NameSavePopup
         private void OnNameConfirmed(SaveSlotUI saveSlot, string slotName) {
+            ModSaveSlotUI realSlot = slotsUI[saveSlot.slotIndex];
             nameSavePopup.onNameConfirmed -= OnNameConfirmed;
             nameSavePopup.onBack -= OnCloseNameSave;
-            TimeTrackerScreen.SpeedRunEnabled = (Manager<InputManager>.Instance.GetRightTrigger() && (saveSlot.saveGameSlot.IsEmpty() || saveSlot.saveGameSlot.NewGamePlus));
-            Manager<SaveManager>.Instance.SelectSaveGameSlot(saveSlot.slotIndex);
-            if (!saveSlot.saveGameSlot.NewGamePlus) {
-                Manager<SaveManager>.Instance.NewGame();
+            TimeTrackerScreen.SpeedRunEnabled = (Manager<InputManager>.Instance.GetRightTrigger() && (realSlot.saveGameSlot.IsEmpty() || realSlot.saveGameSlot.NewGamePlus));
+            // Indicate mods by selecting slot 3, which doesn't exist
+            Manager<SaveManager>.Instance.SelectSaveGameSlot(3);
+            ModSaveGame.Instance.currentModSaveSlotIndex = realSlot.slotIndex;
+            if (!realSlot.saveGameSlot.NewGamePlus) {
+                if (realSlot.saveGameSlot == null) {
+                    realSlot.saveGameSlot = new SaveGameSlot();
+                }
+                realSlot.saveGameSlot.Create(true);
             }
-            Manager<SaveManager>.Instance.GetCurrentSaveGameSlot().SlotName = slotName;
-            LoadNewGame(saveSlot.slotIndex);
+            ModSaveGame.Instance.modSaveSlots[ModSaveGame.Instance.currentModSaveSlotIndex].SlotName = slotName;
+            LoadNewGame(realSlot.slotIndex);
         }
 
         public void LoadNewGame(int slotIndex) {
             Manager<LevelManager>.Instance.onTransitionInDone += OnTransitionInDone;
-            Manager<SaveManager>.Instance.LoadSaveSlot(Manager<SaveManager>.Instance.GetSaveSlot(slotIndex));
+
+            Manager<SaveManager>.Instance.LoadModSaveSlot(ModSaveGame.Instance.modSaveSlots[slotIndex]);
+
             ArmoireInteractionTrigger.currentDialogIndex = 0;
 
-            // TODO Load correct level
-            string str = ELevel.Level_01_NinjaVillage.ToString();
-            str += "_Build";
-            LaunchNewGame(str);
+            CourierLevelSet levelSet = Courier.FindLevelSetWithID(slotIndex);
+            LaunchNewGame(levelSet.StartingScene + "_Build");
         }
 
         public void OnLoadGame(int slotIndex) {
@@ -694,26 +732,28 @@ namespace Mod.Courier.UI {
                 newCyclePopup.GetComponent<RectTransform>().SetParent(slotsUI[slotIndex].newGamePlusPopupAnchor, worldPositionStays: true);
                 newCyclePopup.GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
                 EventSystem.current.SetSelectedGameObject(continueButton);
-            } else if (Manager<SaveManager>.Instance.GetSaveSlot(slotIndex).MustSelectItem) {
-                GoToItemSelection(isNewGame: false);
+            } else if (ModSaveGame.Instance.modSaveSlots[slotIndex].MustSelectItem) {
+                GoToItemSelection(false);
             } else {
                 LoadGame(slotIndex);
             }
         }
 
         public void OnContinue() {
-            newCyclePopup.SetActive(value: false);
+            newCyclePopup.SetActive(false);
             LoadGame(loadGameSelectedSlot.slotIndex);
         }
 
         public void OnNewCycle() {
-            newCyclePopup.SetActive(value: false);
-            GoToItemSelection(isNewGame: false);
+            newCyclePopup.SetActive(false);
+            GoToItemSelection(false);
         }
 
         private void LoadGame(int slotIndex) {
-            Manager<SaveManager>.Instance.SelectSaveGameSlot(slotIndex);
-            Manager<SaveManager>.Instance.LoadSaveSlot(Manager<SaveManager>.Instance.GetCurrentSaveGameSlot());
+            // Indicate mods by selecting slot 3, which doesn't exist
+            Manager<SaveManager>.Instance.SelectSaveGameSlot(3);
+            ModSaveGame.Instance.currentModSaveSlotIndex = slotIndex;
+            Manager<SaveManager>.Instance.LoadModSaveSlot(ModSaveGame.Instance.modSaveSlots[slotIndex]);
             Manager<LevelManager>.Instance.onTransitionInDone += OnTransitionInDone;
             string text = Manager<ProgressionManager>.Instance.checkpointSaveInfo.loadedLevelName;
             if (text != ELevel.Level_15_Surf.ToString()) {
@@ -724,39 +764,91 @@ namespace Mod.Courier.UI {
 
         private void LaunchNewGame(string levelToLoad) {
             Manager<SaveManager>.Instance.ForceEnableSave();
-            LevelLoadingInfo levelLoadingInfo = new LevelLoadingInfo(levelToLoad, showTransition: true, closeTransitionOnLevelLoaded: true, EBits.BITS_8);
-            levelLoadingInfo.showLevelIntro = false;
+            LevelLoadingInfo levelLoadingInfo = new LevelLoadingInfo(levelToLoad, true, true, EBits.BITS_8) {
+                showLevelIntro = false,
+                levelEntranceId = ELevelEntranceID.ENTRANCE_A
+            }; // TODO Choose starting bits and inventory
             Manager<ProgressionManager>.Instance.lastSaveTime = Time.time;
             Manager<InputManager>.Instance.CancelJumpTimeDown();
             levelLoadingInfo.bootInTotHQ = false;
-            Manager<LevelManager>.Instance.LoadLevel(levelLoadingInfo);
+            Manager<LevelManager>.Instance.LoadLevel(levelLoadingInfo); // TODO fix level enum not getting set. Maybe change to sclout level
         }
 
         private void LaunchGame(string levelToLoad, CheckpointSaveInfo checkpointSaveInfo) {
             Manager<SaveManager>.Instance.ForceEnableSave();
-            LevelLoadingInfo levelLoadingInfo = new LevelLoadingInfo(levelToLoad, showTransition: true, closeTransitionOnLevelLoaded: true, checkpointSaveInfo.loadedLevelDimension);
+            LevelLoadingInfo levelLoadingInfo = new LevelLoadingInfo(levelToLoad, true, true, checkpointSaveInfo.loadedLevelDimension);
             levelLoadingInfo.showLevelIntro = false;
             Manager<ProgressionManager>.Instance.lastSaveTime = Time.time;
             Manager<InputManager>.Instance.CancelJumpTimeDown();
             levelLoadingInfo.bootInTotHQ = (Manager<LevelManager>.Instance.GetEditorSceneName(checkpointSaveInfo.playerLocationSceneName) == ELevel.Level_13_TowerOfTimeHQ.ToString());
-            levelLoadingInfo.levelInitializerParams = new LevelInitializerParams();
-            levelLoadingInfo.levelInitializerParams.playMusic = !levelLoadingInfo.bootInTotHQ;
-            levelLoadingInfo.levelInitializerParams.saveOnInitialize = false;
+            levelLoadingInfo.levelInitializerParams = new LevelInitializerParams {
+                playMusic = !levelLoadingInfo.bootInTotHQ,
+                saveOnInitialize = false
+            };
             Manager<LevelManager>.Instance.LoadLevel(levelLoadingInfo);
         }
 
         private void OnTransitionInDone() {
             Manager<LevelManager>.Instance.onTransitionInDone -= OnTransitionInDone;
             Manager<LevelManager>.Instance.AddPreLevelLoadingTask(Manager<LevelManager>.Instance.StartCoroutine(UnloadScreenBeforeLevelLoading()));
+            Manager<LevelManager>.Instance.onLevelLoaded += OnLevelLoaded;
         }
 
         private IEnumerator UnloadScreenBeforeLevelLoading() {
-            Manager<UIManager>.Instance.CloseAllScreensOfType<TitleScreen>(transitionOut: false);
-            Manager<UIManager>.Instance.CloseScreen(this, transitionOut: false);
-            Manager<UIManager>.Instance.CloseAllScreensOfType<OptionScreen>(transitionOut: false);
+            Manager<UIManager>.Instance.CloseAllScreensOfType<TitleScreen>(false);
+            Manager<UIManager>.Instance.CloseScreen(this, false);
+            Manager<UIManager>.Instance.CloseAllScreensOfType<OptionScreen>(false);
             yield return null;
             yield return null;
             yield return null;
+        }
+
+        private void OnLevelLoaded(string level) {
+            Manager<LevelManager>.Instance.onLevelLoaded -= OnLevelLoaded;
+            FixShaders();
+        }
+
+
+        private void FixShaders() {
+            Manager<DimensionManager>.Instance.mask8.shader = Shader.Find("DimensionZone/Masks/8_Bit_SinWave");
+            Manager<DimensionManager>.Instance.mask16.shader = Shader.Find("DimensionZone/Masks/16_Bit_SinWave");
+            Manager<DimensionManager>.Instance.spriteMask8.shader = Shader.Find("DimensionZone/Masks/8_Bit_Sprite");
+            Manager<DimensionManager>.Instance.spriteMask16.shader = Shader.Find("DimensionZone/Masks/16_Bit_Sprite");
+            Manager<DimensionManager>.Instance.outlineMask8.shader = Shader.Find("DimensionZone/Masks/8_Bit_LucioleOutlineMask");
+            Manager<DimensionManager>.Instance.outlineMask16.shader = Shader.Find("DimensionZone/Masks/16_Bit_LucioleOutlineMask");
+            Manager<DimensionManager>.Instance.mask8Expanding.shader = Shader.Find("DimensionZone/Masks/8_Bit_Expanding");
+            Manager<DimensionManager>.Instance.mask16Expanding.shader = Shader.Find("DimensionZone/Masks/16_Bit_Expanding");
+
+            SpriteRenderer spriteRenderer = GameObject.Find("Quarble8")?.GetComponent<SpriteRenderer>();
+            if (spriteRenderer != null) {
+                spriteRenderer.material.shader = Shader.Find("Sprites/8_Bits");
+                spriteRenderer = spriteRenderer.transform.parent.Find("Quarble16").GetComponent<SpriteRenderer>();
+                spriteRenderer.material.shader = Shader.Find("Sprites/16_Bits");
+                spriteRenderer = spriteRenderer.transform.parent.Find("Wings_16").GetComponent<SpriteRenderer>();
+                spriteRenderer.material.shader = Shader.Find("Sprites/16_Bits");
+
+                Quarble quarble = spriteRenderer.transform.parent.GetComponent<Quarble>();
+                DynData<Quarble> quarbleData = new DynData<Quarble>(quarble);
+                //quarbleData.Set("gtfo", true);
+
+                //quarble.GetComponent<MultiAnimator>().
+                //quarble.GetComponent<MultiAnimator>().Play("Empty", 0, 0);
+                //quarble.GetComponent<MultiAnimator>().ForceUpdate(100);
+                //quarble.isScared = false;
+                //quarble.Visible = true;
+                //quarble.Visible = false;
+                quarble.GetComponent<MultiAnimator>().Play("Idle", 0, 0);
+                //quarble.GetComponent<MultiAnimator>().SetTrigger("TeleportOut");
+                //spriteRenderer.transform.parent.GetComponent<Quarble>().FearGTFO(1, 1);
+            }
+        }
+    }
+
+    internal static class ModSaveSelectionScreenRelatedExtensions {
+        internal static void LoadModSaveSlot(this SaveManager manager, SaveGameSlot slot) {
+            slot.Load();
+            Manager<SaveManager>.Instance.hasLoadedAtLeastOneSaveSlot = true;
+            Manager<SaveManager>.Instance.Raise("onSaveSlotLoaded", EventArgs.Empty);
         }
     }
 }

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text.RegularExpressions;
 using Ionic.Zip;
 using Mod.Courier.GFX;
 using Mod.Courier.Helpers;
@@ -382,6 +381,16 @@ namespace Mod.Courier {
                     }
                 }
             }
+            return null;
+        }
+
+        public static CourierLevelSet FindLevelSetWithID(int id) {
+            foreach(CourierModuleMetadata modMeta in Mods) {
+                foreach(CourierLevelSet levelSet in modMeta.LevelSets) {
+                    if (levelSet.SlotID == id) return levelSet;
+                }
+            }
+
             return null;
         }
 

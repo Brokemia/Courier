@@ -8,12 +8,12 @@ public class patch_SaveGame : SaveGame {
     public extern void orig_LoadOptions();
     public new void LoadOptions() {
         orig_LoadOptions();
-        ModdedOptionsSave.Instance.LoadOptions();
+        ModSaveGame.Instance.LoadOptions();
     }
 
     public extern void orig_UpdateOptionsData();
     public new void UpdateOptionsData() {
         orig_UpdateOptionsData();
-        ModdedOptionsSave.Instance.UpdateOptionsData();
+        ModSaveGame.Instance.UpdateOptionsData();
     }
 }

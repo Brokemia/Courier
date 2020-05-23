@@ -1,15 +1,26 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Mod.Courier.Save {
     [Serializable]
-    public class ModdedOptionsSave {
-        public static ModdedOptionsSave Instance { set; get; }
+    public class ModSaveGame {
+        public static ModSaveGame Instance { set; get; }
+
+        public List<SaveGameSlot> modSaveSlots = new List<SaveGameSlot>();
 
         public OptionPair[] Options;
 
-        static ModdedOptionsSave() {
-            Instance = new ModdedOptionsSave();
+        [NonSerialized]
+        public int currentModSaveSlotIndex = -1;
+
+        static ModSaveGame() {
+            Instance = new ModSaveGame();
+        }
+
+        public SaveGameSlot GetCurrentModSaveSlot() {
+            return modSaveSlots[currentModSaveSlotIndex];
         }
 
         public string GetJson() {

@@ -18,7 +18,6 @@ public class patch_LocalizationManager : LocalizationManager {
 
         foreach (CourierModuleMetadata modMeta in Courier.Mods) {
             if (modMeta.DirectoryMod) {
-                Console.WriteLine(modMeta.Name + " " + modMeta.DirectoryPath + " " + (modMeta.DirectoryPath == null));
                 string[] modFiles = Directory.GetFiles(modMeta.DirectoryPath);
                 // Check files in subfolders
                 foreach (string path in modFiles) {

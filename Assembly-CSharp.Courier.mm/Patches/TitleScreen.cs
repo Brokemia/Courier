@@ -20,7 +20,7 @@ public class patch_TitleScreen : TitleScreen {
     private extern IEnumerator orig_TrackStart();
     private IEnumerator TrackStart() {
         yield return orig_TrackStart();
-        /*if (modsModeButton == null) {
+        if (modsModeButton == null) {
             modsModeButton = Instantiate(normalModeButton, playModeSelectionObject.transform);
             modsModeVisualContainer = modsModeButton.transform.Find("VisualContainer").gameObject;
             // Set it as the third button, after the demo and play buttons
@@ -34,7 +34,7 @@ public class patch_TitleScreen : TitleScreen {
 
             // Shift the whole set of buttons up a little so the Quit To Desktop doesn't overlap the copyright stuff
             playModeSelectionObject.transform.Translate(new Vector3(0, .5f));
-        }*/
+        }
     }
 
     public void BootModsMode() {
@@ -63,7 +63,6 @@ public class patch_TitleScreen : TitleScreen {
         modSaveScreen.GoOffscreenInstant();
 
         modSaveScreen.GetInScreen();
-        //saveScreen.GetInScreen();
         MoveOffscreen();
     }
 
@@ -95,12 +94,12 @@ public class patch_TitleScreen : TitleScreen {
     public extern void orig_GetInScreen(GameObject buttonToSelect);
     public new void GetInScreen(GameObject buttonToSelect) {
         orig_GetInScreen(buttonToSelect);
-        //modsModeButton.SetActive(true);
-        //modsModeVisualContainer.SetActive(true);
+        modsModeButton.SetActive(true);
+        modsModeVisualContainer.SetActive(true);
     }
     public extern void orig_MoveOffscreenDone();
     public new void MoveOffscreenDone() {
         orig_MoveOffscreenDone();
-        //modsModeButton.SetActive(false);
+        modsModeButton.SetActive(false);
     }
 }
