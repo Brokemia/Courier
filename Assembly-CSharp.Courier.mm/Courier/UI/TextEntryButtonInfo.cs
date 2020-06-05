@@ -57,7 +57,8 @@ namespace Mod.Courier.UI {
         public static TextEntryPopup InitTextEntryPopup(View parentView, string heading, Func<string, bool> onEntry, int maxCharacter, Func<string> GetHeadingText, CharsetFlags charsetFlags) {
             TextEntryPopup textEntryPopup = UnityEngine.Object.Instantiate(GameObjectTemplates.textEntryPopup);
 
-            textEntryPopup.maxCharacter = maxCharacter;
+            textEntryPopup.MaxCharacters = maxCharacter;
+            textEntryPopup.charsetFlags = charsetFlags;
             textEntryPopup.transform.Find("BigFrame").Find("WhatIsYourName").GetComponent<TextMeshProUGUI>().SetText(GetHeadingText?.Invoke() ?? heading);
             textEntryPopup.entryTextfield = textEntryPopup.transform.Find("BigFrame").Find("WhatIsYourName").Find("ActualName").GetComponent<TextMeshProUGUI>();
             textEntryPopup.entryTextfield.name = "EntryTextfield";
@@ -166,15 +167,25 @@ namespace Mod.Courier.UI {
             }
         }
 
+        public static bool IsCharInCharset(char c, CharsetFlags charset) {
+            return ((charset & CharsetFlags.Letter) == CharsetFlags.Letter && char.IsLetter(c)) ||
+                ((charset & CharsetFlags.Number) == CharsetFlags.Number && char.IsDigit(c)) ||
+                ((charset & CharsetFlags.Space) == CharsetFlags.Space && c == ' ') ||
+                ((charset & CharsetFlags.Dash) == CharsetFlags.Dash && c == '-') ||
+                ((charset & CharsetFlags.Dot) == CharsetFlags.Dot && c == '.');
+        }
+
         protected void onButtonClicked() {
             textEntryPopup.Init(GetInitialText?.Invoke() ?? string.Empty);
             textEntryPopup.gameObject.SetActive(true);
             addedTo.gameObject.SetActive(false);
             textEntryPopup.transform.SetParent(addedTo.transform.parent);
             Canvas.ForceUpdateCanvases();
-            textEntryPopup.initialSelection.GetComponent<UIObjectAudioHandler>().playAudio = false;
-            EventSystem.current.SetSelectedGameObject(textEntryPopup.initialSelection);
-            textEntryPopup.initialSelection.GetComponent<UIObjectAudioHandler>().playAudio = true;
+            if (!textEntryPopup.UseKeyboardInput) {
+                textEntryPopup.initialSelection.GetComponent<UIObjectAudioHandler>().playAudio = false;
+                EventSystem.current.SetSelectedGameObject(textEntryPopup.initialSelection);
+                textEntryPopup.initialSelection.GetComponent<UIObjectAudioHandler>().playAudio = true;
+            }
         }
 
         protected void OnCloseTextEntry() {
