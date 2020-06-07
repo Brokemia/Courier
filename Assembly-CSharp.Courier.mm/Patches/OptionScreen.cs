@@ -32,45 +32,12 @@ public class patch_OptionScreen : OptionScreen {
     }
 
     public void OnGUI() {
-        //Needs to be moved when the flickering bug is fixed
+        // Needs to be changed when I get TextLocalizer to cooperate and stuff
         for (int i = 0; i < Courier.UI.OptionButtons.Count; i++) {
             OptionsButtonInfo buttonInfo = Courier.UI.OptionButtons[i];
             buttonInfo.nameTextMesh.text = buttonInfo.GetText?.Invoke() ?? "";
-
-            try {
-                if (buttonInfo.gameObject.activeInHierarchy) {
-                    // TODO Find an earlier place to set this. Currently, it flickers briefly before putting itself in the right spot
-                    buttonInfo.gameObject.transform.position = controlsButton.transform.position - new Vector3(9.7f, .9f * (Courier.UI.EnabledCustomOptionButtonsBeforeButton(buttonInfo) + 1));
-                    backgroundFrame.Find("OptionsFrame").Find("OptionMenuButtons").Find("Back").position = buttonInfo.gameObject.transform.position + new Vector3(0, -.9f);
-                }
-            } catch(Exception e) {
-                e.LogDetailed("OptionScreen");
-            }
         }
     }
-
-    //private extern void orig_InitOptions();
-    //private void InitOptions() {
-    //    for (int i = 0; i < Courier.UI.OptionButtons.Count; i++) {
-    //        OptionsButtonInfo buttonInfo = Courier.UI.OptionButtons[i];
-    //        buttonInfo.gameObject.transform.position = controlsButton.transform.position - new Vector3(20.2f, .9f * (i + 1));
-    //        foreach (GameObject obj in FindObjectsOfType<GameObject>()) {
-    //            if (obj.activeInHierarchy && obj.name.Equals("Back")) {
-    //                obj.transform.position = buttonInfo.gameObject.transform.position + new Vector3(10.4f, -.9f);
-    //            }
-    //        }
-    //    }
-    //    orig_InitOptions();Console.WriteLine("\n\n\n\n\n\n\n\n\n\n\n\nAwake");
-    //    for (int i = 0; i < Courier.UI.OptionButtons.Count; i++) {
-    //        OptionsButtonInfo buttonInfo = Courier.UI.OptionButtons[i];
-    //        buttonInfo.gameObject.transform.position = controlsButton.transform.position - new Vector3(20.2f, .9f * (i + 1));
-    //        foreach (GameObject obj in FindObjectsOfType<GameObject>()) {
-    //            if (obj.activeInHierarchy && obj.name.Equals("Back")) {
-    //                obj.transform.position = buttonInfo.gameObject.transform.position + new Vector3(10.4f, -.9f);
-    //            }
-    //        }
-    //    }
-    //}
 
     private extern void orig_HideUnavailableOptions();
     private void HideUnavailableOptions() {

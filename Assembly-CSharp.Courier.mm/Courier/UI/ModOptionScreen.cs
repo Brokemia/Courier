@@ -45,8 +45,8 @@ namespace Mod.Courier.UI {
             ModOptionScreen modOptionScreen = gameObject.AddComponent<ModOptionScreen>();
             OptionScreen newScreen = Instantiate(optionScreen);
             modOptionScreen.name = "ModOptionScreen";
+            // Swap everything under the option screen to the mod option screen
             // Iterate backwards so elements don't shift as lower ones are removed
-            // If you know, you know
             for (int i = newScreen.transform.childCount - 1; i >= 0; i--) {
                 newScreen.transform.GetChild(i).SetParent(modOptionScreen.transform, false);
             }
@@ -57,7 +57,8 @@ namespace Mod.Courier.UI {
                 if (!child.Equals(modOptionScreen.backButton))
                     Destroy(child.gameObject);
             }
-            modOptionScreen.optionMenuButtons.DetachChildren();
+            //TODO put back if things brake
+            //modOptionScreen.optionMenuButtons.DetachChildren();
             modOptionScreen.backButton.SetParent(modOptionScreen.optionMenuButtons);
 
             // Make back button take you to the OptionScreen instead of the pause menu
@@ -67,7 +68,7 @@ namespace Mod.Courier.UI {
 
             modOptionScreen.InitStuffUnityWouldDo();
 
-            modOptionScreen.gameObject.SetActive(value: false);
+            modOptionScreen.gameObject.SetActive(false);
             Courier.UI.ModOptionScreenLoaded = true;
             return modOptionScreen;
         }
@@ -76,7 +77,6 @@ namespace Mod.Courier.UI {
 
         }
 
-        // You heard me
         private void InitStuffUnityWouldDo() {
             //transform.position = new Vector3(0, Math.Max(-90 - heightPerButton * Courier.UI.ModOptionButtons.Count, startYMax));
             backgroundFrame = (RectTransform)transform.Find("Container").Find("BackgroundFrame");
@@ -196,16 +196,8 @@ namespace Mod.Courier.UI {
             Vector3 windowOffset = new Vector3(0, Math.Min(GetSelectedButtonIndex(), Math.Max(0, Courier.UI.EnabledModOptionsCount() - 10)) * .9f) - new Vector3(0, Math.Max(0, Courier.UI.EnabledModOptionsCount() - 11) * .45f);
             transform.position = defaultPos + windowOffset;
 
-            // Line up all of the buttons
-            backButton.position = topButtonPos + new Vector3(0, .45f * (Courier.UI.EnabledModOptionsCount() - 1)) + windowOffset;
             foreach (OptionsButtonInfo buttonInfo in Courier.UI.ModOptionButtons) {
                 buttonInfo.nameTextMesh.text = buttonInfo.GetText?.Invoke() ?? "";
-                if (buttonInfo.gameObject.activeInHierarchy) {
-                    // Buttons are added in the same spot as the back button
-                    // Then the back button is shifted down to hold the place of the next button
-                    buttonInfo.gameObject.transform.position = backButton.transform.position;
-                    backButton.position = buttonInfo.gameObject.transform.position - new Vector3(0, .9f);
-                }
             }
 
             // Make the selection frames blue
@@ -257,8 +249,6 @@ namespace Mod.Courier.UI {
         }
 
         public void BackToOptionMenu() {
-            // TODO Mod options in save file
-            //Manager<SaveManager>.Instance.SaveOptions(); 
             Close(false);
             Manager<UIManager>.Instance.GetView<OptionScreen>().gameObject.SetActive(true);
             Courier.UI.ModOptionButton.gameObject.transform.Find("Button").GetComponent<UIObjectAudioHandler>().playAudio = false;

@@ -5,10 +5,14 @@ using UnityEngine;
 using UnityEngine.Events;
 
 namespace Mod.Courier.UI {
+    // TODO change anywhere with localizable text function to allow a string instead that's the loc ID
     public abstract class OptionsButtonInfo {
         public UnityAction onClick;
         public TextMeshProUGUI nameTextMesh;
         public TextMeshProUGUI stateTextMesh;
+        /// <summary>
+        /// A function that returns the text to display
+        /// </summary>
         public Func<string> GetText;
         public GameObject gameObject;
         public View addedTo;
@@ -17,6 +21,10 @@ namespace Mod.Courier.UI {
 
         protected OptionsButtonInfo(Func<string> GetText, UnityAction onClick) {
             this.GetText = GetText;
+            this.onClick = onClick;
+        }
+
+        protected OptionsButtonInfo(string textLocID, UnityAction onClick) {
             this.onClick = onClick;
         }
 

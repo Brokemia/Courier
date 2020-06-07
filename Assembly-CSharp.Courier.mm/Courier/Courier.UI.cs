@@ -70,20 +70,23 @@ namespace Mod.Courier {
                 if (view is OptionScreen)
                     optionScreen = (OptionScreen)view;
 
+                Transform buttonParent = view.transform.Find("Container").Find("BackgroundFrame").Find("OptionsFrame").Find("OptionMenuButtons");
+
                 foreach (OptionsButtonInfo buttonInfo in buttons) {
+                    // Use a similar existing button as a base
                     if (buttonInfo is ToggleButtonInfo) {
-                        buttonInfo.gameObject = UnityEngine.Object.Instantiate(optionScreen.fullscreenOption, view.transform.Find("Container").Find("BackgroundFrame"));
+                        buttonInfo.gameObject = UnityEngine.Object.Instantiate(optionScreen.fullscreenOption, buttonParent);
                     } else if (buttonInfo is SubMenuButtonInfo) {
-                        buttonInfo.gameObject = UnityEngine.Object.Instantiate(optionScreen.controlsButton.transform.parent.gameObject, view.transform.Find("Container").Find("BackgroundFrame"));
+                        buttonInfo.gameObject = UnityEngine.Object.Instantiate(optionScreen.controlsButton.transform.parent.gameObject, buttonParent);
                     } else if (buttonInfo is MultipleOptionButtonInfo) {
-                        buttonInfo.gameObject = UnityEngine.Object.Instantiate(optionScreen.languageOption, view.transform.Find("Container").Find("BackgroundFrame"));
+                        buttonInfo.gameObject = UnityEngine.Object.Instantiate(optionScreen.languageOption, buttonParent);
                     } else {
                         // TODO Mods add their own ButtonInfo
                         CourierLogger.Log(LogType.Warning, "OptionsMenu", buttonInfo.GetType() + " not a known type of OptionsButtonInfo!");
                     }
-                    buttonInfo.gameObject.transform.SetParent(view.transform.Find("Container").Find("BackgroundFrame").Find("OptionsFrame").Find("OptionMenuButtons"));
-                    buttonInfo.gameObject.name = buttonInfo.GetText?.Invoke() ?? "";
-                    buttonInfo.gameObject.transform.name = buttonInfo.GetText?.Invoke() ?? "";
+                    // Add buttons to the end
+                    buttonInfo.gameObject.transform.SetAsLastSibling();
+                    buttonInfo.gameObject.name = buttonInfo.GetText?.Invoke() ?? "Nameless Modded Options Button";
                     buttonInfo.addedTo = view;
                     foreach (TextMeshProUGUI text in buttonInfo.gameObject.GetComponentsInChildren<TextMeshProUGUI>()) {
                         if (text.name.Equals("OptionState") || text.name.Equals("Text"))
@@ -91,12 +94,15 @@ namespace Mod.Courier {
                         if (text.name.Equals("OptionName"))
                             buttonInfo.nameTextMesh = text;
                     }
-                    Button button = buttonInfo.gameObject.GetComponentInChildren<Button>();
+                    Button button = buttonInfo.gameObject.transform.Find("Button").GetComponent<Button>();
                     button.onClick = new Button.ButtonClickedEvent();
                     button.onClick.AddListener(buttonInfo.onClick);
 
                     buttonInfo.OnInit(view);
                 }
+
+                // If there is a Back button, put it at the end
+                buttonParent.Find("Back")?.SetAsLastSibling();
             }
 
             public static void OnSelectModOptions() {
