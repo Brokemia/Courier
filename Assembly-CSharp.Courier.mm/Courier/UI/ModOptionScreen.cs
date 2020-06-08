@@ -197,10 +197,11 @@ namespace Mod.Courier.UI {
             transform.position = defaultPos + windowOffset;
 
             foreach (OptionsButtonInfo buttonInfo in Courier.UI.ModOptionButtons) {
-                buttonInfo.nameTextMesh.text = buttonInfo.GetText?.Invoke() ?? "";
+                buttonInfo.UpdateNameText();
             }
 
             // Make the selection frames blue
+            // I should figure out if I can avoid doing this in LateUpdate()
             foreach (Image image in transform.GetComponentsInChildren<Image>().Where((c) => c.name.Equals("SelectionFrame"))) {
                 try {
                     if (image.overrideSprite != null && image.overrideSprite.name.Equals("ShopItemSelectionFrame")) {

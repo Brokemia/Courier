@@ -179,6 +179,7 @@
     <Compile Include="Patches\LevelManager.cs" />
     <Compile Include="Courier\Helpers\CourierShaderAdder.cs" />
     <Compile Include="Courier\Helpers\CourierParticleSystemShaderAdder.cs" />
+    <Compile Include="Patches\LanguageSelector.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Patches\" />

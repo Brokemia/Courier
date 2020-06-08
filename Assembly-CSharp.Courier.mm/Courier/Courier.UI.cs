@@ -88,11 +88,18 @@ namespace Mod.Courier {
                     buttonInfo.gameObject.transform.SetAsLastSibling();
                     buttonInfo.gameObject.name = buttonInfo.GetText?.Invoke() ?? "Nameless Modded Options Button";
                     buttonInfo.addedTo = view;
+                    // I don't really like using a loop here, but I'm not sure if the alternative is all that much nicer
                     foreach (TextMeshProUGUI text in buttonInfo.gameObject.GetComponentsInChildren<TextMeshProUGUI>()) {
                         if (text.name.Equals("OptionState") || text.name.Equals("Text"))
                             buttonInfo.stateTextMesh = text;
-                        if (text.name.Equals("OptionName"))
+                        if (text.name.Equals("OptionName")) {
                             buttonInfo.nameTextMesh = text;
+
+                            // Stop the TextLocalizer from attempting to "fix" the text and make it vanilla
+                            TextLocalizer localizer = text.GetComponent<TextLocalizer>();
+                            if (localizer != null)
+                                localizer.locID = "";
+                        }
                     }
                     Button button = buttonInfo.gameObject.transform.Find("Button").GetComponent<Button>();
                     button.onClick = new Button.ButtonClickedEvent();

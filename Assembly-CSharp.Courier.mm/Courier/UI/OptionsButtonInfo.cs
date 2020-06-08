@@ -32,10 +32,16 @@ namespace Mod.Courier.UI {
 
         public abstract string GetStateText();
 
+        public virtual void UpdateNameText() {
+            nameTextMesh.text = GetText?.Invoke() ?? "";
+        }
+
         /// <summary>
         /// Called during the Init method of the view this button is being added to.
         /// </summary>
         /// <param name="view">The view this button has been added to</param>
-        public virtual void OnInit(View view) { }
+        public virtual void OnInit(View view) {
+            UpdateNameText();
+        }
     }
 }
