@@ -46,19 +46,23 @@ namespace Mod.Courier.Save {
                         Courier.UI.ModOptionButtons[i].SaveMethod.Load(option.optionValue);
                     }
                 }
+
+                foreach (OptionSaveMethod saveMethod in Courier.ModOptionSaveData) {
+                    if (!string.IsNullOrEmpty(saveMethod.optionKey) && saveMethod.optionKey.Equals(option.optionKey)) {
+                        saveMethod.Load(option.optionValue);
+                    }
+                }
             }
         }
 
         public void UpdateOptionsData() {
-            OptionPair[] allOptions = new OptionPair[Courier.UI.OptionButtons.Count + Courier.UI.ModOptionButtons.Count];
-            int numSavableOptions = 0;
+            List<OptionPair> allOptions = new List<OptionPair>();
 
             for(int i = 0; i < Courier.UI.OptionButtons.Count; i++) {
                 string val = Courier.UI.OptionButtons[i].SaveMethod.Save();
 
                 if (!string.IsNullOrEmpty(Courier.UI.OptionButtons[i].SaveMethod.optionKey) && !string.IsNullOrEmpty(val)) {
-                    allOptions[i] = new OptionPair { optionKey = Courier.UI.OptionButtons[i].SaveMethod.optionKey, optionValue = val };
-                    numSavableOptions++;
+                    allOptions.Add(new OptionPair { optionKey = Courier.UI.OptionButtons[i].SaveMethod.optionKey, optionValue = val });
                 }
             }
 
@@ -66,18 +70,19 @@ namespace Mod.Courier.Save {
                 string val = Courier.UI.ModOptionButtons[i].SaveMethod.Save();
 
                 if (!string.IsNullOrEmpty(Courier.UI.ModOptionButtons[i].SaveMethod.optionKey) && !string.IsNullOrEmpty(val)) {
-                    allOptions[Courier.UI.OptionButtons.Count + i] = new OptionPair { optionKey = Courier.UI.ModOptionButtons[i].SaveMethod.optionKey, optionValue = val };
-                    numSavableOptions++;
+                    allOptions.Add(new OptionPair { optionKey = Courier.UI.ModOptionButtons[i].SaveMethod.optionKey, optionValue = val });
                 }
             }
 
-            Options = new OptionPair[numSavableOptions];
-            for(int i = 0, option = 0; i < allOptions.Length; i++) {
-                if(allOptions[i] != null) {
-                    Options[option] = allOptions[i];
-                    option++;
+            foreach (OptionSaveMethod saveMethod in Courier.ModOptionSaveData) {
+                string val = saveMethod.Save();
+
+                if (!string.IsNullOrEmpty(saveMethod.optionKey) && !string.IsNullOrEmpty(val)) {
+                    allOptions.Add(new OptionPair { optionKey = saveMethod.optionKey, optionValue = val });
                 }
             }
+
+            Options = allOptions.ToArray();
         }
     }
 

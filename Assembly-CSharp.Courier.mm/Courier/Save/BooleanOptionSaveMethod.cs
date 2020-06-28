@@ -1,7 +1,7 @@
 ﻿using System;
 namespace Mod.Courier.Save {
     public class BooleanOptionSaveMethod : OptionSaveMethod {
-        public Func<bool> GetBooleanValue;//
+        public Func<bool> GetBooleanValue;
         public Action<bool> SetBooleanValue;
 
         public BooleanOptionSaveMethod(string optionKey, Func<bool> GetBooleanValue, Action<bool> SetBooleanValue) {

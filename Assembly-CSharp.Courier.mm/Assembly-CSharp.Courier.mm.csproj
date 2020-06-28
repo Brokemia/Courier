@@ -180,6 +180,8 @@
     <Compile Include="Courier\Helpers\CourierShaderAdder.cs" />
     <Compile Include="Courier\Helpers\CourierParticleSystemShaderAdder.cs" />
     <Compile Include="Patches\LanguageSelector.cs" />
+    <Compile Include="Courier\Helpers\CourierDimensionPortalShaderAdder.cs" />
+    <Compile Include="Courier\Save\CharacterOptionSaveMethod.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Patches\" />

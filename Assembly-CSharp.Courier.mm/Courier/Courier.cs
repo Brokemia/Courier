@@ -7,13 +7,14 @@ using Ionic.Zip;
 using Mod.Courier.GFX;
 using Mod.Courier.Helpers;
 using Mod.Courier.Module;
+using Mod.Courier.Save;
 using Tommy;
 using UnityEngine;
 
 namespace Mod.Courier {
     public static partial class Courier {
 
-        public static Version CourierVersion = new Version(0, 6, 3);
+        public static Version CourierVersion = new Version(0, 6, 4);
 
         public static string CourierVersionString = "Courier v" + CourierVersion + "-alpha";
 
@@ -28,7 +29,12 @@ namespace Mod.Courier {
         public static List<CourierModuleMetadata> Mods = new List<CourierModuleMetadata>();
 
         public static List<CourierModuleMetadata> DeferredMods = new List<CourierModuleMetadata>();
-        
+
+        /// <summary>
+        /// All the save data that isn't linked to a button.
+        /// </summary>
+        public static List<OptionSaveMethod> ModOptionSaveData = new List<OptionSaveMethod>();
+
         private static Dictionary<string, Sprite> embeddedSprites;
 
         private static bool spriteParamsSetup;
