@@ -1,10 +1,11 @@
 ﻿using System;
 using System.IO;
 using System.Reflection;
+using Mod.Courier.Helpers;
 using Mod.Courier.UI;
 using UnityEngine;
 
-namespace Mod.Courier.Helpers {
+namespace Mod.Courier.Save {
     public static class SaveLoadJSON {
         public static string SAVE_TO_JSON_BUTTON_LOC_ID = "COURIER_SAVE_TO_JSON_BUTTON";
         public static string LOAD_FROM_JSON_BUTTON_LOC_ID = "COURIER_LOAD_FROM_JSON_BUTTON";

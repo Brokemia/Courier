@@ -158,7 +158,6 @@
     <Compile Include="Courier\Helpers\AnimationExtensions.cs" />
     <Compile Include="Patches\CreditScreen.cs" />
     <Compile Include="Patches\WeakReference.cs" />
-    <Compile Include="Courier\Helpers\SaveLoadJSON.cs" />
     <Compile Include="Patches\SaveGame.cs" />
     <Compile Include="Patches\SaveLoadStandalone.cs" />
     <Compile Include="Courier\Save\OptionSaveMethod.cs" />
@@ -182,6 +181,9 @@
     <Compile Include="Patches\LanguageSelector.cs" />
     <Compile Include="Courier\Helpers\CourierDimensionPortalShaderAdder.cs" />
     <Compile Include="Courier\Save\CharacterOptionSaveMethod.cs" />
+    <Compile Include="Patches\RichPresenceManager.cs" />
+    <Compile Include="Courier\Save\SaveLoadJSON.cs" />
+    <Compile Include="Courier\RichPresence\RichPresenceCourier.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Patches\" />
@@ -191,6 +193,7 @@
     <Folder Include="Courier\UI\" />
     <Folder Include="Courier\GFX\" />
     <Folder Include="Courier\Save\" />
+    <Folder Include="Courier\RichPresence\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

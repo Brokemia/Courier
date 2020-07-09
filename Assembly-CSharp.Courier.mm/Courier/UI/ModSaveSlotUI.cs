@@ -9,6 +9,8 @@ using UnityEngine.UI;
 
 namespace Mod.Courier.UI {
     public class ModSaveSlotUI : MonoBehaviour, ISelectHandler, IDeselectHandler, ISubmitHandler, IEventSystemHandler {
+        public const string modLevelLocIDPrefix = "COURIER_MOD_LEVEL_";
+
         public AudioObjectDefinition submitSFX;
 
         public TextMeshProUGUI saveGameName;
@@ -117,7 +119,7 @@ namespace Mod.Courier.UI {
                 slot.CheckpointSaveInfo.playerLocationSceneName = "???";
             }
             string editorSceneName = Manager<LevelManager>.Instance.GetEditorSceneName(slot.CheckpointSaveInfo.playerLocationSceneName);
-            locationName.text = Manager<LocalizationManager>.Instance.GetText("COURIER_MOD_LEVEL_" + editorSceneName);
+            locationName.text = Manager<LocalizationManager>.Instance.GetText(modLevelLocIDPrefix + editorSceneName);
             timeShardQuantity.text = GetItemQuantity(EItems.TIME_SHARD, slot.Items).ToString();
             if (Manager<LevelManager>.Instance.GetEditorSceneName(slot.CheckpointSaveInfo.playerLocationSceneName) == ELevel.Level_13_TowerOfTimeHQ.ToString() || slot.CheckpointSaveInfo.loadedLevelDimension == EBits.BITS_16) {
                 playerImage_16.gameObject.SetActive(true);

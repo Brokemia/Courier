@@ -20,7 +20,6 @@ public class patch_SaveGameSelectionScreen : SaveGameSelectionScreen {
         GameObjectTemplates.textEntryPopup.eraseLetterSFX = popupCopy.eraseLetterSFX;
         GameObjectTemplates.textEntryPopup.name = "ModdedTextEntry";
         // Iterate backwards so elements don't shift as lower ones are removed
-        // If you know, you know
         for (int i = popupCopy.transform.childCount - 1; i >= 0; i--) {
             popupCopy.transform.GetChild(i).SetParent(GameObjectTemplates.textEntryPopup.transform, false);
         }
