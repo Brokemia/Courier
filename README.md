@@ -1,12 +1,14 @@
 # Courier Mod Loader
 
-A mod loader for Sabotage Studio's The Messenger. Join our [Discord Server](https://discord.gg/dm8Wbg) for support and additional discussion.
+A mod loader for Sabotage Studio's The Messenger. Join our [Discord Server](https://discord.gg/BNrn9rh) for support and additional discussion.
 
 ## Installation Instructions
 
 1) Download Courier-vX.X.zip from our [releases](https://github.com/Brokemia/Courier/releases) page.
 2) Move contents of the zip release file to your TheMessenger.exe folder and overwrite any files with the same name.
 3) Run the MiniInstaller.exe. Use [Mono](https://www.mono-project.com/) (Preferred) or [Wine](https://www.winehq.org/) to run MiniInstaller.exe if you are on Mac OS/Linux/*nix.
+
+*More detailed instructions can be found by clicking going to [this page](https://github.com/Brokemia/Courier/wiki/Installing-Courier/)*
 
 ### Installer not working?
 * *If the files Assembly-CSharp.Postman.mm.dll and Assembly-CSharp.Postman.mm.pdb are in your \The Messenger\TheMessenger_Data\Managed folder from a previous release, you need to delete them before installing a new version.*
