@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Mod.Courier.Save;
 
 namespace Mod.Courier.Module {
@@ -23,6 +24,16 @@ namespace Mod.Courier.Module {
         }
 
         public virtual string NameLocID {
+            get;
+            set;
+        }
+
+        public virtual List<int> StartingInventory {
+            get;
+            set;
+        }
+
+        public virtual EBits StartingBits {
             get;
             set;
         }

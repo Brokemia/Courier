@@ -716,7 +716,7 @@ namespace Mod.Courier.UI {
             ArmoireInteractionTrigger.currentDialogIndex = 0;
 
             CourierLevelSet levelSet = Courier.FindLevelSetWithSlotID(slotIndex);
-            LaunchNewGame(levelSet.StartingScene + "_Build");
+            LaunchNewGame(levelSet, levelSet.StartingScene + "_Build");
         }
 
         public void OnLoadGame(int slotIndex) {
@@ -762,12 +762,15 @@ namespace Mod.Courier.UI {
             LaunchGame(text, Manager<ProgressionManager>.Instance.checkpointSaveInfo);
         }
 
-        private void LaunchNewGame(string levelToLoad) {
+        private void LaunchNewGame(CourierLevelSet levelSet, string levelToLoad) {
             Manager<SaveManager>.Instance.ForceEnableSave();
-            LevelLoadingInfo levelLoadingInfo = new LevelLoadingInfo(levelToLoad, true, true, EBits.BITS_8) {
+            LevelLoadingInfo levelLoadingInfo = new LevelLoadingInfo(levelToLoad, true, true, levelSet.StartingBits) {
                 showLevelIntro = false,
                 levelEntranceId = ELevelEntranceID.ENTRANCE_A
             }; // TODO Choose starting bits and inventory
+            foreach(int item in levelSet.StartingInventory) {
+                Manager<InventoryManager>.Instance.AddItem((EItems)item, 1);
+            }
             Manager<ProgressionManager>.Instance.lastSaveTime = Time.time;
             Manager<InputManager>.Instance.CancelJumpTimeDown();
             levelLoadingInfo.bootInTotHQ = false;

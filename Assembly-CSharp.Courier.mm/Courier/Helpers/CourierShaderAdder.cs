@@ -11,7 +11,15 @@ namespace Mod.Courier.Helpers {
         public string desiredShader;
 
         void Awake() {
-            renderer.material.shader = Shader.Find(desiredShader);
+            foreach (Material m in renderer.materials) {
+                m.shader = Shader.Find(desiredShader);
+            }
+        }
+
+        void Start() {
+            foreach (Material m in renderer.materials) {
+                m.shader = Shader.Find(desiredShader);
+            }
         }
     }
 }

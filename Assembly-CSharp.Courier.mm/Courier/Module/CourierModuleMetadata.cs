@@ -96,7 +96,21 @@ namespace Mod.Courier.Module {
             if (table.HasKey("level-sets")) {
                 TomlArray levelSets = table["level-sets"].AsArray;
                 foreach (TomlNode levelSet in levelSets) {
-                    result.LevelSets.Add(new CourierLevelSet { StartingScene = levelSet["starting-scene"].AsString.Value, NameLocID = levelSet["name-loc-ID"].AsString.Value });
+                    CourierLevelSet ls = new CourierLevelSet { StartingScene = levelSet["starting-scene"].AsString.Value, NameLocID = levelSet["name-loc-ID"].AsString.Value };
+
+                    if (levelSet.HasKey("starting-inventory")) {
+                        TomlArray invItems = levelSet["starting-inventory"].AsArray;
+                        ls.StartingInventory = new List<int>();
+                        foreach (TomlNode invItem in invItems) {
+                            ls.StartingInventory.Add(invItem.AsInteger);
+                        }
+                    }
+
+                    if (levelSet.HasKey("starting-bits")) {
+                        ls.StartingBits = levelSet["starting-bits"].AsInteger == 16 ? EBits.BITS_16 : EBits.BITS_8;
+                    }
+
+                    result.LevelSets.Add(ls);
                 }
             }
             
