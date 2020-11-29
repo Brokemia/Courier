@@ -14,7 +14,7 @@ using UnityEngine;
 namespace Mod.Courier {
     public static partial class Courier {
 
-        public static Version CourierVersion = new Version(0, 6, 6);
+        public static Version CourierVersion = new Version(0, 6, 7);
 
         public static string CourierVersionString = "Courier v" + CourierVersion + "-alpha";
 
@@ -382,9 +382,11 @@ namespace Mod.Courier {
         public static T LoadFromAssetBundles<T>(string path) where T : UnityEngine.Object {
             foreach (CourierModuleMetadata modMeta in Mods) {
                 foreach (AssetBundle ab in modMeta.AssetBundles) {
-                    T asset = ab.LoadAsset<T>(path);
-                    if (asset != null) {
-                        return asset;
+                    if (!ab.isStreamedSceneAssetBundle) {
+                        T asset = ab.LoadAsset<T>(path);
+                        if (asset != null) {
+                            return asset;
+                        }
                     }
                 }
             }
