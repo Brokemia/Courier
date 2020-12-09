@@ -811,7 +811,6 @@ namespace Mod.Courier.UI {
             FixShaders();
         }
 
-
         private void FixShaders() {
             Manager<DimensionManager>.Instance.mask8.shader = Shader.Find("DimensionZone/Masks/8_Bit_SinWave");
             Manager<DimensionManager>.Instance.mask16.shader = Shader.Find("DimensionZone/Masks/16_Bit_SinWave");
@@ -821,29 +820,6 @@ namespace Mod.Courier.UI {
             Manager<DimensionManager>.Instance.outlineMask16.shader = Shader.Find("DimensionZone/Masks/16_Bit_LucioleOutlineMask");
             Manager<DimensionManager>.Instance.mask8Expanding.shader = Shader.Find("DimensionZone/Masks/8_Bit_Expanding");
             Manager<DimensionManager>.Instance.mask16Expanding.shader = Shader.Find("DimensionZone/Masks/16_Bit_Expanding");
-
-            SpriteRenderer spriteRenderer = GameObject.Find("Quarble8")?.GetComponent<SpriteRenderer>();
-            if (spriteRenderer != null) {
-                spriteRenderer.material.shader = Shader.Find("Sprites/8_Bits");
-                spriteRenderer = spriteRenderer.transform.parent.Find("Quarble16").GetComponent<SpriteRenderer>();
-                spriteRenderer.material.shader = Shader.Find("Sprites/16_Bits");
-                spriteRenderer = spriteRenderer.transform.parent.Find("Wings_16").GetComponent<SpriteRenderer>();
-                spriteRenderer.material.shader = Shader.Find("Sprites/16_Bits");
-
-                Quarble quarble = spriteRenderer.transform.parent.GetComponent<Quarble>();
-                DynData<Quarble> quarbleData = new DynData<Quarble>(quarble);
-                //quarbleData.Set("gtfo", true);
-
-                //quarble.GetComponent<MultiAnimator>().
-                //quarble.GetComponent<MultiAnimator>().Play("Empty", 0, 0);
-                //quarble.GetComponent<MultiAnimator>().ForceUpdate(100);
-                //quarble.isScared = false;
-                //quarble.Visible = true;
-                //quarble.Visible = false;
-                quarble.GetComponent<MultiAnimator>().Play("Idle", 0, 0);
-                //quarble.GetComponent<MultiAnimator>().SetTrigger("TeleportOut");
-                //spriteRenderer.transform.parent.GetComponent<Quarble>().FearGTFO(1, 1);
-            }
         }
     }
 
