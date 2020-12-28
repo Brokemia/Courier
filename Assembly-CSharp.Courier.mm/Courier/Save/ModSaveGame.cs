@@ -65,7 +65,7 @@ namespace Mod.Courier.Save {
             for(int i = 0; i < Courier.UI.OptionButtons.Count; i++) {
                 string val = Courier.UI.OptionButtons[i].SaveMethod.Save();
 
-                if (!string.IsNullOrEmpty(Courier.UI.OptionButtons[i].SaveMethod.optionKey) && !string.IsNullOrEmpty(val)) {
+                if (!string.IsNullOrEmpty(Courier.UI.OptionButtons[i].SaveMethod.optionKey) && !string.IsNullOrEmpty(val) && !allOptions.Exists((p) => p.optionKey.Equals(Courier.UI.OptionButtons[i].SaveMethod.optionKey))) {
                     allOptions.Add(new OptionPair { optionKey = Courier.UI.OptionButtons[i].SaveMethod.optionKey, optionValue = val });
                 }
             }
@@ -73,7 +73,7 @@ namespace Mod.Courier.Save {
             for (int i = 0; i < Courier.UI.ModOptionButtons.Count; i++) {
                 string val = Courier.UI.ModOptionButtons[i].SaveMethod.Save();
 
-                if (!string.IsNullOrEmpty(Courier.UI.ModOptionButtons[i].SaveMethod.optionKey) && !string.IsNullOrEmpty(val)) {
+                if (!string.IsNullOrEmpty(Courier.UI.ModOptionButtons[i].SaveMethod.optionKey) && !string.IsNullOrEmpty(val) && !allOptions.Exists((p) => p.optionKey.Equals(Courier.UI.ModOptionButtons[i].SaveMethod.optionKey))) {
                     allOptions.Add(new OptionPair { optionKey = Courier.UI.ModOptionButtons[i].SaveMethod.optionKey, optionValue = val });
                 }
             }
@@ -81,7 +81,7 @@ namespace Mod.Courier.Save {
             foreach (OptionSaveMethod saveMethod in Courier.ModOptionSaveData) {
                 string val = saveMethod.Save();
 
-                if (!string.IsNullOrEmpty(saveMethod.optionKey) && !string.IsNullOrEmpty(val)) {
+                if (!string.IsNullOrEmpty(saveMethod.optionKey) && !string.IsNullOrEmpty(val) && !allOptions.Exists((p) => p.optionKey.Equals(saveMethod.optionKey))) {
                     allOptions.Add(new OptionPair { optionKey = saveMethod.optionKey, optionValue = val });
                 }
             }
