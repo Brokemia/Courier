@@ -32,7 +32,7 @@ public class patch_OptionScreen : OptionScreen {
     }
 
     public void OnGUI() {
-        // Needs to be changed when I get TextLocalizer to cooperate and stuff
+        // TODO Needs to be changed when I get TextLocalizer to cooperate and stuff
         for (int i = 0; i < Courier.UI.OptionButtons.Count; i++) {
             OptionsButtonInfo buttonInfo = Courier.UI.OptionButtons[i];
             //buttonInfo.nameTextMesh.text = buttonInfo.GetText?.Invoke() ?? "";

@@ -27,6 +27,10 @@ namespace Mod.Courier.Save {
             // Temporarily remove empty mod save slots
             List<SaveGameSlot> allSlots = new List<SaveGameSlot>(modSaveSlots);
             modSaveSlots.RemoveAll((slot) => slot == null || slot.IsEmpty());
+
+            // Update mod save options
+            UpdateOptionsData();
+
             string json = JsonUtility.ToJson(this);
             modSaveSlots = allSlots;
             return json;
