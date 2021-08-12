@@ -91,7 +91,7 @@ namespace Mod.Courier.UI {
             }
             if (slot.IsEmpty()) {
                 SetDefaultName();
-                locationName.text = Manager<LocalizationManager>.Instance.GetText(Courier.FindLevelSetWithSlotID(slotIndex).NameLocID);
+                locationName.text = Manager<LocalizationManager>.Instance.GetText(Courier.FindLevelSetWithSlotID(slotIndex)?.NameLocID ?? "???");
                 timePlayed.text = "000:00:00";
                 timeShardQuantity.text = string.Empty;
                 powerSealQuantity.text = string.Empty;

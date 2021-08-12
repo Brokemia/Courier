@@ -45,7 +45,7 @@ namespace Mod.Courier.Module {
 
         public int SlotID {
             get;
-            private set;
+            set;
         }
 
         public SaveGameSlot Slot {

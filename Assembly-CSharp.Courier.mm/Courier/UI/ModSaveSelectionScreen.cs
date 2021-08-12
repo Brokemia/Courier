@@ -87,11 +87,10 @@ namespace Mod.Courier.UI {
 
         private EScreenState state;
 
-        public int numSlots;
+        public int numSlots => ModSaveGame.Instance.modSaveSlots.Count;
 
         public override void Init(IViewParams screenParams) {
             base.Init(screenParams);
-            numSlots = ModSaveGame.Instance.modSaveSlots.Count;
             CreateSaveSlots();
             saveGameSelected = false;
             newGamePlusPopup.SetActive(false);
@@ -394,10 +393,18 @@ namespace Mod.Courier.UI {
             EventSystem.current.SetSelectedGameObject(null);
             if (delete) {
                 focusedSlot.Delete();
-                for (int i = 0; i < slotsUI.Count; i++) {
-                    slotsUI[i].SetSaveData(ModSaveGame.Instance.modSaveSlots[i], i);
-                    // TODO Delete the save slot from the UI
+                ModSaveGame.Instance.modSaveSlots.RemoveAt(focusedSlot.slotIndex);
+                // Adjust which slot starts a new game in a particular level set
+                foreach (CourierModuleMetadata modMeta in Courier.Mods) {
+                    foreach (CourierLevelSet levelSet in modMeta.LevelSets) {
+                        levelSet.SlotID--;
+                    }
                 }
+                for (int i = 0; i < slotsUI.Count - 1; i++) {
+                    slotsUI[i].SetSaveData(ModSaveGame.Instance.modSaveSlots[i], i);
+                }
+                slotsUI.RemoveAt(slotsUI.Count - 1);
+                
             }
             StartCoroutine(ReturnFocusedSlotToOriginalPosition(SelectSlot));
         }
