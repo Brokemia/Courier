@@ -14,7 +14,7 @@ using UnityEngine;
 namespace Mod.Courier {
     public static partial class Courier {
 
-        public static Version CourierVersion = new Version(0, 6, 9);
+        public static Version CourierVersion = new Version(0, 6, 10);
 
         public static string CourierVersionString = "Courier v" + CourierVersion + "-alpha";
 
