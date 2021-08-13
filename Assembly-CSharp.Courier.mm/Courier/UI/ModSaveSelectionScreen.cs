@@ -596,7 +596,7 @@ namespace Mod.Courier.UI {
                 // Indicate mods by selecting slot 3, which doesn't exist
                 Manager<SaveManager>.Instance.SelectSaveGameSlot(3);
                 ModSaveGame.Instance.currentModSaveSlotIndex = loadGameSelectedSlot.slotIndex;
-                LoadNewGame(loadGameSelectedSlot.slotIndex);
+                LoadNewGame(loadGameSelectedSlot.slotIndex, Courier.FindLevelSetWithSlotID(loadGameSelectedSlot.slotIndex));
                 return;
             }
             EventSystem.current.SetSelectedGameObject(null);
@@ -636,7 +636,8 @@ namespace Mod.Courier.UI {
                     ModSaveGame.Instance.modSaveSlots[ModSaveGame.Instance.currentModSaveSlotIndex].ResetNewGamePlus(true);
                     ModSaveGame.Instance.modSaveSlots[ModSaveGame.Instance.currentModSaveSlotIndex].MustSelectItem = false;
                 }
-                LoadNewGame(loadGameSelectedSlot.slotIndex);
+                // TODO This probably doesn't work for NG+ but I'll ignore that for now
+                LoadNewGame(loadGameSelectedSlot.slotIndex, Courier.FindLevelSetWithSlotID(loadGameSelectedSlot.slotIndex));
             }
         }
 
@@ -706,23 +707,39 @@ namespace Mod.Courier.UI {
             Manager<SaveManager>.Instance.SelectSaveGameSlot(3);
             ModSaveGame.Instance.currentModSaveSlotIndex = realSlot.slotIndex;
             if (!realSlot.saveGameSlot.NewGamePlus) {
-                if (realSlot.saveGameSlot == null) {
-                    realSlot.saveGameSlot = new SaveGameSlot();
+                int newSlotIndex = ModSaveGame.Instance.modSaveSlots.Count;
+                for (int i = 0; i < ModSaveGame.Instance.modSaveSlots.Count; i++) {
+                    if (ModSaveGame.Instance.modSaveSlots[i] == null || ModSaveGame.Instance.modSaveSlots[i].IsEmpty()) {
+                        newSlotIndex = i;
+                        break;
+                    }
                 }
-                realSlot.saveGameSlot.Create(true);
+                var newSlot = new SaveGameSlot();
+                newSlot.Clear(true);
+                ModSaveGame.Instance.modSaveSlots.Insert(newSlotIndex, newSlot);
+                // Adjust which slot starts a new game in a particular level set
+                foreach (CourierModuleMetadata modMeta in Courier.Mods) {
+                    foreach (CourierLevelSet levelSet in modMeta.LevelSets) {
+                        if (levelSet.SlotID >= newSlotIndex) {
+                            levelSet.SlotID++;
+                        }
+                    }
+                }
+                ModSaveGame.Instance.currentModSaveSlotIndex = newSlotIndex;
+                newSlot.Create(true);
+                realSlot.slotIndex++;
             }
             ModSaveGame.Instance.modSaveSlots[ModSaveGame.Instance.currentModSaveSlotIndex].SlotName = slotName;
-            LoadNewGame(realSlot.slotIndex);
+            LoadNewGame(ModSaveGame.Instance.currentModSaveSlotIndex, Courier.FindLevelSetWithSlotID(realSlot.slotIndex));
         }
 
-        public void LoadNewGame(int slotIndex) {
+        public void LoadNewGame(int slotIndex, CourierLevelSet levelSet) {
             Manager<LevelManager>.Instance.onTransitionInDone += OnTransitionInDone;
 
             Manager<SaveManager>.Instance.LoadModSaveSlot(ModSaveGame.Instance.modSaveSlots[slotIndex]);
 
             ArmoireInteractionTrigger.currentDialogIndex = 0;
 
-            CourierLevelSet levelSet = Courier.FindLevelSetWithSlotID(slotIndex);
             LaunchNewGame(levelSet, levelSet.StartingScene + "_Build");
         }
 
