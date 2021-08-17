@@ -17,7 +17,6 @@ namespace Mod.Courier.UI {
         public GameObject gameObject;
         public View addedTo;
         public Func<bool> IsEnabled;
-        public OptionSaveMethod SaveMethod = new OptionSaveMethod();
 
         protected OptionsButtonInfo(Func<string> GetText, UnityAction onClick) {
             this.GetText = GetText;

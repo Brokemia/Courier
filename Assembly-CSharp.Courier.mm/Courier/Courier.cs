@@ -30,11 +30,6 @@ namespace Mod.Courier {
 
         public static List<CourierModuleMetadata> DeferredMods = new List<CourierModuleMetadata>();
 
-        /// <summary>
-        /// All the save data that isn't linked to a button.
-        /// </summary>
-        public static List<OptionSaveMethod> ModOptionSaveData = new List<OptionSaveMethod>();
-
         private static Dictionary<string, Sprite> embeddedSprites;
 
         private static bool spriteParamsSetup;
