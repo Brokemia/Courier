@@ -60,6 +60,7 @@ namespace Mod.Courier.UI {
             textEntryPopup.MaxCharacters = maxCharacter;
             textEntryPopup.charsetFlags = charsetFlags;
             textEntryPopup.transform.Find("BigFrame").Find("WhatIsYourName").GetComponent<TextMeshProUGUI>().SetText(GetHeadingText?.Invoke() ?? heading);
+            UnityEngine.Object.Destroy(textEntryPopup.transform.Find("BigFrame").Find("WhatIsYourName").GetComponent<TextLocalizer>());
             textEntryPopup.entryTextfield = textEntryPopup.transform.Find("BigFrame").Find("WhatIsYourName").Find("ActualName").GetComponent<TextMeshProUGUI>();
             textEntryPopup.entryTextfield.name = "EntryTextfield";
 
